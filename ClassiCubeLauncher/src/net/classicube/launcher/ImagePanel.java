@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.JComponent;
 
-public class ImagePanel extends JComponent {
+class ImagePanel extends JComponent {
 
     Image image;
     boolean isTiled;

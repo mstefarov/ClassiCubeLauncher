@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ItemEvent;
 
-public final class SignInScreen extends javax.swing.JFrame {
+final class SignInScreen extends javax.swing.JFrame {
 
     /**
      * Creates new form SignInScreen
