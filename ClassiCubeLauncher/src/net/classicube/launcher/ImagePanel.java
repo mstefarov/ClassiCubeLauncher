@@ -6,8 +6,8 @@ import javax.swing.JComponent;
 
 public class ImagePanel extends JComponent {
 
-    private Image image;
-    private boolean isTiled;
+    Image image;
+    boolean isTiled;
 
     public ImagePanel() {
     }

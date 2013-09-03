@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ItemEvent;
 
-public class SignInScreen extends javax.swing.JFrame {
+public final class SignInScreen extends javax.swing.JFrame {
 
     /**
      * Creates new form SignInScreen
@@ -16,6 +16,7 @@ public class SignInScreen extends javax.swing.JFrame {
         initComponents();
         
         SelectClassiCube();
+        this.cAccount.setEditable(true);
     }
 
     /**
