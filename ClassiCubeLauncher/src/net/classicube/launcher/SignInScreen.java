@@ -3,6 +3,7 @@ package net.classicube.launcher;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ItemEvent;
 
 public class SignInScreen extends javax.swing.JFrame {
 
@@ -10,10 +11,11 @@ public class SignInScreen extends javax.swing.JFrame {
      * Creates new form SignInScreen
      */
     public SignInScreen() {
-        initComponents();
-        Image bg = Resources.getClassiCubeBackground();
-        bgPanel = new TiledImagePanel(bg);
+        bgPanel = new ImagePanel(null, true);
         this.setContentPane(bgPanel);
+        initComponents();
+        
+        SelectClassiCube();
     }
 
     /**
@@ -32,18 +34,20 @@ public class SignInScreen extends javax.swing.JFrame {
         tPassword = new javax.swing.JPasswordField();
         xRememberMe = new javax.swing.JCheckBox();
         bSignIn = new javax.swing.JButton();
-        canvas1 = new java.awt.Canvas();
+        ipLogo = new net.classicube.launcher.ImagePanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(153, 128, 173));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWidths = new int[] {0, 5, 0};
         layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
         getContentPane().setLayout(layout);
 
         bClassiCubeNet.setText("ClassiCube.net");
-        bClassiCubeNet.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                bClassiCubeNet_StateChanged(evt);
+        bClassiCubeNet.setEnabled(false);
+        bClassiCubeNet.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                bClassiCubeNetItemStateChanged(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -53,6 +57,11 @@ public class SignInScreen extends javax.swing.JFrame {
         getContentPane().add(bClassiCubeNet, gridBagConstraints);
 
         bMinecraftNet.setText("Minecraft.net");
+        bMinecraftNet.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                bMinecraftNetItemStateChanged(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -68,7 +77,8 @@ public class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(cAccount, gridBagConstraints);
 
-        tPassword.setText("jPasswordField1");
+        tPassword.setText("password");
+        tPassword.setToolTipText("");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
@@ -77,6 +87,7 @@ public class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(tPassword, gridBagConstraints);
 
+        xRememberMe.setForeground(new java.awt.Color(255, 255, 255));
         xRememberMe.setText("Remember me");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -91,31 +102,55 @@ public class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bSignIn, gridBagConstraints);
 
-        canvas1.setName(""); // NOI18N
-        canvas1.setPreferredSize(new java.awt.Dimension(250, 75));
+        ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 3;
-        getContentPane().add(canvas1, gridBagConstraints);
+        getContentPane().add(ipLogo, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void bClassiCubeNet_StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_bClassiCubeNet_StateChanged
-        canvas1.setBackground(Color.red);
-    }//GEN-LAST:event_bClassiCubeNet_StateChanged
+    private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
+        if(evt.getStateChange() == ItemEvent.SELECTED){
+            SelectMinecraftNet();
+        }
+    }//GEN-LAST:event_bMinecraftNetItemStateChanged
+
+    private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
+        if(evt.getStateChange() == ItemEvent.SELECTED){
+            SelectClassiCube();
+        }
+    }//GEN-LAST:event_bClassiCubeNetItemStateChanged
     
+    void SelectClassiCube() {
+        bgPanel.setImage(Resources.getClassiCubeBackground());
+        ipLogo.setImage(Resources.getClassiCubeLogo());
+        bMinecraftNet.setEnabled(true);
+        bMinecraftNet.setSelected(false);
+        bClassiCubeNet.setEnabled(false);
+        this.repaint();
+    }
+
+    void SelectMinecraftNet() {
+        bgPanel.setImage(Resources.getMinecraftNetBackground());
+        ipLogo.setImage(Resources.getMinecraftNetLogo());
+        bClassiCubeNet.setEnabled(true);
+        bClassiCubeNet.setSelected(false);
+        bMinecraftNet.setEnabled(false);
+        this.repaint();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton bClassiCubeNet;
     private javax.swing.JToggleButton bMinecraftNet;
     private javax.swing.JButton bSignIn;
     private javax.swing.JComboBox cAccount;
-    private java.awt.Canvas canvas1;
+    private net.classicube.launcher.ImagePanel ipLogo;
     private javax.swing.JPasswordField tPassword;
     private javax.swing.JCheckBox xRememberMe;
     // End of variables declaration//GEN-END:variables
 
-    TiledImagePanel bgPanel;
+    ImagePanel bgPanel;
 }

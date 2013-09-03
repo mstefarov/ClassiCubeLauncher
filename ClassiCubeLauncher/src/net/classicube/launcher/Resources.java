@@ -7,7 +7,10 @@ import javax.imageio.ImageIO;
 
 public class Resources {
 
-    static Image classiCubeBackground = null;
+    static Image classiCubeBackground = null,
+                 minecraftNetBackground = null,
+            classiCubeLogo = null,
+                 minecraftNetLogo = null;
 
     public static Image getClassiCubeBackground() {
         if (classiCubeBackground == null) {
@@ -15,7 +18,7 @@ public class Resources {
         }
         return classiCubeBackground;
     }
-    static Image minecraftNetBackground = null;
+    
 
     public static Image getMinecraftNetBackground() {
         if (minecraftNetBackground == null) {
@@ -23,6 +26,23 @@ public class Resources {
         }
         return minecraftNetBackground;
     }
+    
+
+    public static Image getClassiCubeLogo() {
+        if (classiCubeLogo == null) {
+            classiCubeLogo = loadImage("/images/ClassiCubeLogo.png");
+        }
+        return classiCubeLogo;
+    }
+    
+
+    public static Image getMinecraftNetLogo() {
+        if (minecraftNetLogo == null) {
+            minecraftNetLogo = loadImage("/images/MinecraftNetLogo.png");
+        }
+        return minecraftNetLogo;
+    }
+    
 
     public static Image loadImage(String fileName) {
         try {

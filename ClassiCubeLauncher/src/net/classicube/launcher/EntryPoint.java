@@ -1,7 +1,7 @@
 package net.classicube.launcher;
 
 public class EntryPoint {
-    public static void Run(){
+    public static void main( String[] args ){
         // set look-and-feel to Numbus
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
