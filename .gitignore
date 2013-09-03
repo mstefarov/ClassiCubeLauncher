@@ -1,6 +1,16 @@
 *.class
 
-# Package Files #
+# package files
 *.jar
 *.war
 *.ear
+
+# binaries
+ClassiCubeLauncher/build/*
+ClassiCubeLauncher/dist/*
+ClassiCubeSelfUpdater/build/*
+ClassiCubeSelfUpdater/dist/*
+
+# local settings
+ClassiCubeLauncher/nbproject/private/*
+ClassiCubeSelfUpdater/nbproject/private/*
