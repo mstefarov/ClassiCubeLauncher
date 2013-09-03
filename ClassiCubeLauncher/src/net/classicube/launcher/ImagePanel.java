@@ -4,10 +4,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.JComponent;
 
-class ImagePanel extends JComponent {
-
-    Image image;
-    boolean isTiled;
+public class ImagePanel extends JComponent {
 
     public ImagePanel() {
     }
@@ -41,4 +38,7 @@ class ImagePanel extends JComponent {
             g.drawImage(image, 0, 0, iw, ih, this);
         }
     }
+    Image image;
+    boolean isTiled;
+    static final long serialVersionUID = 1L;
 }

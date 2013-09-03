@@ -1,9 +1,7 @@
 package net.classicube.launcher;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.ItemEvent;
+import javax.swing.border.EmptyBorder;
 
 final class SignInScreen extends javax.swing.JFrame {
 
@@ -13,10 +11,11 @@ final class SignInScreen extends javax.swing.JFrame {
     public SignInScreen() {
         bgPanel = new ImagePanel(null, true);
         this.setContentPane(bgPanel);
+        bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
-        
-        SelectClassiCube();
         this.cAccount.setEditable(true);
+
+        SelectClassiCube();
     }
 
     /**
@@ -31,18 +30,17 @@ final class SignInScreen extends javax.swing.JFrame {
 
         bClassiCubeNet = new javax.swing.JToggleButton();
         bMinecraftNet = new javax.swing.JToggleButton();
-        cAccount = new javax.swing.JComboBox();
+        cAccount = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
         xRememberMe = new javax.swing.JCheckBox();
         bSignIn = new javax.swing.JButton();
         ipLogo = new net.classicube.launcher.ImagePanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ClassiCube Launcher");
         setBackground(new java.awt.Color(153, 128, 173));
-        java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
-        layout.columnWidths = new int[] {0, 5, 0};
-        layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
-        getContentPane().setLayout(layout);
+        setName("ClassiCube Launcher"); // NOI18N
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
         bClassiCubeNet.setText("ClassiCube.net");
         bClassiCubeNet.setEnabled(false);
@@ -69,7 +67,6 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_END;
         getContentPane().add(bMinecraftNet, gridBagConstraints);
 
-        cAccount.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -114,23 +111,24 @@ final class SignInScreen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
-        if(evt.getStateChange() == ItemEvent.SELECTED){
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
             SelectMinecraftNet();
         }
     }//GEN-LAST:event_bMinecraftNetItemStateChanged
 
     private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
-        if(evt.getStateChange() == ItemEvent.SELECTED){
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
             SelectClassiCube();
         }
     }//GEN-LAST:event_bClassiCubeNetItemStateChanged
-    
+
     void SelectClassiCube() {
         bgPanel.setImage(Resources.getClassiCubeBackground());
         ipLogo.setImage(Resources.getClassiCubeLogo());
         bMinecraftNet.setEnabled(true);
         bMinecraftNet.setSelected(false);
         bClassiCubeNet.setEnabled(false);
+        SetAccountManager("ClassiCube.net");
         this.repaint();
     }
 
@@ -140,18 +138,27 @@ final class SignInScreen extends javax.swing.JFrame {
         bClassiCubeNet.setEnabled(true);
         bClassiCubeNet.setSelected(false);
         bMinecraftNet.setEnabled(false);
+        SetAccountManager("Minecraft.net");
         this.repaint();
     }
 
+    void SetAccountManager(String serviceName) {
+        accountManager = new AccountManager(serviceName);
+        this.cAccount.removeAllItems();
+        for (UserAccount account : accountManager.GetAccountsBySignInDate()) {
+            this.cAccount.addItem(account.SignInUsername);
+        }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton bClassiCubeNet;
     private javax.swing.JToggleButton bMinecraftNet;
     private javax.swing.JButton bSignIn;
-    private javax.swing.JComboBox cAccount;
+    private javax.swing.JComboBox<String> cAccount;
     private net.classicube.launcher.ImagePanel ipLogo;
     private javax.swing.JPasswordField tPassword;
     private javax.swing.JCheckBox xRememberMe;
     // End of variables declaration//GEN-END:variables
-
     ImagePanel bgPanel;
+    AccountManager accountManager;
+    static final long serialVersionUID = 1L;
 }

@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 public class EntryPoint {
-
     public static void main(String[] args) {
         // set look-and-feel to Numbus
         try {
@@ -22,7 +21,7 @@ public class EntryPoint {
                 UnsupportedLookAndFeelException ex) {
             Logger.getLogger(SignInScreen.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
         // display the form
         new SignInScreen().setVisible(true);
     }

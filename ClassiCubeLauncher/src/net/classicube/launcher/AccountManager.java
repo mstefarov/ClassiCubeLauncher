@@ -7,27 +7,27 @@ import java.util.prefs.Preferences;
 
 class AccountManager {
 
-    public AccountManager(Preferences store) {
-        this.store = store;
+    public AccountManager(String keyName) {
+        this.store = Preferences.userNodeForPackage(this.getClass()).node(keyName);
     }
 
     public void Load() throws BackingStoreException {
         for (String accountName : store.childrenNames()) {
             UserAccount acct = new UserAccount(store.node(accountName));
-            accounts.put(acct.PlayerName, acct);
+            accounts.put(acct.SignInUsername.toLowerCase(), acct);
         }
     }
 
     public void Store() throws BackingStoreException {
         Clear();
         for (UserAccount acct : accounts.values()) {
-            acct.Store(store.node(acct.SignInUsername));
+            acct.Store(store.node(acct.SignInUsername.toLowerCase()));
         }
     }
 
     public void Clear() throws BackingStoreException {
         for (String accountName : store.childrenNames()) {
-            store.node(accountName).removeNode();
+            store.node(accountName.toLowerCase()).removeNode();
         }
     }
 
