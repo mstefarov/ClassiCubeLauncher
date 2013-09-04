@@ -1,9 +1,9 @@
 package net.classicube.launcher;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 public class EntryPoint {
     public static void main(String[] args) {

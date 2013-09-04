@@ -3,14 +3,16 @@ package net.classicube.launcher;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 class Resources {
 
     static Image classiCubeBackground = null,
-                 minecraftNetBackground = null,
+            minecraftNetBackground = null,
             classiCubeLogo = null,
-                 minecraftNetLogo = null;
+            minecraftNetLogo = null;
 
     public static Image getClassiCubeBackground() {
         if (classiCubeBackground == null) {
@@ -18,7 +20,6 @@ class Resources {
         }
         return classiCubeBackground;
     }
-    
 
     public static Image getMinecraftNetBackground() {
         if (minecraftNetBackground == null) {
@@ -26,7 +27,6 @@ class Resources {
         }
         return minecraftNetBackground;
     }
-    
 
     public static Image getClassiCubeLogo() {
         if (classiCubeLogo == null) {
@@ -34,7 +34,6 @@ class Resources {
         }
         return classiCubeLogo;
     }
-    
 
     public static Image getMinecraftNetLogo() {
         if (minecraftNetLogo == null) {
@@ -42,14 +41,13 @@ class Resources {
         }
         return minecraftNetLogo;
     }
-    
 
     public static Image loadImage(String fileName) {
+        URL imageUrl = Resources.class.getResource(fileName);
         try {
-            URL imageUrl = Resources.class.getResource(fileName);
             return ImageIO.read(imageUrl);
         } catch (IOException ex) {
-            // TODO: log ex
+            Logger.getLogger(Resources.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }

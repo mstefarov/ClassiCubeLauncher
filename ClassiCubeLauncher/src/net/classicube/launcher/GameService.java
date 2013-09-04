@@ -1,11 +1,6 @@
 package net.classicube.launcher;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -94,7 +89,7 @@ abstract class GameService {
         } catch (IOException ex) {
             Logger.getLogger(GameService.class.getName()).log(Level.SEVERE, null, ex);
             return null;
-            
+
         } finally {
             if (connection != null) {
                 connection.disconnect();
