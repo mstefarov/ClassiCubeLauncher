@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.net.URI;
 import java.util.prefs.Preferences;
 
 public class MinecraftNetService extends GameService {
@@ -35,6 +36,11 @@ public class MinecraftNetService extends GameService {
 
     @Override
     public String getSkinUrl() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public URI getSiteUri() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

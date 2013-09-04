@@ -1,11 +1,10 @@
 package net.classicube.launcher;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 abstract class GameService {
@@ -33,6 +32,10 @@ abstract class GameService {
 
     // Gets base skin URL (to pass to the client)
     public abstract String getSkinUrl();
+    
+    // Gets site URL (for cookie filtering)
+    public abstract URI getSiteUri();
+    
 
     protected HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
             throws MalformedURLException, IOException {
@@ -44,6 +47,7 @@ abstract class GameService {
         connection.addRequestProperty("REFERER", referer);
         if (postData != null) {
             connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Content-Length", Integer.toString(postData.length));
             connection.setDoOutput(true);
         } else {
@@ -52,10 +56,12 @@ abstract class GameService {
         return connection;
     }
 
+    // download a string using GET
     protected String DownloadString(String urlString) {
         return UploadString(urlString, null);
     }
 
+    // upload a string using POST, and then download the response
     protected String UploadString(String urlString, String dataString) {
         HttpURLConnection connection = null;
         byte[] data = null;
@@ -96,4 +102,38 @@ abstract class GameService {
             }
         }
     }
+    
+    
+    protected void ClearCookies(){
+        cookieJar.removeAll();
+    }
+    
+    
+    protected void StoreCookies(Preferences pref){
+        for (HttpCookie cookie: cookieJar.getCookies()){
+            pref.put(cookie.getName(), cookie.toString());
+        }
+    }
+    
+    
+    protected void LoadCookies(Preferences pref){
+        try {
+            for(String cookieName : pref.keys()){
+                HttpCookie newCookie = new HttpCookie(cookieName,pref.get(cookieName, null));
+                cookieJar.add(getSiteUri(), newCookie);
+            }
+        } catch (BackingStoreException ex) {
+            Logger.getLogger(GameService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
+    public static void Init(){
+        cm = new CookieManager();
+        cookieJar = cm.getCookieStore();
+        CookieManager.setDefault(cm);
+    }
+    
+    static CookieStore cookieJar;
+    static CookieManager cm;
 }

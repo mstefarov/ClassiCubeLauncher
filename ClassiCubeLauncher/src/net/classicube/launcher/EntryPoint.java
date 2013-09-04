@@ -22,6 +22,9 @@ public class EntryPoint {
             Logger.getLogger(SignInScreen.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        // initialize game service shared code
+        GameService.Init();
+        
         // display the form
         new SignInScreen().setVisible(true);
     }
