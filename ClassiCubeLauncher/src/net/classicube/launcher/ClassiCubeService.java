@@ -10,7 +10,7 @@ public class ClassiCubeService extends GameService {
     }
 
     @Override
-    public SignInResult signIn() {
+    public SignInResult signIn(boolean remember) throws SignInException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
