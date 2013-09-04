@@ -8,19 +8,19 @@ import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MinecraftNetService extends GameService {
+class MinecraftNetService extends GameService {
 
-    static final String LoginSecureUri = "https://minecraft.net/login";
-    static final String LogoutUri = "http://minecraft.net/logout";
-    static final String HomepageUri = "http://minecraft.net";
-    static final String MigratedAccountMessage = "Your account has been migrated";
-    static final String WrongUsernameOrPasswordMessage = "Oops, unknown username or password.";
-    static final String authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">";
-    static final String loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})";
-    static final Pattern authTokenRegex = Pattern.compile(authTokenPattern);
-    static final Pattern loggedInAsRegex = Pattern.compile(loggedInAsPattern);
-    static final String CookieName = "PLAY_SESSION";
-    
+    private static final String LoginSecureUri = "https://minecraft.net/login",
+            LogoutUri = "http://minecraft.net/logout",
+            HomepageUri = "http://minecraft.net",
+            MigratedAccountMessage = "Your account has been migrated",
+            WrongUsernameOrPasswordMessage = "Oops, unknown username or password.",
+            authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
+            loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
+            CookieName = "PLAY_SESSION";
+    private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
+            loggedInAsRegex = Pattern.compile(loggedInAsPattern);
+
     public MinecraftNetService(UserAccount account) {
         super("MinecraftNetService", account);
         try {
@@ -134,7 +134,7 @@ public class MinecraftNetService extends GameService {
         return siteUri;
     }
 
-    boolean loadSessionCookie(boolean remember) throws BackingStoreException {
+    private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
         final String logPrefix = "MinecraftNetService.loadSessionCookie: ";
         clearCookies();
         if (store.childrenNames().length > 0) {

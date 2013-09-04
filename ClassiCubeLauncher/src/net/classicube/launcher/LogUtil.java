@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.logging.*;
 import javax.swing.JOptionPane;
 
-public class LogUtil {
+class LogUtil {
 
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 
@@ -59,7 +59,7 @@ public class LogUtil {
     }
 
     // Find OS-specific application data dir
-    static File findUserDir() {
+    private static File findUserDir() {
         String os = System.getProperty("os.name");
         String path;
         if (os.contains("Windows")) {
@@ -72,6 +72,6 @@ public class LogUtil {
         }
         return new File(path);
     }
-    static final String MacSuffix = "/Library/Application Support";
-    static final String LauncherDirName = "net.classicube.launcher";
+    private static final String MacSuffix = "/Library/Application Support";
+    private static final String LauncherDirName = "net.classicube.launcher";
 }

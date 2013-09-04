@@ -58,6 +58,6 @@ class AccountManager {
         Arrays.sort(accountArray, UserAccountDateComparator.instance);
         return accountArray;
     }
-    Preferences store;
-    HashMap<String, UserAccount> accounts = new HashMap<>();
+    private Preferences store;
+    private HashMap<String, UserAccount> accounts = new HashMap<>();
 }

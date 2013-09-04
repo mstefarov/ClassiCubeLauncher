@@ -38,7 +38,7 @@ public class ImagePanel extends JComponent {
             g.drawImage(image, 0, 0, iw, ih, this);
         }
     }
-    Image image;
-    boolean isTiled;
-    static final long serialVersionUID = 1L;
+    private Image image;
+    private boolean isTiled;
+    private static final long serialVersionUID = 1L;
 }

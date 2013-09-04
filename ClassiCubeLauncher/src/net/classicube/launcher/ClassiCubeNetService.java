@@ -2,7 +2,7 @@ package net.classicube.launcher;
 
 import java.net.URI;
 
-public class ClassiCubeNetService extends GameService {
+class ClassiCubeNetService extends GameService {
 
     public ClassiCubeNetService(UserAccount acct) {
         super("ClassiCubeNetService", acct);

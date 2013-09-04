@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 class Resources {
 
-    static Image classiCubeBackground = null,
+    private static Image classiCubeBackground = null,
             minecraftNetBackground = null,
             classiCubeLogo = null,
             minecraftNetLogo = null;
@@ -40,7 +40,7 @@ class Resources {
         return minecraftNetLogo;
     }
 
-    public static Image loadImage(String fileName) {
+    private static Image loadImage(String fileName) {
         URL imageUrl = Resources.class.getResource(fileName);
         try {
             return ImageIO.read(imageUrl);

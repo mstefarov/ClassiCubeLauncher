@@ -10,7 +10,7 @@ import java.util.prefs.Preferences;
 
 abstract class GameService {
 
-    static final String UserAgent = "ClassiCube Launcher";
+    private static final String UserAgent = "ClassiCube Launcher";
 
     protected GameService(String serviceName, UserAccount account) {
         store = Preferences.userNodeForPackage(this.getClass())
@@ -165,7 +165,7 @@ abstract class GameService {
         cookieJar = cm.getCookieStore();
         CookieManager.setDefault(cm);
     }
-    static CookieStore cookieJar;
+    private static CookieStore cookieJar;
     protected UserAccount account;
     protected Preferences store;
 }
