@@ -14,7 +14,7 @@ abstract class GameService {
     static final String UserAgent = "ClassiCube Launcher";
 
     protected GameService(UserAccount account) {
-        if(account == null){
+        if (account == null) {
             throw new IllegalArgumentException("account may not be null");
         }
         this.account = account;
@@ -46,17 +46,17 @@ abstract class GameService {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setUseCaches(false);
-        connection.setDoInput(true);
-        connection.setRequestProperty("Referer", urlString);
-        connection.setRequestProperty("User-Agent", UserAgent);
         if (postData != null) {
             connection.setRequestMethod("POST");
+            connection.setRequestProperty("Accept-Charset", StandardCharsets.UTF_8.name());
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Content-Length", Integer.toString(postData.length));
             connection.setDoOutput(true);
         } else {
             connection.setRequestMethod("GET");
         }
+        connection.setRequestProperty("Referer", urlString);
+        connection.setRequestProperty("User-Agent", UserAgent);
         return connection;
     }
 
@@ -80,8 +80,15 @@ abstract class GameService {
             if (data != null) {
                 try (OutputStream os = connection.getOutputStream()) {
                     os.write(data);
-                    os.flush();
                 }
+            }
+
+            // Handle redirects
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+                String redirectUrl = connection.getHeaderField("location");
+                return downloadString(redirectUrl);
             }
 
             // Read response
@@ -97,7 +104,7 @@ abstract class GameService {
             return response.toString();
 
         } catch (IOException ex) {
-            Logger.getLogger(GameService.class.getName()).log(Level.SEVERE, null, ex);
+            LogUtil.Log(Level.SEVERE, "Error while sending request to " + urlString, ex);
             return null;
 
         } finally {
@@ -147,16 +154,16 @@ abstract class GameService {
         return (getCookie(name) != null);
     }
 
-    protected String UrlEncode(String str){
+    protected String UrlEncode(String str) {
         String enc = StandardCharsets.UTF_8.name();
         try {
-            return URLEncoder.encode(str,enc );
+            return URLEncoder.encode(str, enc);
         } catch (UnsupportedEncodingException ex) {
-            LogUtil.Log(Level.SEVERE, "UrlEncode error: "+ex);
+            LogUtil.Log(Level.SEVERE, "UrlEncode error: " + ex);
             return null;
         }
     }
-    
+
     public static void Init() {
         cm = new CookieManager();
         cookieJar = cm.getCookieStore();

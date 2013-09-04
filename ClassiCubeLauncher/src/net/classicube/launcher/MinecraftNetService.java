@@ -2,9 +2,11 @@ package net.classicube.launcher;
 
 import java.net.HttpCookie;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -14,6 +16,7 @@ public class MinecraftNetService extends GameService {
 
     static final String LoginSecureUri = "https://minecraft.net/login";
     static final String LogoutUri = "http://minecraft.net/logout";
+    static final String HomepageUri = "http://minecraft.net";
     static final String MigratedAccountMessage = "Your account has been migrated";
     static final String WrongUsernameOrPasswordMessage = "Oops, unknown username or password.";
     static final String authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">";
@@ -22,10 +25,15 @@ public class MinecraftNetService extends GameService {
     static final Pattern loggedInAsRegex = Pattern.compile(loggedInAsPattern);
     static final String CookieName = "PLAY_SESSION";
 
-    public MinecraftNetService(UserAccount acct) {
-        super(acct);
+    public MinecraftNetService(UserAccount account) {
+        super(account);
         Preferences usrPrefs = Preferences.systemNodeForPackage(MinecraftNetService.class);
         prefs = usrPrefs.node("MinecraftNetService");
+        try {
+            siteUri = new URI(HomepageUri);
+        } catch (URISyntaxException ex) {
+            LogUtil.Log(Level.SEVERE, "Cannot set siteUri", ex);
+        }
     }
 
     @Override
@@ -40,7 +48,6 @@ public class MinecraftNetService extends GameService {
 
         // download the login page
         String loginPage = downloadString(LoginSecureUri);
-        LogUtil.Log(Level.FINE, loginPage);
 
         // See if we're already logged in
         Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
@@ -90,6 +97,8 @@ public class MinecraftNetService extends GameService {
         if (remember) {
             requestStr.append("&remember=true");
         }
+        requestStr.append("&redirect=");
+        requestStr.append(UrlEncode("http://minecraft.net"));
 
         // POST our data to the login handler
         String loginResponse = uploadString(LoginSecureUri, requestStr.toString());
@@ -102,9 +111,9 @@ public class MinecraftNetService extends GameService {
         }
 
         // Confirm tha we are now logged in
-        loginMatch = loggedInAsRegex.matcher(loginPage);
-        if (loginMatch.find()) {
-            account.PlayerName = loginMatch.group(1);
+        Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
+        if (responseMatch.find()) {
+            account.PlayerName = responseMatch.group(1);
             return SignInResult.SUCCESS;
         } else {
             throw new SignInException("Login failed: Unrecognized response served by minecraft.net");
@@ -138,7 +147,7 @@ public class MinecraftNetService extends GameService {
 
     @Override
     public URI getSiteUri() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return siteUri;
     }
 
     boolean loadSessionCookie(boolean remember) throws BackingStoreException {
@@ -166,4 +175,5 @@ public class MinecraftNetService extends GameService {
         return false;
     }
     Preferences prefs;
+    URI siteUri;
 }
