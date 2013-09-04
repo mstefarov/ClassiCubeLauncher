@@ -7,6 +7,10 @@ import javax.swing.UIManager;
 
 public class EntryPoint {
     public static void main(String[] args) {
+        // initialize shared code
+        LogUtil.Init();
+        GameService.Init();
+        
         // set look-and-feel to Numbus
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -21,9 +25,6 @@ public class EntryPoint {
                 UnsupportedLookAndFeelException ex) {
             Logger.getLogger(SignInScreen.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        // initialize game service shared code
-        GameService.Init();
         
         // display the form
         new SignInScreen().setVisible(true);

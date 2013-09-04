@@ -1,6 +1,7 @@
 package net.classicube.launcher;
 
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
 class UserAccount {
@@ -12,7 +13,8 @@ class UserAccount {
         long dateTicks = pref.getLong("SignInDate", 0);
         SignInDate = new Date(dateTicks);
         if (SignInUsername == null || PlayerName == null || Password == null) {
-            throw new IllegalArgumentException("Could not parse pref as a sign-in account.");
+            LogUtil.Log(Level.WARNING, "Could not parse pref as a sign-in account.");
+            throw new IllegalArgumentException();
         }
     }
 

@@ -1,6 +1,7 @@
 package net.classicube.launcher;
 
 import java.awt.event.ItemEvent;
+import java.util.logging.Level;
 import javax.swing.border.EmptyBorder;
 
 final class SignInScreen extends javax.swing.JFrame {
@@ -111,17 +112,20 @@ final class SignInScreen extends javax.swing.JFrame {
 
     private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
+            LogUtil.Log(Level.FINE, "[Minecraft.Net]");
             SelectMinecraftNet();
         }
     }//GEN-LAST:event_bMinecraftNetItemStateChanged
 
     private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
+            LogUtil.Log(Level.FINE, "[ClassiCube.Net]");
             SelectClassiCube();
         }
     }//GEN-LAST:event_bClassiCubeNetItemStateChanged
 
     void SelectClassiCube() {
+        LogUtil.Log(Level.FINE, "SignInScreen.SelectClassiCube");
         bgPanel.setImage(Resources.getClassiCubeBackground());
         ipLogo.setImage(Resources.getClassiCubeLogo());
         bMinecraftNet.setEnabled(true);
@@ -133,6 +137,7 @@ final class SignInScreen extends javax.swing.JFrame {
     }
 
     void SelectMinecraftNet() {
+        LogUtil.Log(Level.FINE, "SignInScreen.SelectMinecraftNet");
         bgPanel.setImage(Resources.getMinecraftNetBackground());
         ipLogo.setImage(Resources.getMinecraftNetLogo());
         bClassiCubeNet.setEnabled(true);

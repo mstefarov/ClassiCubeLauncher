@@ -110,6 +110,11 @@ abstract class GameService {
     
     
     protected void StoreCookies(Preferences pref){
+        try {
+            pref.clear();
+        } catch (BackingStoreException ex) {
+            Logger.getLogger(GameService.class.getName()).log(Level.SEVERE, null, ex);
+        }
         for (HttpCookie cookie: cookieJar.getCookies()){
             pref.put(cookie.getName(), cookie.toString());
         }
