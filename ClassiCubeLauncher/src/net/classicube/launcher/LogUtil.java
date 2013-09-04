@@ -45,6 +45,18 @@ public class LogUtil {
     public static void ShowError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, "ERROR: " + title, JOptionPane.ERROR_MESSAGE);
     }
+    
+    public static void Die(String message){
+        Log(Level.SEVERE,message);
+        ShowError(message,"Fatal error");
+        System.exit(2);
+    }
+    
+    public static void Die(String message, Throwable ex){
+        Log(Level.SEVERE,message,ex);
+        ShowError(message,"Fatal error");
+        System.exit(2);
+    }
 
     // Find OS-specific application data dir
     static File findUserDir() {

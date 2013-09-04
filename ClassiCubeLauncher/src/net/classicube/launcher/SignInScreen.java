@@ -2,8 +2,6 @@ package net.classicube.launcher;
 
 import java.awt.event.ItemEvent;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 import javax.swing.border.EmptyBorder;
 
 final class SignInScreen extends javax.swing.JFrame {
@@ -133,7 +131,7 @@ final class SignInScreen extends javax.swing.JFrame {
     private void bSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSignInActionPerformed
         String username = (String) cAccount.getSelectedItem();
         String password = new String(tPassword.getPassword());
-        UserAccount newAcct = accountManager.Add(username, password);
+        UserAccount newAcct = new UserAccount(username, password);
         MinecraftNetService gameService = new MinecraftNetService(newAcct);
         try {
             SignInResult result = gameService.signIn(this.xRememberMe.isSelected());

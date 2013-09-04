@@ -5,7 +5,6 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -13,7 +12,10 @@ abstract class GameService {
 
     static final String UserAgent = "ClassiCube Launcher";
 
-    protected GameService(UserAccount account) {
+    protected GameService(String serviceName, UserAccount account) {
+        store = Preferences.userNodeForPackage(this.getClass())
+                .node("GameServices")
+                .node(serviceName);
         if (account == null) {
             throw new IllegalArgumentException("account may not be null");
         }
@@ -29,19 +31,13 @@ abstract class GameService {
     // Gets mppass for given server
     public abstract String getServerPass(ServerInfo server);
 
-    // Stores current session
-    public abstract void storeSession(Preferences pref);
-
-    // Loads a previously-saved session
     // Gets site URL (for cookie filtering)
     public abstract URI getSiteUri();
-
-    public abstract void loadSession(Preferences pref);
 
     // Gets base skin URL (to pass to the client)
     public abstract String getSkinUrl();
 
-    protected HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
+    private HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
             throws MalformedURLException, IOException {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -118,25 +114,25 @@ abstract class GameService {
         cookieJar.removeAll();
     }
 
-    protected void storeCookies(Preferences pref) {
+    protected void storeCookies() {
         try {
-            pref.clear();
+            store.clear();
         } catch (BackingStoreException ex) {
-            Logger.getLogger(GameService.class.getName()).log(Level.SEVERE, null, ex);
+            LogUtil.Log(Level.SEVERE, "Error storing session", ex);
         }
         for (HttpCookie cookie : cookieJar.getCookies()) {
-            pref.put(cookie.getName(), cookie.toString());
+            store.put(cookie.getName(), cookie.toString());
         }
     }
 
-    protected void loadCookies(Preferences pref) {
+    protected void loadCookies() {
         try {
-            for (String cookieName : pref.keys()) {
-                HttpCookie newCookie = new HttpCookie(cookieName, pref.get(cookieName, null));
+            for (String cookieName : store.keys()) {
+                HttpCookie newCookie = new HttpCookie(cookieName, store.get(cookieName, null));
                 cookieJar.add(getSiteUri(), newCookie);
             }
         } catch (BackingStoreException ex) {
-            Logger.getLogger(GameService.class.getName()).log(Level.SEVERE, null, ex);
+            LogUtil.Log(Level.SEVERE, "Error loading session", ex);
         }
     }
 
@@ -165,11 +161,11 @@ abstract class GameService {
     }
 
     public static void Init() {
-        cm = new CookieManager();
+        CookieManager cm = new CookieManager();
         cookieJar = cm.getCookieStore();
         CookieManager.setDefault(cm);
     }
     static CookieStore cookieJar;
-    static CookieManager cm;
     protected UserAccount account;
+    protected Preferences store;
 }

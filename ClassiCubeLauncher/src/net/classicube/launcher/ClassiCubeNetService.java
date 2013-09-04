@@ -1,12 +1,11 @@
 package net.classicube.launcher;
 
 import java.net.URI;
-import java.util.prefs.Preferences;
 
-public class ClassiCubeService extends GameService {
+public class ClassiCubeNetService extends GameService {
 
-    public ClassiCubeService(UserAccount acct) {
-        super(acct);
+    public ClassiCubeNetService(UserAccount acct) {
+        super("ClassiCubeNetService", acct);
     }
 
     @Override
@@ -21,16 +20,6 @@ public class ClassiCubeService extends GameService {
 
     @Override
     public String getServerPass(ServerInfo server) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void storeSession(Preferences pref) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void loadSession(Preferences pref) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -1,7 +1,6 @@
 package net.classicube.launcher;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager;
 
@@ -23,7 +22,7 @@ public class EntryPoint {
                 InstantiationException |
                 IllegalAccessException |
                 UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(SignInScreen.class.getName()).log(Level.SEVERE, null, ex);
+            LogUtil.Log(Level.WARNING, "Error configuring GUI style", ex);
         }
         
         // display the form

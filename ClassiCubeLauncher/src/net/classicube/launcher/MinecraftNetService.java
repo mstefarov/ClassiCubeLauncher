@@ -3,12 +3,8 @@ package net.classicube.launcher;
 import java.net.HttpCookie;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,15 +20,13 @@ public class MinecraftNetService extends GameService {
     static final Pattern authTokenRegex = Pattern.compile(authTokenPattern);
     static final Pattern loggedInAsRegex = Pattern.compile(loggedInAsPattern);
     static final String CookieName = "PLAY_SESSION";
-
+    
     public MinecraftNetService(UserAccount account) {
-        super(account);
-        Preferences usrPrefs = Preferences.systemNodeForPackage(MinecraftNetService.class);
-        prefs = usrPrefs.node("MinecraftNetService");
+        super("MinecraftNetService", account);
         try {
             siteUri = new URI(HomepageUri);
         } catch (URISyntaxException ex) {
-            LogUtil.Log(Level.SEVERE, "Cannot set siteUri", ex);
+            LogUtil.Die("Cannot set siteUri", ex);
         }
     }
 
@@ -58,7 +52,7 @@ public class MinecraftNetService extends GameService {
                 // If player is already logged in with the right account: reuse a previous session
                 account.PlayerName = actualPlayerName;
                 LogUtil.Log(Level.INFO, logPrefix + "Restored session for " + account.PlayerName);
-                storeCookies(prefs.node("Cookies"));
+                storeCookies();
                 return SignInResult.SUCCESS;
             } else {
                 // If we're not supposed to reuse session, if old username is different,
@@ -98,7 +92,7 @@ public class MinecraftNetService extends GameService {
             requestStr.append("&remember=true");
         }
         requestStr.append("&redirect=");
-        requestStr.append(UrlEncode("http://minecraft.net"));
+        requestStr.append(UrlEncode(HomepageUri));
 
         // POST our data to the login handler
         String loginResponse = uploadString(LoginSecureUri, requestStr.toString());
@@ -131,16 +125,6 @@ public class MinecraftNetService extends GameService {
     }
 
     @Override
-    public void storeSession(Preferences pref) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void loadSession(Preferences pref) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public String getSkinUrl() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -153,9 +137,9 @@ public class MinecraftNetService extends GameService {
     boolean loadSessionCookie(boolean remember) throws BackingStoreException {
         final String logPrefix = "MinecraftNetService.loadSessionCookie: ";
         clearCookies();
-        if (prefs.nodeExists("Cookies")) {
+        if (store.childrenNames().length > 0) {
             if (remember) {
-                loadCookies(prefs.node("Cookies"));
+                loadCookies();
                 HttpCookie cookie = super.getCookie(CookieName);
                 String userToken = "username%3A" + account.SignInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
@@ -174,6 +158,5 @@ public class MinecraftNetService extends GameService {
         }
         return false;
     }
-    Preferences prefs;
     URI siteUri;
 }

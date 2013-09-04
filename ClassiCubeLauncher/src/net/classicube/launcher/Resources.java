@@ -3,8 +3,6 @@ package net.classicube.launcher;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 class Resources {
@@ -47,7 +45,7 @@ class Resources {
         try {
             return ImageIO.read(imageUrl);
         } catch (IOException ex) {
-            Logger.getLogger(Resources.class.getName()).log(Level.SEVERE, null, ex);
+            LogUtil.Die("Error loading GUI resource " + fileName, ex);
             return null;
         }
     }
