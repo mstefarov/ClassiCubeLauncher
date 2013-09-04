@@ -21,7 +21,7 @@ public class Program {
     static final String UpdatedLauncherJarName = "ClassiCubeLauncher.new.jar";
     static final String LauncherEntryClass = "net.classicube.launcher.EntryPoint";
     static final String LauncherEntryMethod = "main";
-    static final String LauncherDownload = "TODO";
+    static final String LauncherDownload = "http://www.classicube.net/static/launcher/ClassiCubeLauncher.jar";
 
     public static void main(String[] args) throws IOException {
         // Find launcher jars
@@ -38,8 +38,8 @@ public class Program {
                 System.err.println("ClassiCubeLauncher: Error updating: " + ex);
             }
         }
-        
-        if(!launcherJar.exists()){
+
+        if (!launcherJar.exists()) {
             downloadLauncherJar(launcherJar);
         }
 
@@ -47,7 +47,7 @@ public class Program {
         try {
             Class<?> lpClass = loadLauncher(launcherJar);
             Method entryPoint = lpClass.getMethod(LauncherEntryMethod, String[].class);
-            entryPoint.invoke(null, (Object)new String[0]);
+            entryPoint.invoke(null, (Object) new String[0]);
         } catch (IOException | NoSuchMethodException | ClassNotFoundException |
                 IllegalAccessException | InvocationTargetException ex) {
             System.err.println("ClassiCubeLauncher: Error initializing: " + ex);
@@ -77,19 +77,9 @@ public class Program {
             destFile.createNewFile();
         }
 
-        FileChannel source = null;
-        FileChannel destination = null;
-
-        try {
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(destFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-        } finally {
-            if (source != null) {
-                source.close();
-            }
-            if (destination != null) {
-                destination.close();
+        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
+            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
+                destination.transferFrom(source, 0, source.size());
             }
         }
 
@@ -105,9 +95,10 @@ public class Program {
     }
 
     private static void downloadLauncherJar(File launcherJar) throws MalformedURLException, IOException {
-        URL website = new URL("http://www.website.com/information.asp");
+        URL website = new URL(LauncherDownload);
         ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        FileOutputStream fos = new FileOutputStream(launcherJar);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+        try (FileOutputStream fos = new FileOutputStream(launcherJar)) {
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+        }
     }
 }
