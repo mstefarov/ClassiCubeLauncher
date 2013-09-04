@@ -3,7 +3,6 @@ package net.classicube.launcher;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -11,6 +10,12 @@ class AccountManager {
 
     public AccountManager(String keyName) {
         this.store = Preferences.userNodeForPackage(this.getClass()).node(keyName);
+    }
+    
+    public UserAccount Add(String username, String password){
+        UserAccount account = new UserAccount(username, password);
+        accounts.put(username.toLowerCase(), account);
+        return account;
     }
 
     public void Load() {

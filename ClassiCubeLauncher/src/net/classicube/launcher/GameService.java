@@ -14,6 +14,9 @@ abstract class GameService {
     static final String UserAgent = "ClassiCube Launcher";
 
     protected GameService(UserAccount account) {
+        if(account == null){
+            throw new IllegalArgumentException("account may not be null");
+        }
         this.account = account;
     }
 
@@ -41,11 +44,10 @@ abstract class GameService {
     protected HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
             throws MalformedURLException, IOException {
         URL url = new URL(urlString);
-        String referer = url.getProtocol() + url.getHost();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setUseCaches(false);
         connection.setDoInput(true);
-        connection.setRequestProperty("Referer", referer);
+        connection.setRequestProperty("Referer", urlString);
         connection.setRequestProperty("User-Agent", UserAgent);
         if (postData != null) {
             connection.setRequestMethod("POST");

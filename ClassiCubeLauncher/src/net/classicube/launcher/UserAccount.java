@@ -6,6 +6,19 @@ import java.util.prefs.Preferences;
 
 class UserAccount {
 
+    public UserAccount(String username, String password){
+        if(username == null){
+            throw new IllegalArgumentException("username may not be null");
+        }
+        if(password == null){
+            throw new IllegalArgumentException("password may not be null");
+        }
+        SignInUsername = username;
+        PlayerName = username;
+        Password = password;
+        SignInDate = new Date(0);
+    }
+    
     public UserAccount(Preferences pref) {
         SignInUsername = pref.get("SignInUsername", null);
         PlayerName = pref.get("PlayerName", null);

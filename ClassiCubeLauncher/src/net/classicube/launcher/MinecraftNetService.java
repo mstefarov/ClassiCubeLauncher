@@ -14,12 +14,13 @@ public class MinecraftNetService extends GameService {
 
     static final String LoginSecureUri = "https://minecraft.net/login";
     static final String LogoutUri = "http://minecraft.net/logout";
-    static final String authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">";
-    static final String loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})";
-    static Pattern authTokenRegex = Pattern.compile(authTokenPattern);
-    static Pattern loggedInAsRegex = Pattern.compile(loggedInAsPattern);
     static final String MigratedAccountMessage = "Your account has been migrated";
     static final String WrongUsernameOrPasswordMessage = "Oops, unknown username or password.";
+    static final String authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">";
+    static final String loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})";
+    static final Pattern authTokenRegex = Pattern.compile(authTokenPattern);
+    static final Pattern loggedInAsRegex = Pattern.compile(loggedInAsPattern);
+    static final String CookieName = "PLAY_SESSION";
 
     public MinecraftNetService(UserAccount acct) {
         super(acct);
@@ -39,17 +40,17 @@ public class MinecraftNetService extends GameService {
 
         // download the login page
         String loginPage = downloadString(LoginSecureUri);
+        LogUtil.Log(Level.FINE, loginPage);
 
         // See if we're already logged in
         Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
-        if (loginMatch.matches()) {
+        if (loginMatch.find()) {
             String actualPlayerName = loginMatch.group(1);
-            if (remember && hasCookie("PLAY_SESSION")
+            if (remember && hasCookie(CookieName)
                     && actualPlayerName.equalsIgnoreCase(account.PlayerName)) {
                 // If player is already logged in with the right account: reuse a previous session
                 account.PlayerName = actualPlayerName;
-                LogUtil.Log(Level.INFO, logPrefix + "Restored session for "
-                        + account.PlayerName);
+                LogUtil.Log(Level.INFO, logPrefix + "Restored session for " + account.PlayerName);
                 storeCookies(prefs.node("Cookies"));
                 return SignInResult.SUCCESS;
             } else {
@@ -65,12 +66,12 @@ public class MinecraftNetService extends GameService {
 
         // Extract authenticityToken from the login page
         Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
-        if (!authTokenMatch.matches()) {
+        if (!authTokenMatch.find()) {
             if (restoredSession) {
                 // restoring session failed; log out and retry
                 downloadString(LogoutUri);
                 clearCookies();
-                LogUtil.Log(Level.WARNING, logPrefix + "Unrecognized page; retrying");
+                LogUtil.Log(Level.WARNING, logPrefix + "Unrecognized login form served by minecraft.net; retrying.");
             } else {
                 // something unexpected happened, panic!
                 throw new SignInException("Login failed: Unrecognized login form served by minecraft.net");
@@ -102,11 +103,11 @@ public class MinecraftNetService extends GameService {
 
         // Confirm tha we are now logged in
         loginMatch = loggedInAsRegex.matcher(loginPage);
-        if (loginMatch.matches()) {
+        if (loginMatch.find()) {
             account.PlayerName = loginMatch.group(1);
             return SignInResult.SUCCESS;
         } else {
-            throw new SignInException("Login failed: unrecognized page served by minecraft.net");
+            throw new SignInException("Login failed: Unrecognized response served by minecraft.net");
         }
     }
 
@@ -146,7 +147,7 @@ public class MinecraftNetService extends GameService {
         if (prefs.nodeExists("Cookies")) {
             if (remember) {
                 loadCookies(prefs.node("Cookies"));
-                HttpCookie cookie = super.getCookie("PLAY_SESSION");
+                HttpCookie cookie = super.getCookie(CookieName);
                 String userToken = "username%3A" + account.SignInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
                     LogUtil.Log(Level.FINE,

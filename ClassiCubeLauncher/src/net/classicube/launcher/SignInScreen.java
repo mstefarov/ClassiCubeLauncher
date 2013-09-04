@@ -2,6 +2,8 @@ package net.classicube.launcher;
 
 import java.awt.event.ItemEvent;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.border.EmptyBorder;
 
 final class SignInScreen extends javax.swing.JFrame {
@@ -94,6 +96,11 @@ final class SignInScreen extends javax.swing.JFrame {
         getContentPane().add(xRememberMe, gridBagConstraints);
 
         bSignIn.setText("Sign In");
+        bSignIn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bSignInActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 8;
@@ -123,6 +130,19 @@ final class SignInScreen extends javax.swing.JFrame {
             SelectClassiCube();
         }
     }//GEN-LAST:event_bClassiCubeNetItemStateChanged
+
+    private void bSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSignInActionPerformed
+        String username = (String)cAccount.getSelectedItem();
+        String password = tPassword.getPassword().toString();
+        UserAccount newAcct = accountManager.Add(username, password);
+        MinecraftNetService gameService = new MinecraftNetService(newAcct);
+        try {
+            SignInResult result = gameService.signIn(this.xRememberMe.isSelected());
+            LogUtil.ShowInfo(result.name(), "Sign in result.");
+        } catch (SignInException ex) {
+            LogUtil.ShowError(ex.toString(), "Error signing in.");
+        }
+    }//GEN-LAST:event_bSignInActionPerformed
 
     void SelectClassiCube() {
         LogUtil.Log(Level.FINE, "SignInScreen.SelectClassiCube");
