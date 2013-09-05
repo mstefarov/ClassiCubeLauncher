@@ -19,9 +19,12 @@ final class SignInScreen extends javax.swing.JFrame {
     static final long serialVersionUID = 1L;
 
     public SignInScreen() {
+        // add our fancy custom background
         bgPanel = new ImagePanel(null, true);
         this.setContentPane(bgPanel);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        
+        // create the rest of components
         initComponents();
 
         // hook up listeners for username/password field changes
@@ -32,11 +35,35 @@ final class SignInScreen extends javax.swing.JFrame {
         cUsername.addActionListener(fieldChangeListener);
         tPassword.addActionListener(fieldChangeListener);
 
+        // allow hitting <Enter> in the password field
+        tPassword.addKeyListener(new PasswordEnterListener());
+
         // some last-minute UI tweaks
+        this.getRootPane().setDefaultButton(bSignIn);
         progressFiller.setSize(progress.getHeight(), progress.getWidth());
         progress.setVisible(false);
         SelectClassiCube();
         enableGUI();
+    }
+
+    class PasswordEnterListener implements KeyListener {
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+            if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+                if (bSignIn.isEnabled()) {
+                    bSignIn.doClick();
+                }
+            }
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) { // do nothing
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) { // do nothing
+        }
     }
 
     class UsernameOrPasswordChangedListener implements DocumentListener, ActionListener {
