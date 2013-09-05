@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -15,6 +16,7 @@ import javax.swing.SwingWorker;
 public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
     private static final String ClientJar = "ClassiCubeClient.jar";
+    private static final String ClientTempJar = "ClassiCubeClient.jar.tmp";
     private static final String ClientDownloadUrl = "http://www.classicube.net/static/client/client.jar";
     private static final String ClientHashUrl = "http://www.classicube.net/static/client/client.jar.md5";
 
@@ -40,12 +42,18 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         } else {
             // else check if remote hash is different from local hash
             final String remoteHash = HttpUtil.downloadString(ClientHashUrl);
-            final String localHashString = computeLocalHash(clientFile);
-            needsUpdate = localHashString.equalsIgnoreCase(remoteHash);
+            if (remoteHash == null) {
+                needsUpdate = false; // remote server errored
+            } else {
+                final String localHashString = computeLocalHash(clientFile);
+                needsUpdate = localHashString.equalsIgnoreCase(remoteHash);
+            }
         }
 
         if (needsUpdate) {
-            downloadClientJar(clientFile);
+            final File clientTempFile = new File(targetPath, ClientTempJar);
+            downloadClientJar(clientTempFile);
+            replaceFile(clientTempFile, clientFile);
         }
 
         return needsUpdate;
@@ -66,12 +74,28 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     }
 
     private void downloadClientJar(File clientJar)
-            throws MalformedURLException, IOException {
+            throws MalformedURLException, FileNotFoundException, IOException {
         clientJar.delete();
         final URL website = new URL(ClientDownloadUrl);
         final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
         try (FileOutputStream fos = new FileOutputStream(clientJar)) {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         }
+    }
+
+    // Replace contents of destFile with sourceFile
+    static void replaceFile(File sourceFile, File destFile)
+            throws IOException {
+        if (!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
+            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
+                destination.transferFrom(source, 0, source.size());
+            }
+        }
+
+        sourceFile.delete();
     }
 }
