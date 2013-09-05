@@ -3,6 +3,7 @@ package net.classicube.launcher;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.ExecutionException;
+import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
@@ -11,6 +12,11 @@ public class ServerListScreen extends javax.swing.JFrame {
     public ServerListScreen() {
         initComponents();
 
+        serverTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tca = new TableColumnAdjuster(serverTable);
+        
+        tSearch.setText("Loading server list...");
+        tSearch.setEnabled(false);
         getServerListTask = GameService.activeService.getServerListAsync();
 
         getServerListTask.addPropertyChangeListener(
@@ -40,11 +46,20 @@ public class ServerListScreen extends javax.swing.JFrame {
                     server.flag
                 });
             }
+            tSearch.setText("Search...");
+            tSearch.setEnabled(true);
+            tSearch.selectAll();
+            tSearch.requestFocus();
+            
+            tca.adjustColumns();
+            
         } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.ShowWarning(ex.toString(), "Problem signing in");
+            LogUtil.ShowWarning(ex.toString(), "Problem loading server list");
+            tSearch.setText("Could not load server list.");
         }
     }
     SwingWorker<ServerInfo[], ServerInfo> getServerListTask;
+    TableColumnAdjuster tca;
 
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT
@@ -126,7 +141,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         getContentPane().add(bConnect, gridBagConstraints);
 
         serverTableContainer.setMinimumSize(new java.awt.Dimension(302, 152));
-        serverTableContainer.setPreferredSize(new java.awt.Dimension(402, 402));
+        serverTableContainer.setPreferredSize(new java.awt.Dimension(520, 400));
 
         serverTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
