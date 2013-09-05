@@ -4,6 +4,8 @@ import javax.swing.table.DefaultTableModel;
 
 public class ServerListScreen extends javax.swing.JFrame {
 
+    static final long serialVersionUID = 1L;
+
     /**
      * Creates new form ServerListScreen
      */

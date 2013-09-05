@@ -1,20 +1,17 @@
 package net.classicube.launcher;
 
-import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.ComboBoxEditor;
 import javax.swing.JToggleButton;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
 final class SignInScreen extends javax.swing.JFrame {
@@ -27,48 +24,77 @@ final class SignInScreen extends javax.swing.JFrame {
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
 
+        // hook up listeners for username/password field changes
+        fieldChangeListener = new UsernameOrPasswordChangedListener();
+        JTextComponent usernameEditor = (JTextComponent) cUsername.getEditor().getEditorComponent();
+        usernameEditor.getDocument().addDocumentListener(fieldChangeListener);
+        tPassword.getDocument().addDocumentListener(fieldChangeListener);
+        cUsername.addActionListener(fieldChangeListener);
+        tPassword.addActionListener(fieldChangeListener);
+
         // some last-minute UI tweaks
         progressFiller.setSize(progress.getHeight(), progress.getWidth());
         progress.setVisible(false);
         SelectClassiCube();
         enableGUI();
-
-        // hook up listeners for username/password field changes
-        final JTextComponent usernameEditor = (JTextComponent) cUsername.getEditor().getEditorComponent();
-        usernameEditor.getDocument().addDocumentListener(new UsernameChangedListener());
-        tPassword.addActionListener(new PasswordChangedListener());
     }
 
-    class PasswordChangedListener implements ActionListener {
+    class UsernameOrPasswordChangedListener implements DocumentListener, ActionListener {
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            final String username = (String) cUsername.getSelectedItem();
-            checkIfSignInAllowed(username.length());
+        public int realPasswordLength,
+                realUsernameLength;
+
+        public UsernameOrPasswordChangedListener() {
+            realPasswordLength = tPassword.getPassword().length;
+            String username = (String) cUsername.getSelectedItem();
+            if (username == null) {
+                realUsernameLength = 0;
+            } else {
+                realUsernameLength = username.length();
+            }
         }
-    }
-
-    class UsernameChangedListener implements DocumentListener {
 
         @Override
         public void insertUpdate(DocumentEvent e) {
-            checkIfSignInAllowed(e.getDocument().getLength());
+            somethingEdited(e);
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-            checkIfSignInAllowed(e.getDocument().getLength());
+            somethingEdited(e);
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            checkIfSignInAllowed(e.getDocument().getLength());
+            somethingEdited(e);
+        }
+
+        private void somethingEdited(DocumentEvent e) {
+            Document doc = e.getDocument();
+            if (doc.equals(tPassword.getDocument())) {
+                realPasswordLength = doc.getLength();
+            } else {
+                realUsernameLength = doc.getLength();
+            }
+            checkIfSignInAllowed();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            realPasswordLength = tPassword.getPassword().length;
+            String username = (String) cUsername.getSelectedItem();
+            if (username == null) {
+                realUsernameLength = 0;
+            } else {
+                realUsernameLength = username.length();
+            }
+            checkIfSignInAllowed();
         }
     }
 
-    void checkIfSignInAllowed(int usernameLength) {
-        final boolean enableSignIn = usernameLength > 0
-                && tPassword.getPassword().length > 0;
+    void checkIfSignInAllowed() {
+        final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 0)
+                && (fieldChangeListener.realPasswordLength > 0);
         bSignIn.setEnabled(enableSignIn);
     }
 
@@ -240,12 +266,7 @@ final class SignInScreen extends javax.swing.JFrame {
     }
 
     private void enableGUI() {
-        String username = (String) cUsername.getSelectedItem();
-        if (username != null) {
-            checkIfSignInAllowed(username.length());
-        } else {
-            checkIfSignInAllowed(0);
-        }
+        checkIfSignInAllowed();
         cUsername.setEditable(true);
         tPassword.setEditable(true);
         buttonToDisableOnSignIn.setEnabled(true);
@@ -297,8 +318,9 @@ final class SignInScreen extends javax.swing.JFrame {
     private javax.swing.JPasswordField tPassword;
     private javax.swing.JCheckBox xRememberMe;
     // End of variables declaration//GEN-END:variables
-    ImagePanel bgPanel;
     AccountManager accountManager;
+    ImagePanel bgPanel;
     JToggleButton buttonToDisableOnSignIn;
+    UsernameOrPasswordChangedListener fieldChangeListener;
     SwingWorker<SignInResult, String> signInTask;
 }
