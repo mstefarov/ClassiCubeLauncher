@@ -18,9 +18,10 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,44,0,0,1,-112"/>
   </AuxValues>
   <SubComponents>
-    <Component class="javax.swing.JButton" name="jButton1">
+    <Component class="javax.swing.JButton" name="bChangeUser">
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt; Change User"/>
       </Properties>
@@ -30,7 +31,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JTextField" name="jTextField1">
+    <Component class="javax.swing.JTextField" name="tSearch">
       <Properties>
         <Property name="text" type="java.lang.String" value="Search"/>
       </Properties>
@@ -40,21 +41,21 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JSeparator" name="jSeparator1">
+    <Component class="javax.swing.JSeparator" name="separator1">
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="0" gridY="2" gridWidth="5" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JSeparator" name="jSeparator2">
+    <Component class="javax.swing.JSeparator" name="separator2">
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="0" gridY="8" gridWidth="5" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="jButton2">
+    <Component class="javax.swing.JButton" name="bPreferences">
       <Properties>
         <Property name="text" type="java.lang.String" value="Preferences"/>
       </Properties>
@@ -64,7 +65,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JTextField" name="jTextField2">
+    <Component class="javax.swing.JTextField" name="tServerURL">
       <Properties>
         <Property name="text" type="java.lang.String" value="Server URL"/>
       </Properties>
@@ -74,7 +75,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="jButton3">
+    <Component class="javax.swing.JButton" name="bConnect">
       <Properties>
         <Property name="text" type="java.lang.String" value="Connect &gt;"/>
       </Properties>
@@ -84,7 +85,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+    <Container class="javax.swing.JScrollPane" name="serverTableContainer">
       <Properties>
         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[302, 152]"/>
@@ -104,7 +105,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTable" name="jTable1">
+        <Component class="javax.swing.JTable" name="serverTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="5" rowCount="0">
@@ -290,11 +291,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="11_jButton1">
-          <CodeVariable name="jButton1" type="8194" declaredType="javax.swing.JButton"/>
+        <CodeExpression id="11_bChangeUser">
+          <CodeVariable name="bChangeUser" type="8194" declaredType="javax.swing.JButton"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jButton1"/>
+              <ComponentRef name="bChangeUser"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
@@ -385,11 +386,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="18_jTextField1">
-          <CodeVariable name="jTextField1" type="8194" declaredType="javax.swing.JTextField"/>
+        <CodeExpression id="18_tSearch">
+          <CodeVariable name="tSearch" type="8194" declaredType="javax.swing.JTextField"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jTextField1"/>
+              <ComponentRef name="tSearch"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
@@ -467,11 +468,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="24_jSeparator1">
-          <CodeVariable name="jSeparator1" type="8194" declaredType="javax.swing.JSeparator"/>
+        <CodeExpression id="24_separator1">
+          <CodeVariable name="separator1" type="8194" declaredType="javax.swing.JSeparator"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jSeparator1"/>
+              <ComponentRef name="separator1"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
@@ -549,11 +550,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="30_jSeparator2">
-          <CodeVariable name="jSeparator2" type="8194" declaredType="javax.swing.JSeparator"/>
+        <CodeExpression id="30_separator2">
+          <CodeVariable name="separator2" type="8194" declaredType="javax.swing.JSeparator"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jSeparator2"/>
+              <ComponentRef name="separator2"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
@@ -631,11 +632,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="36_jButton2">
-          <CodeVariable name="jButton2" type="8194" declaredType="javax.swing.JButton"/>
+        <CodeExpression id="36_bPreferences">
+          <CodeVariable name="bPreferences" type="8194" declaredType="javax.swing.JButton"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jButton2"/>
+              <ComponentRef name="bPreferences"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
@@ -726,11 +727,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="43_jTextField2">
-          <CodeVariable name="jTextField2" type="8194" declaredType="javax.swing.JTextField"/>
+        <CodeExpression id="43_tServerURL">
+          <CodeVariable name="tServerURL" type="8194" declaredType="javax.swing.JTextField"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jTextField2"/>
+              <ComponentRef name="tServerURL"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
@@ -808,11 +809,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="49_jButton3">
-          <CodeVariable name="jButton3" type="8194" declaredType="javax.swing.JButton"/>
+        <CodeExpression id="49_bConnect">
+          <CodeVariable name="bConnect" type="8194" declaredType="javax.swing.JButton"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jButton3"/>
+              <ComponentRef name="bConnect"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
@@ -890,11 +891,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="55_jScrollPane1">
-          <CodeVariable name="jScrollPane1" type="8194" declaredType="javax.swing.JScrollPane"/>
+        <CodeExpression id="55_serverTableContainer">
+          <CodeVariable name="serverTableContainer" type="8194" declaredType="javax.swing.JScrollPane"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="jScrollPane1"/>
+              <ComponentRef name="serverTableContainer"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>
