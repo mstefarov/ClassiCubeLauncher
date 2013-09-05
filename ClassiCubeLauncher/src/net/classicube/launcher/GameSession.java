@@ -14,8 +14,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 // A new single-use GameService object is created for every session.
 abstract class GameSession {
 
-    private static final String UserAgent = "ClassiCube Launcher";
-
     // constructor used by implementations
     protected GameSession(String serviceName, UserAccount account) {
         store = Preferences.userNodeForPackage(this.getClass())
@@ -44,81 +42,6 @@ abstract class GameSession {
 
     // Gets base skin URL (to pass to the client).
     public abstract String getSkinUrl();
-
-    private HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
-            throws MalformedURLException, IOException {
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setUseCaches(false);
-        if (postData != null) {
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Accept-Charset", StandardCharsets.UTF_8.name());
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Content-Length", Integer.toString(postData.length));
-            connection.setDoOutput(true);
-        } else {
-            connection.setRequestMethod("GET");
-        }
-        connection.setRequestProperty("Referer", urlString);
-        connection.setRequestProperty("User-Agent", UserAgent);
-        return connection;
-    }
-
-    // Downloads a string using GET.
-    // Returns null and logs an error on failure.
-    protected String downloadString(String urlString) {
-        return uploadString(urlString, null);
-    }
-
-    // Uploads a string using POST, then downloads the response.
-    // Returns null and logs an error on failure.
-    protected String uploadString(String urlString, String dataString) {
-        HttpURLConnection connection = null;
-        byte[] data = null;
-        if (dataString != null) {
-            data = dataString.getBytes();
-        }
-
-        try {
-            connection = makeHttpConnection(urlString, data);
-
-            // Write POST (if needed)
-            if (data != null) {
-                try (OutputStream os = connection.getOutputStream()) {
-                    os.write(data);
-                }
-            }
-
-            // Handle redirects
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
-                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-                String redirectUrl = connection.getHeaderField("location");
-                return downloadString(redirectUrl);
-            }
-
-            // Read response
-            StringBuilder response = new StringBuilder();
-            String line;
-            try (InputStream is = connection.getInputStream()) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                while ((line = rd.readLine()) != null) {
-                    response.append(line);
-                    response.append('\n');
-                }
-            }
-            return response.toString();
-
-        } catch (IOException ex) {
-            LogUtil.Log(Level.SEVERE, "Error while sending request to " + urlString, ex);
-            return null;
-
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-    }
 
     // Clears all stored cookies
     protected void clearCookies() {

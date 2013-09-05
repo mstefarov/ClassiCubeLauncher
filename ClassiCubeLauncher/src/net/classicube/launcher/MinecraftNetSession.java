@@ -63,7 +63,7 @@ class MinecraftNetSession extends GameSession {
             this.publish("Connecting to Minecraft.net");
 
             // download the login page
-            String loginPage = downloadString(LoginSecureUri);
+            String loginPage = HttpUtil.downloadString(LoginSecureUri);
 
             // See if we're already logged in
             Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
@@ -82,9 +82,9 @@ class MinecraftNetSession extends GameSession {
                     // or if there is no play session cookie set - relog
                     LogUtil.Log(Level.INFO, logPrefix + "Switching accounts from "
                             + actualPlayerName + " to " + account.PlayerName);
-                    downloadString(LogoutUri);
+                    HttpUtil.downloadString(LogoutUri);
                     clearCookies();
-                    loginPage = downloadString(LoginSecureUri);
+                    loginPage = HttpUtil.downloadString(LoginSecureUri);
                 }
             }
 
@@ -93,11 +93,11 @@ class MinecraftNetSession extends GameSession {
             if (!authTokenMatch.find()) {
                 if (restoredSession) {
                     // restoring session failed; log out and retry
-                    downloadString(LogoutUri);
+                    HttpUtil.downloadString(LogoutUri);
                     clearCookies();
                     LogUtil.Log(Level.WARNING,
                             logPrefix + "Unrecognized login form served by minecraft.net; retrying.");
-                    
+
                 } else {
                     // something unexpected happened, panic!
                     LogUtil.Log(Level.INFO, loginPage);
@@ -122,7 +122,7 @@ class MinecraftNetSession extends GameSession {
 
             // POST our data to the login handler
             this.publish("Signing in...");
-            String loginResponse = uploadString(LoginSecureUri, requestStr.toString());
+            String loginResponse = HttpUtil.uploadString(LoginSecureUri, requestStr.toString());
 
             // Check for common failure scenarios
             if (loginResponse.contains(WrongUsernameOrPasswordMessage)) {
@@ -153,7 +153,7 @@ class MinecraftNetSession extends GameSession {
 
         @Override
         protected ServerInfo[] doInBackground() throws Exception {
-            String serverListString = downloadString(ServerListUri);
+            String serverListString = HttpUtil.downloadString(ServerListUri);
             Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
             ArrayList<ServerInfo> servers = new ArrayList<>();
@@ -164,7 +164,7 @@ class MinecraftNetSession extends GameSession {
                 server.hash = serverListMatch.group(1);
                 server.name = htmlDecode(serverListMatch.group(2));
                 int rowStart = serverListMatch.end();
-                
+
                 // Try getting the rest using another regex
                 if (otherServerDataMatch.find(rowStart)) {
                     // this bit doesn't actually work yet (gotta fix my regex)
