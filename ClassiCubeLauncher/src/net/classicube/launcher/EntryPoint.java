@@ -26,6 +26,29 @@ public class EntryPoint {
         }
         
         // display the form
-        new SignInScreen().setVisible(true);
+        ShowSignInScreen();
     }
+    
+    public static void ShowSignInScreen(){
+        if(serverListScreen != null){
+            serverListScreen.setVisible(false);
+        }
+        if(signInScreen == null){
+            signInScreen = new SignInScreen();
+        }
+        signInScreen.setVisible(true);
+    }
+    
+    public static void ShowServerListScreen(){
+        if(signInScreen != null){
+            signInScreen.setVisible(false);
+        }
+        if(serverListScreen == null){
+            serverListScreen = new ServerListScreen();
+        }
+        serverListScreen.setVisible(true);
+    }
+    
+    static SignInScreen signInScreen;
+    static ServerListScreen serverListScreen;
 }

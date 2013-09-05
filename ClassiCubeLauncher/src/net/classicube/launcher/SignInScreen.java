@@ -135,7 +135,11 @@ final class SignInScreen extends javax.swing.JFrame {
         MinecraftNetService gameService = new MinecraftNetService(newAcct);
         try {
             SignInResult result = gameService.signIn(this.xRememberMe.isSelected());
-            LogUtil.ShowInfo(result.name(), "Sign in result.");
+            if(result == SignInResult.SUCCESS){
+                EntryPoint.ShowServerListScreen();
+            }else{
+                LogUtil.ShowInfo(result.name(), "Sign in result.");
+            }
         } catch (SignInException ex) {
             LogUtil.ShowError(ex.toString(), "Error signing in.");
         }
