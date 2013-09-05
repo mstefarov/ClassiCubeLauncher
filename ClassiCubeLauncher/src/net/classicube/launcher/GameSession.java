@@ -1,6 +1,6 @@
 package net.classicube.launcher;
 
-import java.io.*;
+import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
