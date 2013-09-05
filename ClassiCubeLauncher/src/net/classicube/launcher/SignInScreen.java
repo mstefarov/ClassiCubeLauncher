@@ -21,6 +21,7 @@ final class SignInScreen extends javax.swing.JFrame {
     static final long serialVersionUID = 1L;
 
     public SignInScreen() {
+        LogUtil.Log(Level.FINE, "SignInScreen");
         // add our fancy custom background
         bgPanel = new ImagePanel(null, true);
         this.setContentPane(bgPanel);
@@ -165,14 +166,14 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.Log(Level.FINE, "[Minecraft.Net]");
+            LogUtil.Log(Level.INFO, "[Minecraft.Net]");
             selectMinecraftNet();
         }
     }//GEN-LAST:event_bMinecraftNetItemStateChanged
 
     private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.Log(Level.FINE, "[ClassiCube.Net]");
+            LogUtil.Log(Level.INFO, "[ClassiCube.Net]");
             selectClassiCubeNet();
         }
     }//GEN-LAST:event_bClassiCubeNetItemStateChanged
@@ -219,6 +220,7 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     private void bSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSignInActionPerformed
         // Grab user information from the form
+        LogUtil.Log(Level.INFO, "[Sign In]");
         String username = (String) cUsername.getSelectedItem();
         String password = new String(tPassword.getPassword());
         UserAccount newAcct = new UserAccount(username, password);
@@ -252,6 +254,7 @@ final class SignInScreen extends javax.swing.JFrame {
     // If we signed in, advance to the server list screen.
     // Otherwise, inform the user that something went wrong.
     private void onSignInDone(SwingWorker<SignInResult, String> signInTask) {
+        LogUtil.Log(Level.FINE, "SignInScreen.onSignInDone");
         try {
             SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {

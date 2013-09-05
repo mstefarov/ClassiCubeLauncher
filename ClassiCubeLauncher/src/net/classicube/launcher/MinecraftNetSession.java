@@ -29,7 +29,7 @@ class MinecraftNetSession extends GameSession {
             otherServerDataRegex = Pattern.compile(otherServerDataPattern);
 
     public MinecraftNetSession(UserAccount account) {
-        super("MinecraftNetService", account);
+        super("MinecraftNetSession", account);
         try {
             siteUri = new URI(HomepageUri);
         } catch (URISyntaxException ex) {
@@ -51,6 +51,7 @@ class MinecraftNetSession extends GameSession {
 
         @Override
         protected SignInResult doInBackground() throws Exception {
+            LogUtil.Log(Level.FINE, "MinecraftNetSignInWorker.doInBackground");
             final String logPrefix = "MinecraftNetSignInWorker.doInBackground: ";
             boolean restoredSession = false;
             try {
@@ -153,6 +154,7 @@ class MinecraftNetSession extends GameSession {
 
         @Override
         protected ServerInfo[] doInBackground() throws Exception {
+            LogUtil.Log(Level.FINE, "MinecraftNetGetServerListWorker.doInBackground");
             String serverListString = HttpUtil.downloadString(ServerListUri);
             Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
@@ -205,7 +207,8 @@ class MinecraftNetSession extends GameSession {
 
     // Tries to restore previous session (if possible)
     private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
-        final String logPrefix = "MinecraftNetService.loadSessionCookie: ";
+        LogUtil.Log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
+        final String logPrefix = "MinecraftNetSession.loadSessionCookie: ";
         clearCookies();
         if (store.childrenNames().length > 0) {
             if (remember) {

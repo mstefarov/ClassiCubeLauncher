@@ -3,6 +3,7 @@ package net.classicube.launcher;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
@@ -10,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
 public class ServerListScreen extends javax.swing.JFrame {
 
     public ServerListScreen() {
+        LogUtil.Log(Level.FINE, "ServerListScreen");
         initComponents();
 
         // prepare to auto-adjust table columns (when the data arrives)
@@ -29,7 +31,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             public void propertyChange(PropertyChangeEvent evt) {
                 if ("state".equals(evt.getPropertyName())) {
                     if (evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
-                        onServerListAdded();
+                        onServerListDone();
                     }
                 }
             }
@@ -37,7 +39,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.execute();
     }
 
-    private void onServerListAdded() {
+    private void onServerListDone() {
+        LogUtil.Log(Level.FINE, "ServerListScreen.onServerListDone");
         try {
             ServerInfo[] result = getServerListTask.get();
             DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
@@ -199,6 +202,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bChangeUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeUserActionPerformed
+        LogUtil.Log(Level.INFO, "[Change User]");
         EntryPoint.ShowSignInScreen();
     }//GEN-LAST:event_bChangeUserActionPerformed
 

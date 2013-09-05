@@ -9,6 +9,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
 import javax.swing.SwingWorker;
 
 public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
@@ -27,6 +28,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
     @Override
     protected Boolean doInBackground() throws Exception {
+        LogUtil.Log(Level.FINE, "ClientUpdateTask.doInBackground");
         final File targetPath = LogUtil.getLauncherDir();
         final File clientFile = new File(targetPath, ClientJar);
         boolean needsUpdate;
