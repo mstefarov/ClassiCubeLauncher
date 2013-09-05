@@ -17,6 +17,14 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     private static final String ClientDownloadUrl = "http://www.classicube.net/static/client/client.jar";
     private static final String ClientHashUrl = "http://www.classicube.net/static/client/client.jar.md5";
 
+    private ClientUpdateTask() {
+    }
+    private static ClientUpdateTask instance = new ClientUpdateTask();
+
+    public static ClientUpdateTask getInstance() {
+        return instance;
+    }
+
     @Override
     protected Boolean doInBackground() throws Exception {
         final File targetPath = LogUtil.getLauncherDir();

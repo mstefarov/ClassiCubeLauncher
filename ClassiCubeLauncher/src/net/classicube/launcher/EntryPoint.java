@@ -12,6 +12,9 @@ public class EntryPoint {
         LogUtil.Init();
         GameSession.Init();
         SessionManager.Init();
+        
+        // begin the update process
+        ClientUpdateTask.getInstance().execute();
 
         // set look-and-feel to Numbus
         try {
@@ -53,6 +56,6 @@ public class EntryPoint {
         }
         serverListScreen.setVisible(true);
     }
-    static SignInScreen signInScreen;
-    static ServerListScreen serverListScreen;
+    private static SignInScreen signInScreen;
+    private static ServerListScreen serverListScreen;
 }

@@ -12,13 +12,17 @@ public class ServerListScreen extends javax.swing.JFrame {
     public ServerListScreen() {
         initComponents();
 
+        // prepare to auto-adjust table columns (when the data arrives)
         serverTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tca = new TableColumnAdjuster(serverTable);
         
+        // some UI tweaks
+        setLocationRelativeTo(null);
+        
+        // start fetching the server list
         tSearch.setText("Loading server list...");
         tSearch.setEnabled(false);
         getServerListTask = SessionManager.getSession().getServerListAsync();
-
         getServerListTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
             @Override
@@ -87,6 +91,11 @@ public class ServerListScreen extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
 
         bChangeUser.setText("< Change User");
+        bChangeUser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bChangeUserActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -188,6 +197,11 @@ public class ServerListScreen extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bChangeUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeUserActionPerformed
+        EntryPoint.ShowSignInScreen();
+    }//GEN-LAST:event_bChangeUserActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;

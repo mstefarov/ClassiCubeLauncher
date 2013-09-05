@@ -34,13 +34,14 @@ final class SignInScreen extends javax.swing.JFrame {
         this.getRootPane().setDefaultButton(bSignIn);
         progressFiller.setSize(progress.getHeight(), progress.getWidth());
         progress.setVisible(false);
+        setLocationRelativeTo(null);
         
+        // pick the appropriate game service
         if(SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService){
             selectClassiCubeNet();
         }else{
             selectMinecraftNet();
         }
-        
         enableGUI();
     }
 
