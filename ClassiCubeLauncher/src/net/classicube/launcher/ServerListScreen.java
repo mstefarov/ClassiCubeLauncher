@@ -1,5 +1,7 @@
 package net.classicube.launcher;
 
+import javax.swing.table.DefaultTableModel;
+
 public class ServerListScreen extends javax.swing.JFrame {
 
     /**
@@ -7,6 +9,12 @@ public class ServerListScreen extends javax.swing.JFrame {
      */
     public ServerListScreen() {
         initComponents();
+        /*
+        ServerInfo[] serverList = GameService.activeService.getServerList();
+        DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
+        for( ServerInfo server : serverList ){
+            model.addRow(new Object[]{server.name,server.players,server.maxPlayers,server.flag});
+        }*/
     }
 
     /**

@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.SwingWorker;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 class MinecraftNetService extends GameService {
@@ -38,120 +39,145 @@ class MinecraftNetService extends GameService {
     }
 
     @Override
-    public SignInResult signIn(boolean remember) throws SignInException {
-        final String logPrefix = "MinecraftNetService.signIn: ";
-        boolean restoredSession = false;
-        try {
-            restoredSession = loadSessionCookie(remember);
-        } catch (BackingStoreException ex) {
-            LogUtil.Log(Level.WARNING, "Error restoring session", ex);
+    public SwingWorker<SignInResult, String> signInAsync(boolean remember) {
+        return new MinecraftNetSignInWorker(remember);
+    }
+
+    class MinecraftNetSignInWorker extends SwingWorker<SignInResult, String> {
+
+        public MinecraftNetSignInWorker(boolean remember) {
+            this.remember = remember;
         }
 
-        // download the login page
-        String loginPage = downloadString(LoginSecureUri);
+        @Override
+        protected SignInResult doInBackground() throws Exception {
+            final String logPrefix = "MinecraftNetSignInWorker.doInBackground: ";
+            boolean restoredSession = false;
+            try {
+                restoredSession = loadSessionCookie(remember);
+            } catch (BackingStoreException ex) {
+                LogUtil.Log(Level.WARNING, "Error restoring session", ex);
+            }
 
-        // See if we're already logged in
-        Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
-        if (loginMatch.find()) {
-            String actualPlayerName = loginMatch.group(1);
-            if (remember && hasCookie(CookieName)
-                    && actualPlayerName.equalsIgnoreCase(account.PlayerName)) {
-                // If player is already logged in with the right account: reuse a previous session
-                account.PlayerName = actualPlayerName;
-                LogUtil.Log(Level.INFO, logPrefix + "Restored session for " + account.PlayerName);
-                storeCookies();
+            // download the login page
+            this.publish("Connecting to Minecraft.net");
+            String loginPage = downloadString(LoginSecureUri);
+
+            // See if we're already logged in
+            Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
+            if (loginMatch.find()) {
+                String actualPlayerName = loginMatch.group(1);
+                if (remember && hasCookie(CookieName)
+                        && actualPlayerName.equalsIgnoreCase(account.PlayerName)) {
+                    // If player is already logged in with the right account: reuse a previous session
+                    account.PlayerName = actualPlayerName;
+                    LogUtil.Log(Level.INFO, logPrefix + "Restored session for " + account.PlayerName);
+                    storeCookies();
+                    return SignInResult.SUCCESS;
+                } else {
+                    // If we're not supposed to reuse session, if old username is different,
+                    // or if there is no play session cookie set - relog
+                    LogUtil.Log(Level.INFO, logPrefix + "Switching accounts from "
+                            + actualPlayerName + " to " + account.PlayerName);
+                    downloadString(LogoutUri);
+                    clearCookies();
+                    loginPage = downloadString(LoginSecureUri);
+                }
+            }
+
+            // Extract authenticityToken from the login page
+            Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
+            if (!authTokenMatch.find()) {
+                if (restoredSession) {
+                    // restoring session failed; log out and retry
+                    downloadString(LogoutUri);
+                    clearCookies();
+                    LogUtil.Log(Level.WARNING,
+                            logPrefix + "Unrecognized login form served by minecraft.net; retrying.");
+                } else {
+                    // something unexpected happened, panic!
+                    LogUtil.Log(Level.INFO, loginPage);
+                    throw new SignInException("Login failed: Unrecognized login form served by minecraft.net");
+                }
+            }
+
+            // Built up a login request
+            String authToken = authTokenMatch.group(1);
+            StringBuilder requestStr = new StringBuilder();
+            requestStr.append("username=");
+            requestStr.append(UrlEncode(account.SignInUsername));
+            requestStr.append("&password=");
+            requestStr.append(UrlEncode(account.Password));
+            requestStr.append("&authenticityToken=");
+            requestStr.append(UrlEncode(authToken));
+            if (remember) {
+                requestStr.append("&remember=true");
+            }
+            requestStr.append("&redirect=");
+            requestStr.append(UrlEncode(HomepageUri));
+
+            // POST our data to the login handler
+            this.publish("Signing in...");
+            String loginResponse = uploadString(LoginSecureUri, requestStr.toString());
+
+            // Check for common failure scenarios
+            if (loginResponse.contains(WrongUsernameOrPasswordMessage)) {
+                return SignInResult.WRONG_USER_OR_PASS;
+            } else if (loginResponse.contains(MigratedAccountMessage)) {
+                return SignInResult.MIGRATED_ACCOUNT;
+            }
+
+            // Confirm tha we are now logged in
+            Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
+            if (responseMatch.find()) {
+                account.PlayerName = responseMatch.group(1);
                 return SignInResult.SUCCESS;
             } else {
-                // If we're not supposed to reuse session, if old username is different,
-                // or if there is no play session cookie set - relog
-                LogUtil.Log(Level.INFO, logPrefix + "Switching accounts from "
-                        + actualPlayerName + " to " + account.PlayerName);
-                downloadString(LogoutUri);
-                clearCookies();
-                loginPage = downloadString(LoginSecureUri);
+                LogUtil.Log(Level.INFO, loginResponse);
+                throw new SignInException("Login failed: Unrecognized response served by minecraft.net");
             }
         }
-
-        // Extract authenticityToken from the login page
-        Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
-        if (!authTokenMatch.find()) {
-            if (restoredSession) {
-                // restoring session failed; log out and retry
-                downloadString(LogoutUri);
-                clearCookies();
-                LogUtil.Log(Level.WARNING, logPrefix + "Unrecognized login form served by minecraft.net; retrying.");
-            } else {
-                // something unexpected happened, panic!
-                LogUtil.Log(Level.INFO, loginPage);
-                throw new SignInException("Login failed: Unrecognized login form served by minecraft.net");
-            }
-        }
-
-        // Built up a login request
-        String authToken = authTokenMatch.group(1);
-        StringBuilder requestStr = new StringBuilder();
-        requestStr.append("username=");
-        requestStr.append(UrlEncode(account.SignInUsername));
-        requestStr.append("&password=");
-        requestStr.append(UrlEncode(account.Password));
-        requestStr.append("&authenticityToken=");
-        requestStr.append(UrlEncode(authToken));
-        if (remember) {
-            requestStr.append("&remember=true");
-        }
-        requestStr.append("&redirect=");
-        requestStr.append(UrlEncode(HomepageUri));
-
-        // POST our data to the login handler
-        String loginResponse = uploadString(LoginSecureUri, requestStr.toString());
-
-        // Check for common failure scenarios
-        if (loginResponse.contains(WrongUsernameOrPasswordMessage)) {
-            return SignInResult.WRONG_USER_OR_PASS;
-        } else if (loginResponse.contains(MigratedAccountMessage)) {
-            return SignInResult.MIGRATED_ACCOUNT;
-        }
-
-        // Confirm tha we are now logged in
-        Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
-        if (responseMatch.find()) {
-            account.PlayerName = responseMatch.group(1);
-            return SignInResult.SUCCESS;
-        } else {
-            LogUtil.Log(Level.INFO, loginResponse);
-            throw new SignInException("Login failed: Unrecognized response served by minecraft.net");
-        }
+        boolean remember;
     }
 
     @Override
-    public ServerInfo[] getServerList() {
-        String serverListString = downloadString(ServerListUri);
-        Matcher serverListMatch = serverNameRegex.matcher(serverListString);
-        Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
-        ArrayList<ServerInfo> servers = new ArrayList<>();
-        while (serverListMatch.find()) {
-            ServerInfo server = new ServerInfo();
+    public SwingWorker<ServerInfo[], ServerInfo> getServerListAsync() {
+        return new MinecraftNetGetServerListWorker();
+    }
 
-            server.hash = serverListMatch.group(1);
-            server.name = StringEscapeUtils.unescapeHtml4(serverListMatch.group(2));
-            int rowStart = serverListMatch.end();
-            if (otherServerDataMatch.find(rowStart)) {
-                server.players = Integer.parseInt(otherServerDataMatch.group(1));
-                server.maxPlayers = Integer.parseInt(otherServerDataMatch.group(2));
-                String uptimeString = otherServerDataMatch.group(3);
-                try {
-                    server.uptime = parseUptime(uptimeString);
-                } catch (IllegalArgumentException ex) {
-                    LogUtil.Log(Level.WARNING, "Error parsing server uptime (\""
-                            + uptimeString + "\") for " + server.name);
+    class MinecraftNetGetServerListWorker extends SwingWorker<ServerInfo[], ServerInfo> {
+
+        @Override
+        protected ServerInfo[] doInBackground() throws Exception {
+            String serverListString = downloadString(ServerListUri);
+            Matcher serverListMatch = serverNameRegex.matcher(serverListString);
+            Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
+            ArrayList<ServerInfo> servers = new ArrayList<>();
+            while (serverListMatch.find()) {
+                ServerInfo server = new ServerInfo();
+
+                server.hash = serverListMatch.group(1);
+                server.name = StringEscapeUtils.unescapeHtml4(serverListMatch.group(2));
+                int rowStart = serverListMatch.end();
+                if (otherServerDataMatch.find(rowStart)) {
+                    server.players = Integer.parseInt(otherServerDataMatch.group(1));
+                    server.maxPlayers = Integer.parseInt(otherServerDataMatch.group(2));
+                    String uptimeString = otherServerDataMatch.group(3);
+                    try {
+                        server.uptime = parseUptime(uptimeString);
+                    } catch (IllegalArgumentException ex) {
+                        LogUtil.Log(Level.WARNING, "Error parsing server uptime (\""
+                                + uptimeString + "\") for " + server.name);
+                    }
+                    server.flag = otherServerDataMatch.group(4);
+                } else {
+                    LogUtil.Log(Level.WARNING, "Error passing extended server info for " + server.name);
                 }
-                server.flag = otherServerDataMatch.group(4);
-            } else {
-                LogUtil.Log(Level.WARNING, "Error passing extended server info for " + server.name);
+                this.publish(server);
+                servers.add(server);
             }
-            servers.add(server);
+            return servers.toArray(new ServerInfo[0]);
         }
-        return servers.toArray(new ServerInfo[0]);
     }
 
     @Override

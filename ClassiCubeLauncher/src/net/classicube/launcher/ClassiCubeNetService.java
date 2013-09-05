@@ -1,6 +1,7 @@
 package net.classicube.launcher;
 
 import java.net.URI;
+import javax.swing.SwingWorker;
 
 class ClassiCubeNetService extends GameService {
 
@@ -9,13 +10,13 @@ class ClassiCubeNetService extends GameService {
     }
 
     @Override
-    public SignInResult signIn(boolean remember) throws SignInException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public SwingWorker<SignInResult, String> signInAsync(boolean remember) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public ServerInfo[] getServerList() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public SwingWorker<ServerInfo[], ServerInfo> getServerListAsync() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

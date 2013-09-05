@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import javax.swing.SwingWorker;
 
 abstract class GameService {
+    public static GameService activeService;
 
     private static final String UserAgent = "ClassiCube Launcher";
 
@@ -22,11 +24,9 @@ abstract class GameService {
         this.account = account;
     }
 
-    // Tries to start a play session
-    public abstract SignInResult signIn(boolean remember) throws SignInException;
-
-    // Fetches the server list
-    public abstract ServerInfo[] getServerList();
+    public abstract SwingWorker<SignInResult,String> signInAsync(boolean remember);
+    
+    public abstract SwingWorker<ServerInfo[],ServerInfo> getServerListAsync();
 
     // Gets mppass for given server
     public abstract String getServerPass(ServerInfo server);
