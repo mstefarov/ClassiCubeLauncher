@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
@@ -17,10 +18,10 @@ public class ServerListScreen extends javax.swing.JFrame {
         // prepare to auto-adjust table columns (when the data arrives)
         serverTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tca = new TableColumnAdjuster(serverTable);
-        
+
         // some UI tweaks
         setLocationRelativeTo(null);
-        
+
         // start fetching the server list
         tSearch.setText("Loading server list...");
         tSearch.setEnabled(false);
@@ -57,9 +58,9 @@ public class ServerListScreen extends javax.swing.JFrame {
             tSearch.setEnabled(true);
             tSearch.selectAll();
             tSearch.requestFocus();
-            
+
             tca.adjustColumns();
-            
+
         } catch (InterruptedException | ExecutionException ex) {
             LogUtil.ShowWarning(ex.toString(), "Problem loading server list");
             tSearch.setText("Could not load server list.");
@@ -145,6 +146,11 @@ public class ServerListScreen extends javax.swing.JFrame {
         getContentPane().add(tServerURL, gridBagConstraints);
 
         bConnect.setText("Connect >");
+        bConnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bConnectActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 10;
@@ -206,6 +212,17 @@ public class ServerListScreen extends javax.swing.JFrame {
         EntryPoint.ShowSignInScreen();
     }//GEN-LAST:event_bChangeUserActionPerformed
 
+    private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
+        // TODO: fetch server details here
+        // TODO: probably show another window (or a progress bar) while details are being fetched
+        try {
+            boolean result = ClientUpdateTask.getInstance().get();
+            LogUtil.ShowInfo(Boolean.toString(result), "Update result"); // temporary
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.ShowError(ex.toString(), "Error while updating");
+        }
+        // TODO: launch the client after all details are done
+    }//GEN-LAST:event_bConnectActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;

@@ -43,7 +43,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
             // else check if remote hash is different from local hash
             final String remoteHash = HttpUtil.downloadString(ClientHashUrl);
             if (remoteHash == null) {
-                needsUpdate = false; // remote server errored
+                needsUpdate = false; // remote server is down, dont try to update
             } else {
                 final String localHashString = computeLocalHash(clientFile);
                 needsUpdate = localHashString.equalsIgnoreCase(remoteHash);
@@ -51,6 +51,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         }
 
         if (needsUpdate) {
+            // download (or re-download) the client
             final File clientTempFile = new File(targetPath, ClientTempJar);
             downloadClientJar(clientTempFile);
             replaceFile(clientTempFile, clientFile);
