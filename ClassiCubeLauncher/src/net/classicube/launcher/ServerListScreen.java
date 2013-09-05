@@ -43,8 +43,8 @@ public class ServerListScreen extends javax.swing.JFrame {
     private void onServerListDone() {
         LogUtil.Log(Level.FINE, "ServerListScreen.onServerListDone");
         try {
-            ServerInfo[] result = getServerListTask.get();
-            DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
+            final ServerInfo[] result = getServerListTask.get();
+            final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
             for (ServerInfo server : result) {
                 model.addRow(new Object[]{
                     server.name,
@@ -66,8 +66,6 @@ public class ServerListScreen extends javax.swing.JFrame {
             tSearch.setText("Could not load server list.");
         }
     }
-    SwingWorker<ServerInfo[], ServerInfo> getServerListTask;
-    TableColumnAdjuster tca;
 
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT
@@ -216,7 +214,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         // TODO: fetch server details here
         // TODO: probably show another window (or a progress bar) while details are being fetched
         try {
-            boolean result = ClientUpdateTask.getInstance().get();
+            final boolean result = ClientUpdateTask.getInstance().get();
             LogUtil.ShowInfo(Boolean.toString(result), "Update result"); // temporary
         } catch (InterruptedException | ExecutionException ex) {
             LogUtil.ShowError(ex.toString(), "Error while updating");
@@ -232,4 +230,6 @@ public class ServerListScreen extends javax.swing.JFrame {
     private javax.swing.JTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
+    private SwingWorker<ServerInfo[], ServerInfo> getServerListTask;
+    private TableColumnAdjuster tca;
 }

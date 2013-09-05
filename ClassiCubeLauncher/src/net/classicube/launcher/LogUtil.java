@@ -8,19 +8,19 @@ import javax.swing.JOptionPane;
 // Global logging class (to make life easier)
 class LogUtil {
 
-    private static final String MacSuffix = "/Library/Application Support";
-    private static final String LauncherDirName = "net.classicube.launcher";
-    private static final String LogFileName = "launcher.log";
+    private static final String MacSuffix = "/Library/Application Support",
+            LauncherDirName = "net.classicube.launcher",
+            LogFileName = "launcher.log";
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 
     // Sets up logging to file (%AppData%/net.classicube.launcher/launcher.log)
     public static void Init() {
         logger.setLevel(Level.FINE);
 
-        File logFile = new File(getLauncherDir(), LogFileName);
+        final File logFile = new File(getLauncherDir(), LogFileName);
 
         try {
-            FileHandler handler = new FileHandler(logFile.getAbsolutePath());
+            final FileHandler handler = new FileHandler(logFile.getAbsolutePath());
             handler.setFormatter(new SimpleFormatter());
             logger.addHandler(handler);
         } catch (IOException | SecurityException ex) {
@@ -31,7 +31,7 @@ class LogUtil {
 
     public static File getLauncherDir() {
         if (launcherDir == null) {
-            File userDir = findUserDir();
+            final File userDir = findUserDir();
             launcherDir = new File(userDir, LauncherDirName);
             if (launcherDir.exists()) {
                 launcherDir.mkdir();
@@ -81,7 +81,7 @@ class LogUtil {
 
     // Find OS-specific application data dir (reused from ClassiCubeSelfUpdater)
     private static File findUserDir() {
-        String os = System.getProperty("os.name");
+        final String os = System.getProperty("os.name");
         String path;
         if (os.contains("Windows")) {
             path = System.getenv("AppData");

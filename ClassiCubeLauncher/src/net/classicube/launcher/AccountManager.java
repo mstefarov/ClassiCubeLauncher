@@ -13,6 +13,9 @@ class AccountManager {
     // Creates a new account manager for specified service name
     // serviceName is used to separate storage of data from different services
     public AccountManager(String serviceName) {
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName may not be null");
+        }
         this.store = Preferences.userNodeForPackage(this.getClass()).node("Accounts").node(serviceName);
     }
 
@@ -21,7 +24,7 @@ class AccountManager {
         LogUtil.Log(Level.FINE, "AccountManager.Load");
         try {
             for (String accountName : store.childrenNames()) {
-                UserAccount acct = new UserAccount(store.node(accountName));
+                final UserAccount acct = new UserAccount(store.node(accountName));
                 accounts.put(acct.SignInUsername.toLowerCase(), acct);
             }
         } catch (BackingStoreException ex) {
@@ -47,12 +50,15 @@ class AccountManager {
 
     // Tries to find stored UserAccount data for given sign-in name
     public UserAccount FindAccount(String signInName) {
+        if (signInName == null) {
+            throw new IllegalArgumentException("signInName may not be null");
+        }
         return accounts.get(signInName.toLowerCase());
     }
 
     // Gets a list of all accounts, ordered by sign-in date, most recent first
     public UserAccount[] GetAccountsBySignInDate() {
-        UserAccount[] accountArray = accounts.values().toArray(new UserAccount[0]);
+        final UserAccount[] accountArray = accounts.values().toArray(new UserAccount[0]);
         Arrays.sort(accountArray, UserAccountDateComparator.instance);
         return accountArray;
     }

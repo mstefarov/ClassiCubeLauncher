@@ -13,8 +13,11 @@ public class HttpUtil {
 
     public static HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
             throws MalformedURLException, IOException {
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        if (urlString == null) {
+            throw new IllegalArgumentException("urlString may not be null");
+        }
+        final URL url = new URL(urlString);
+        final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setUseCaches(false);
         if (postData != null) {
             connection.setRequestMethod("POST");
@@ -56,18 +59,18 @@ public class HttpUtil {
             }
 
             // Handle redirects
-            int responseCode = connection.getResponseCode();
+            final int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-                String redirectUrl = connection.getHeaderField("location");
+                final String redirectUrl = connection.getHeaderField("location");
                 return downloadString(redirectUrl);
             }
 
             // Read response
-            StringBuilder response = new StringBuilder();
+            final StringBuilder response = new StringBuilder();
             String line;
             try (InputStream is = connection.getInputStream()) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                final BufferedReader rd = new BufferedReader(new InputStreamReader(is));
                 while ((line = rd.readLine()) != null) {
                     response.append(line);
                     response.append('\n');

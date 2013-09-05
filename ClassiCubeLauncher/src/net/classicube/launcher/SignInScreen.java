@@ -204,9 +204,9 @@ final class SignInScreen extends javax.swing.JFrame {
     }
 
     void onAfterServiceChanged() {
-        String curUsername = (String)cUsername.getSelectedItem();
+        final String curUsername = (String)cUsername.getSelectedItem();
         this.cUsername.removeAllItems();
-        UserAccount[] accounts = SessionManager.getAccountManager().GetAccountsBySignInDate();
+        final UserAccount[] accounts = SessionManager.getAccountManager().GetAccountsBySignInDate();
         for (UserAccount account : accounts) {
             this.cUsername.addItem(account.SignInUsername);
         }
@@ -221,13 +221,13 @@ final class SignInScreen extends javax.swing.JFrame {
     private void bSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSignInActionPerformed
         // Grab user information from the form
         LogUtil.Log(Level.INFO, "[Sign In]");
-        String username = (String) cUsername.getSelectedItem();
-        String password = new String(tPassword.getPassword());
-        UserAccount newAcct = new UserAccount(username, password);
+        final String username = (String) cUsername.getSelectedItem();
+        final String password = new String(tPassword.getPassword());
+        final UserAccount newAcct = new UserAccount(username, password);
         boolean remember = this.xRememberMe.isSelected();
 
         // Create an async task for signing in
-        GameSession session = SessionManager.createSession(newAcct);
+        final GameSession session = SessionManager.createSession(newAcct);
         signInTask = session.signInAsync(remember);
 
         // Get ready to handle the task completion
@@ -256,7 +256,7 @@ final class SignInScreen extends javax.swing.JFrame {
     private void onSignInDone(SwingWorker<SignInResult, String> signInTask) {
         LogUtil.Log(Level.FINE, "SignInScreen.onSignInDone");
         try {
-            SignInResult result = signInTask.get();
+            final SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {
                 EntryPoint.ShowServerListScreen();
             } else {
@@ -295,7 +295,7 @@ final class SignInScreen extends javax.swing.JFrame {
     private void hookUpListeners() {
         // hook up listeners for username/password field changes
         fieldChangeListener = new UsernameOrPasswordChangedListener();
-        JTextComponent usernameEditor = (JTextComponent) cUsername.getEditor().getEditorComponent();
+        final JTextComponent usernameEditor = (JTextComponent) cUsername.getEditor().getEditorComponent();
         usernameEditor.getDocument().addDocumentListener(fieldChangeListener);
         tPassword.getDocument().addDocumentListener(fieldChangeListener);
         cUsername.addActionListener(fieldChangeListener);
@@ -336,7 +336,7 @@ final class SignInScreen extends javax.swing.JFrame {
 
         public UsernameOrPasswordChangedListener() {
             realPasswordLength = tPassword.getPassword().length;
-            String username = (String) cUsername.getSelectedItem();
+            final String username = (String) cUsername.getSelectedItem();
             if (username == null) {
                 realUsernameLength = 0;
             } else {
@@ -360,7 +360,7 @@ final class SignInScreen extends javax.swing.JFrame {
         }
 
         private void somethingEdited(DocumentEvent e) {
-            Document doc = e.getDocument();
+            final Document doc = e.getDocument();
             if (doc.equals(tPassword.getDocument())) {
                 realPasswordLength = doc.getLength();
             } else {
@@ -372,7 +372,7 @@ final class SignInScreen extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             realPasswordLength = tPassword.getPassword().length;
-            String username = (String) cUsername.getSelectedItem();
+            final String username = (String) cUsername.getSelectedItem();
             if (username == null) {
                 realUsernameLength = 0;
             } else {
@@ -405,8 +405,8 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            APPLICATION FIELDS
     // =============================================================================================
-    ImagePanel bgPanel;
-    JToggleButton buttonToDisableOnSignIn;
-    UsernameOrPasswordChangedListener fieldChangeListener;
-    SwingWorker<SignInResult, String> signInTask;
+    private ImagePanel bgPanel;
+    private JToggleButton buttonToDisableOnSignIn;
+    private UsernameOrPasswordChangedListener fieldChangeListener;
+    private SwingWorker<SignInResult, String> signInTask;
 }

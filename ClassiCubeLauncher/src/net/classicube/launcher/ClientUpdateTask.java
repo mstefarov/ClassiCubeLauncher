@@ -15,10 +15,10 @@ import javax.swing.SwingWorker;
 
 public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
-    private static final String ClientJar = "ClassiCubeClient.jar";
-    private static final String ClientTempJar = "ClassiCubeClient.jar.tmp";
-    private static final String ClientDownloadUrl = "http://www.classicube.net/static/client/client.jar";
-    private static final String ClientHashUrl = "http://www.classicube.net/static/client/client.jar.md5";
+    private static final String ClientJar = "ClassiCubeClient.jar",
+            ClientTempJar = "ClassiCubeClient.jar.tmp",
+            ClientDownloadUrl = "http://www.classicube.net/static/client/client.jar",
+            ClientHashUrl = "http://www.classicube.net/static/client/client.jar.md5";
 
     private ClientUpdateTask() {
     }
@@ -62,6 +62,9 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
     private String computeLocalHash(File clientJar)
             throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+        if (clientJar == null) {
+            throw new IllegalArgumentException("clientJar may not be null");
+        }
         final MessageDigest digest = MessageDigest.getInstance("MD5");
         final byte[] buffer = new byte[8192];
         try (FileInputStream is = new FileInputStream(clientJar)) {
@@ -76,6 +79,9 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
     private void downloadClientJar(File clientJar)
             throws MalformedURLException, FileNotFoundException, IOException {
+        if (clientJar == null) {
+            throw new IllegalArgumentException("clientJar may not be null");
+        }
         clientJar.delete();
         final URL website = new URL(ClientDownloadUrl);
         final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
@@ -87,6 +93,12 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     // Replace contents of destFile with sourceFile
     static void replaceFile(File sourceFile, File destFile)
             throws IOException {
+        if (sourceFile == null) {
+            throw new IllegalArgumentException("sourceFile may not be null");
+        }
+        if (destFile == null) {
+            throw new IllegalArgumentException("destFile may not be null");
+        }
         if (!destFile.exists()) {
             destFile.createNewFile();
         }

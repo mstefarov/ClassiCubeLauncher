@@ -16,6 +16,12 @@ abstract class GameSession {
 
     // constructor used by implementations
     protected GameSession(String serviceName, UserAccount account) {
+        if (serviceName == null) {
+            throw new IllegalArgumentException("serviceName may not be null");
+        }
+        if (account == null) {
+            throw new IllegalArgumentException("account may not be null");
+        }
         store = Preferences.userNodeForPackage(this.getClass())
                 .node("GameServices")
                 .node(serviceName);
@@ -64,7 +70,7 @@ abstract class GameSession {
     protected void loadCookies() {
         try {
             for (String cookieName : store.keys()) {
-                HttpCookie newCookie = new HttpCookie(cookieName, store.get(cookieName, null));
+                final HttpCookie newCookie = new HttpCookie(cookieName, store.get(cookieName, null));
                 cookieJar.add(getSiteUri(), newCookie);
             }
         } catch (BackingStoreException ex) {
@@ -74,7 +80,10 @@ abstract class GameSession {
 
     // Tries to find a cookie by name. Returns null if not found.
     protected HttpCookie getCookie(String name) {
-        List<HttpCookie> cookies = cookieJar.get(getSiteUri());
+        if (name == null) {
+            throw new IllegalArgumentException("name may not be null");
+        }
+        final List<HttpCookie> cookies = cookieJar.get(getSiteUri());
         for (HttpCookie cookie : cookies) {
             if (cookie.getName().equals(name)) {
                 return cookie;
@@ -89,10 +98,13 @@ abstract class GameSession {
     }
 
     // Encodes a string in a URL-friendly format, for GET or POST
-    protected String urlEncode(String str) {
-        String enc = StandardCharsets.UTF_8.name();
+    protected String urlEncode(String rawString) {
+        if (rawString == null) {
+            throw new IllegalArgumentException("rawString may not be null");
+        }
+        final String enc = StandardCharsets.UTF_8.name();
         try {
-            return URLEncoder.encode(str, enc);
+            return URLEncoder.encode(rawString, enc);
         } catch (UnsupportedEncodingException ex) {
             LogUtil.Log(Level.SEVERE, "UrlEncode error: " + ex);
             return null;
@@ -100,13 +112,16 @@ abstract class GameSession {
     }
 
     // Decodes an HTML-escaped string
-    protected String htmlDecode(String str) {
-        return StringEscapeUtils.UNESCAPE_HTML4.translate(str);
+    protected String htmlDecode(String encodedString) {
+        if (encodedString == null) {
+            throw new IllegalArgumentException("encodedString may not be null");
+        }
+        return StringEscapeUtils.UNESCAPE_HTML4.translate(encodedString);
     }
 
     // Initializes the cookie manager
     public static void Init() {
-        CookieManager cm = new CookieManager();
+        final CookieManager cm = new CookieManager();
         cookieJar = cm.getCookieStore();
         CookieManager.setDefault(cm);
     }

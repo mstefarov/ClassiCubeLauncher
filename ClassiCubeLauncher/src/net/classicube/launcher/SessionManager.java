@@ -23,11 +23,14 @@ class SessionManager {
         return activeSession;
     }
 
-    public static GameSession createSession(UserAccount newService) {
+    public static GameSession createSession(UserAccount userAccount) {
+        if (userAccount == null) {
+            throw new IllegalArgumentException("userAccount may not be null");
+        }
         if (activeServiceType == GameServiceType.ClassiCubeNetService) {
-            activeSession = new ClassiCubeNetSession(newService);
+            activeSession = new ClassiCubeNetSession(userAccount);
         } else {
-            activeSession = new MinecraftNetSession(newService);
+            activeSession = new MinecraftNetSession(userAccount);
         }
         return activeSession;
     }
@@ -39,9 +42,9 @@ class SessionManager {
     public static void Init() {
         // preferred service
         prefs = Preferences.userNodeForPackage(EntryPoint.class);
-        String serviceName = prefs.get(SelectedServiceKeyName,
+        final String serviceName = prefs.get(SelectedServiceKeyName,
                 GameServiceType.ClassiCubeNetService.name());
         activeServiceType = GameServiceType.valueOf(serviceName);
     }
-    static Preferences prefs;
+    private static Preferences prefs;
 }

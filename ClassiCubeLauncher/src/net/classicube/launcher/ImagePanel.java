@@ -25,8 +25,8 @@ public class ImagePanel extends JComponent {
         if (image == null) {
             return;
         }
-        int iw = image.getWidth(this);
-        int ih = image.getHeight(this);
+        final int iw = image.getWidth(this);
+        final int ih = image.getHeight(this);
         if (isTiled) {
             if (iw > 0 && ih > 0) {
                 for (int x = 0; x < getWidth(); x += iw) {

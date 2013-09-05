@@ -43,7 +43,7 @@ class MinecraftNetSession extends GameSession {
     }
 
     // Asynchronously try signing in our user
-    class MinecraftNetSignInWorker extends SwingWorker<SignInResult, String> {
+    private class MinecraftNetSignInWorker extends SwingWorker<SignInResult, String> {
 
         public MinecraftNetSignInWorker(boolean remember) {
             this.remember = remember;
@@ -67,7 +67,7 @@ class MinecraftNetSession extends GameSession {
             String loginPage = HttpUtil.downloadString(LoginSecureUri);
 
             // See if we're already logged in
-            Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
+            final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
                 String actualPlayerName = loginMatch.group(1);
                 if (remember && hasCookie(CookieName)
@@ -90,7 +90,7 @@ class MinecraftNetSession extends GameSession {
             }
 
             // Extract authenticityToken from the login page
-            Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
+            final Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
             if (!authTokenMatch.find()) {
                 if (restoredSession) {
                     // restoring session failed; log out and retry
@@ -107,8 +107,8 @@ class MinecraftNetSession extends GameSession {
             }
 
             // Built up a login request
-            String authToken = authTokenMatch.group(1);
-            StringBuilder requestStr = new StringBuilder();
+            final String authToken = authTokenMatch.group(1);
+            final StringBuilder requestStr = new StringBuilder();
             requestStr.append("username=");
             requestStr.append(urlEncode(account.SignInUsername));
             requestStr.append("&password=");
@@ -133,7 +133,7 @@ class MinecraftNetSession extends GameSession {
             }
 
             // Confirm tha we are now logged in
-            Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
+            final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
                 account.PlayerName = responseMatch.group(1);
                 return SignInResult.SUCCESS;
@@ -150,29 +150,29 @@ class MinecraftNetSession extends GameSession {
         return new MinecraftNetGetServerListWorker();
     }
 
-    class MinecraftNetGetServerListWorker extends SwingWorker<ServerInfo[], ServerInfo> {
+    private class MinecraftNetGetServerListWorker extends SwingWorker<ServerInfo[], ServerInfo> {
 
         @Override
         protected ServerInfo[] doInBackground() throws Exception {
             LogUtil.Log(Level.FINE, "MinecraftNetGetServerListWorker.doInBackground");
             String serverListString = HttpUtil.downloadString(ServerListUri);
-            Matcher serverListMatch = serverNameRegex.matcher(serverListString);
-            Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
-            ArrayList<ServerInfo> servers = new ArrayList<>();
+            final Matcher serverListMatch = serverNameRegex.matcher(serverListString);
+            final Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
+            final ArrayList<ServerInfo> servers = new ArrayList<>();
             // Go through server table, one at a time!
             while (serverListMatch.find()) {
                 // Fetch server's basic info
-                ServerInfo server = new ServerInfo();
+                final ServerInfo server = new ServerInfo();
                 server.hash = serverListMatch.group(1);
                 server.name = htmlDecode(serverListMatch.group(2));
-                int rowStart = serverListMatch.end();
+                final int rowStart = serverListMatch.end();
 
                 // Try getting the rest using another regex
                 if (otherServerDataMatch.find(rowStart)) {
                     // this bit doesn't actually work yet (gotta fix my regex)
                     server.players = Integer.parseInt(otherServerDataMatch.group(1));
                     server.maxPlayers = Integer.parseInt(otherServerDataMatch.group(2));
-                    String uptimeString = otherServerDataMatch.group(3);
+                    final String uptimeString = otherServerDataMatch.group(3);
                     try {
                         server.uptime = parseUptime(uptimeString);
                     } catch (IllegalArgumentException ex) {
@@ -213,8 +213,8 @@ class MinecraftNetSession extends GameSession {
         if (store.childrenNames().length > 0) {
             if (remember) {
                 loadCookies();
-                HttpCookie cookie = super.getCookie(CookieName);
-                String userToken = "username%3A" + account.SignInUsername + "%00";
+                final HttpCookie cookie = super.getCookie(CookieName);
+                final String userToken = "username%3A" + account.SignInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
                     LogUtil.Log(Level.FINE,
                             logPrefix + "Loaded saved session for " + account.SignInUsername);
@@ -234,10 +234,14 @@ class MinecraftNetSession extends GameSession {
 
     // Parses Minecraft.net server list's way of showing uptime (e.g. 1s, 1m, 1h, 1d)
     // Returns the number of seconds
-    private int parseUptime(String uptime) throws IllegalArgumentException {
-        String numPart = uptime.substring(0, uptime.length() - 1);
-        char unitPart = uptime.charAt(uptime.length() - 1);
-        int number = Integer.parseInt(numPart);
+    private int parseUptime(String uptime)
+            throws IllegalArgumentException {
+        if (uptime == null) {
+            throw new IllegalArgumentException("uptime may not be null");
+        }
+        final String numPart = uptime.substring(0, uptime.length() - 1);
+        final char unitPart = uptime.charAt(uptime.length() - 1);
+        final int number = Integer.parseInt(numPart);
         switch (unitPart) {
             case 's':
                 return number;
@@ -251,5 +255,5 @@ class MinecraftNetSession extends GameSession {
                 throw new IllegalArgumentException("Invalid date/time parameter.");
         }
     }
-    URI siteUri;
+    private URI siteUri;
 }
