@@ -5,16 +5,18 @@ import java.io.IOException;
 import java.util.logging.*;
 import javax.swing.JOptionPane;
 
+// Global logging class (to make life easier)
 class LogUtil {
 
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 
+    // Sets up logging to file (%AppData%/net.classicube.launcher/launcher.log)
     public static void Init() {
         logger.setLevel(Level.FINE);
 
         File userDir = findUserDir();
         File launcherDir = new File(userDir, LauncherDirName);
-        File logFile = new File(launcherDir, "launcher.log");
+        File logFile = new File(launcherDir, LogFileName);
 
         try {
             FileHandler handler = new FileHandler(logFile.getAbsolutePath());
@@ -26,39 +28,46 @@ class LogUtil {
         }
     }
 
+    // Records a log message with given severity level and message
     public static void Log(Level level, String message) {
         logger.log(level, message);
     }
 
+    // Records a log message with given severity level, message, and exception details
     public static void Log(Level level, String message, Throwable ex) {
         logger.log(level, message, ex);
     }
 
+    // Shows an informative modal dialog box
     public static void ShowInfo(String message, String title) {
         JOptionPane.showMessageDialog(null, message, "Info: " + title, JOptionPane.INFORMATION_MESSAGE);
     }
 
+    // Shows a warning modal dialog box
     public static void ShowWarning(String message, String title) {
         JOptionPane.showMessageDialog(null, message, "Warning: " + title, JOptionPane.WARNING_MESSAGE);
     }
 
+    // Shows an alarming modal dialog box
     public static void ShowError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, "ERROR: " + title, JOptionPane.ERROR_MESSAGE);
     }
-    
-    public static void Die(String message){
-        Log(Level.SEVERE,message);
-        ShowError(message,"Fatal error");
-        System.exit(2);
-    }
-    
-    public static void Die(String message, Throwable ex){
-        Log(Level.SEVERE,message,ex);
-        ShowError(message,"Fatal error");
+
+    // Kills the process after showing and loging a message
+    public static void Die(String message) {
+        Log(Level.SEVERE, message);
+        ShowError(message, "Fatal error");
         System.exit(2);
     }
 
-    // Find OS-specific application data dir
+    // Kills the process after showing and loging a message, and logging the error
+    public static void Die(String message, Throwable ex) {
+        Log(Level.SEVERE, message, ex);
+        ShowError(message, "Fatal error");
+        System.exit(2);
+    }
+
+    // Find OS-specific application data dir (reused from ClassiCubeSelfUpdater)
     private static File findUserDir() {
         String os = System.getProperty("os.name");
         String path;
@@ -74,4 +83,5 @@ class LogUtil {
     }
     private static final String MacSuffix = "/Library/Application Support";
     private static final String LauncherDirName = "net.classicube.launcher";
+    private static final String LogFileName = "launcher.log";
 }

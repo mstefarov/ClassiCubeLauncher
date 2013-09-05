@@ -4,11 +4,6 @@ import javax.swing.table.DefaultTableModel;
 
 public class ServerListScreen extends javax.swing.JFrame {
 
-    static final long serialVersionUID = 1L;
-
-    /**
-     * Creates new form ServerListScreen
-     */
     public ServerListScreen() {
         initComponents();
         /*
@@ -30,8 +25,8 @@ public class ServerListScreen extends javax.swing.JFrame {
 
         bChangeUser = new javax.swing.JButton();
         tSearch = new javax.swing.JTextField();
-        separator1 = new javax.swing.JSeparator();
-        separator2 = new javax.swing.JSeparator();
+        javax.swing.JSeparator separator1 = new javax.swing.JSeparator();
+        javax.swing.JSeparator separator2 = new javax.swing.JSeparator();
         bPreferences = new javax.swing.JButton();
         tServerURL = new javax.swing.JTextField();
         bConnect = new javax.swing.JButton();
@@ -151,8 +146,6 @@ public class ServerListScreen extends javax.swing.JFrame {
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;
     private javax.swing.JButton bPreferences;
-    private javax.swing.JSeparator separator1;
-    private javax.swing.JSeparator separator2;
     private javax.swing.JTable serverTable;
     private javax.swing.JScrollPane serverTableContainer;
     private javax.swing.JTextField tSearch;

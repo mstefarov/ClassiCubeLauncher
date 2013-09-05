@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URL;
 import javax.imageio.ImageIO;
 
+// Static class that keeps track of loading (lazily) our resource files.
+// Currently just handles the 4 texture images for SignInScreen.
 class Resources {
 
     private static Image classiCubeBackground = null,
@@ -40,6 +42,7 @@ class Resources {
         return minecraftNetLogo;
     }
 
+    // Loads an image from inside the ClassiCubeLauncher JAR
     private static Image loadImage(String fileName) {
         URL imageUrl = Resources.class.getResource(fileName);
         try {

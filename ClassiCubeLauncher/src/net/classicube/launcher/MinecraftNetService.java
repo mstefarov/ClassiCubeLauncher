@@ -9,7 +9,6 @@ import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.SwingWorker;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 class MinecraftNetService extends GameService {
 
@@ -43,6 +42,7 @@ class MinecraftNetService extends GameService {
         return new MinecraftNetSignInWorker(remember);
     }
 
+    // Asynchronously try signing in our user
     class MinecraftNetSignInWorker extends SwingWorker<SignInResult, String> {
 
         public MinecraftNetSignInWorker(boolean remember) {
@@ -59,8 +59,10 @@ class MinecraftNetService extends GameService {
                 LogUtil.Log(Level.WARNING, "Error restoring session", ex);
             }
 
-            // download the login page
+            // "this.publish" can be used to send text status updates to the GUI (not hooked up)
             this.publish("Connecting to Minecraft.net");
+
+            // download the login page
             String loginPage = downloadString(LoginSecureUri);
 
             // See if we're already logged in
@@ -74,6 +76,7 @@ class MinecraftNetService extends GameService {
                     LogUtil.Log(Level.INFO, logPrefix + "Restored session for " + account.PlayerName);
                     storeCookies();
                     return SignInResult.SUCCESS;
+
                 } else {
                     // If we're not supposed to reuse session, if old username is different,
                     // or if there is no play session cookie set - relog
@@ -94,6 +97,7 @@ class MinecraftNetService extends GameService {
                     clearCookies();
                     LogUtil.Log(Level.WARNING,
                             logPrefix + "Unrecognized login form served by minecraft.net; retrying.");
+                    
                 } else {
                     // something unexpected happened, panic!
                     LogUtil.Log(Level.INFO, loginPage);
@@ -105,16 +109,16 @@ class MinecraftNetService extends GameService {
             String authToken = authTokenMatch.group(1);
             StringBuilder requestStr = new StringBuilder();
             requestStr.append("username=");
-            requestStr.append(UrlEncode(account.SignInUsername));
+            requestStr.append(urlEncode(account.SignInUsername));
             requestStr.append("&password=");
-            requestStr.append(UrlEncode(account.Password));
+            requestStr.append(urlEncode(account.Password));
             requestStr.append("&authenticityToken=");
-            requestStr.append(UrlEncode(authToken));
+            requestStr.append(urlEncode(authToken));
             if (remember) {
                 requestStr.append("&remember=true");
             }
             requestStr.append("&redirect=");
-            requestStr.append(UrlEncode(HomepageUri));
+            requestStr.append(urlEncode(HomepageUri));
 
             // POST our data to the login handler
             this.publish("Signing in...");
@@ -153,13 +157,17 @@ class MinecraftNetService extends GameService {
             Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
             ArrayList<ServerInfo> servers = new ArrayList<>();
+            // Go through server table, one at a time!
             while (serverListMatch.find()) {
+                // Fetch server's basic info
                 ServerInfo server = new ServerInfo();
-
                 server.hash = serverListMatch.group(1);
-                server.name = StringEscapeUtils.unescapeHtml4(serverListMatch.group(2));
+                server.name = htmlDecode(serverListMatch.group(2));
                 int rowStart = serverListMatch.end();
+                
+                // Try getting the rest using another regex
                 if (otherServerDataMatch.find(rowStart)) {
+                    // this bit doesn't actually work yet (gotta fix my regex)
                     server.players = Integer.parseInt(otherServerDataMatch.group(1));
                     server.maxPlayers = Integer.parseInt(otherServerDataMatch.group(2));
                     String uptimeString = otherServerDataMatch.group(3);
@@ -167,15 +175,15 @@ class MinecraftNetService extends GameService {
                         server.uptime = parseUptime(uptimeString);
                     } catch (IllegalArgumentException ex) {
                         LogUtil.Log(Level.WARNING, "Error parsing server uptime (\""
-                                + uptimeString + "\") for " + server.name);
+                                + uptimeString + "\") for " + server.name, ex);
                     }
                     server.flag = otherServerDataMatch.group(4);
                 } else {
                     LogUtil.Log(Level.WARNING, "Error passing extended server info for " + server.name);
                 }
-                this.publish(server);
                 servers.add(server);
             }
+            // This list is heading off to ServerListScreen (not implemented yet)
             return servers.toArray(new ServerInfo[0]);
         }
     }
@@ -195,6 +203,7 @@ class MinecraftNetService extends GameService {
         return siteUri;
     }
 
+    // Tries to restore previous session (if possible)
     private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
         final String logPrefix = "MinecraftNetService.loadSessionCookie: ";
         clearCookies();
@@ -220,6 +229,8 @@ class MinecraftNetService extends GameService {
         return false;
     }
 
+    // Parses Minecraft.net server list's way of showing uptime (e.g. 1s, 1m, 1h, 1d)
+    // Returns the number of seconds
     private int parseUptime(String uptime) throws IllegalArgumentException {
         String numPart = uptime.substring(0, uptime.length() - 1);
         char unitPart = uptime.charAt(uptime.length() - 1);

@@ -30,12 +30,4 @@ public class StringEscapeUtils {
             new LookupTranslator(EntityArrays.HTML40_EXTENDED_UNESCAPE()),
             new NumericEntityUnescaper()
         );
-
-    public StringEscapeUtils() {
-      super();
-    }
-    
-    public static final String unescapeHtml4(final String input) {
-        return UNESCAPE_HTML4.translate(input);
-    }
 }

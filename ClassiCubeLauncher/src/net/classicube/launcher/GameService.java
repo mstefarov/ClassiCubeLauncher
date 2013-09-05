@@ -8,12 +8,16 @@ import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.SwingWorker;
+import org.apache.commons.lang3.StringEscapeUtils;
 
+// Base class for service-specific handlers.
+// A new single-use GameService object is created for every session.
 abstract class GameService {
-    public static GameService activeService;
 
+    public static GameService activeService;
     private static final String UserAgent = "ClassiCube Launcher";
 
+    // constructor used by implementations
     protected GameService(String serviceName, UserAccount account) {
         store = Preferences.userNodeForPackage(this.getClass())
                 .node("GameServices")
@@ -22,19 +26,24 @@ abstract class GameService {
             throw new IllegalArgumentException("account may not be null");
         }
         this.account = account;
+        cookieJar.removeAll();
     }
 
-    public abstract SwingWorker<SignInResult,String> signInAsync(boolean remember);
-    
-    public abstract SwingWorker<ServerInfo[],ServerInfo> getServerListAsync();
+    // Asynchronously sign a user in.
+    // If "remember" is true, service should attempt to reuse stored credentials (if possible),
+    // and store working credentials for next time after signing in.
+    public abstract SwingWorker<SignInResult, String> signInAsync(boolean remember);
+
+    // Asynchronously fetches the server list.
+    public abstract SwingWorker<ServerInfo[], ServerInfo> getServerListAsync();
 
     // Gets mppass for given server
     public abstract String getServerPass(ServerInfo server);
 
-    // Gets site URL (for cookie filtering)
+    // Gets service site's root URL (for cookie filtering).
     public abstract URI getSiteUri();
 
-    // Gets base skin URL (to pass to the client)
+    // Gets base skin URL (to pass to the client).
     public abstract String getSkinUrl();
 
     private HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
@@ -56,12 +65,14 @@ abstract class GameService {
         return connection;
     }
 
-    // download a string using GET
+    // Downloads a string using GET.
+    // Returns null and logs an error on failure.
     protected String downloadString(String urlString) {
         return uploadString(urlString, null);
     }
 
-    // upload a string using POST, and then download the response
+    // Uploads a string using POST, then downloads the response.
+    // Returns null and logs an error on failure.
     protected String uploadString(String urlString, String dataString) {
         HttpURLConnection connection = null;
         byte[] data = null;
@@ -110,10 +121,12 @@ abstract class GameService {
         }
     }
 
+    // Clears all stored cookies
     protected void clearCookies() {
         cookieJar.removeAll();
     }
 
+    // Stores all cookies to Preferences
     protected void storeCookies() {
         try {
             store.clear();
@@ -125,6 +138,7 @@ abstract class GameService {
         }
     }
 
+    // Loads all cookies from Preferences
     protected void loadCookies() {
         try {
             for (String cookieName : store.keys()) {
@@ -136,6 +150,7 @@ abstract class GameService {
         }
     }
 
+    // Tries to find a cookie by name. Returns null if not found.
     protected HttpCookie getCookie(String name) {
         List<HttpCookie> cookies = cookieJar.get(getSiteUri());
         for (HttpCookie cookie : cookies) {
@@ -146,11 +161,13 @@ abstract class GameService {
         return null;
     }
 
+    // Checks whether a cookie with the given name is stored.
     protected boolean hasCookie(String name) {
         return (getCookie(name) != null);
     }
 
-    protected String UrlEncode(String str) {
+    // Encodes a string in a URL-friendly format, for GET or POST
+    protected String urlEncode(String str) {
         String enc = StandardCharsets.UTF_8.name();
         try {
             return URLEncoder.encode(str, enc);
@@ -159,7 +176,13 @@ abstract class GameService {
             return null;
         }
     }
+    
+    // Decodes an HTML-escaped string
+    protected String htmlDecode(String str){
+        return StringEscapeUtils.UNESCAPE_HTML4.translate(str);
+    }
 
+    // Initializes the cookie manager
     public static void Init() {
         CookieManager cm = new CookieManager();
         cookieJar = cm.getCookieStore();

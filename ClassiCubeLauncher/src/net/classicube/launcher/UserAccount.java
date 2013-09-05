@@ -4,8 +4,9 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
+// Stores metadata about a user account.
+// Handled by AccountManager.
 class UserAccount {
-
     public UserAccount(String username, String password){
         if(username == null){
             throw new IllegalArgumentException("username may not be null");
@@ -19,6 +20,7 @@ class UserAccount {
         SignInDate = new Date(0);
     }
     
+    // Loads all information from a given Preferences node
     public UserAccount(Preferences pref) {
         SignInUsername = pref.get("SignInUsername", null);
         PlayerName = pref.get("PlayerName", null);
@@ -31,6 +33,7 @@ class UserAccount {
         }
     }
 
+    // Stores all information into a given Preferences node
     public void Store(Preferences pref) {
         pref.put("SignInUsername", SignInUsername);
         pref.put("PlayerName", PlayerName);
