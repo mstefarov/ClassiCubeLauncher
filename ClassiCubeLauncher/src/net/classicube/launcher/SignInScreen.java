@@ -34,7 +34,13 @@ final class SignInScreen extends javax.swing.JFrame {
         this.getRootPane().setDefaultButton(bSignIn);
         progressFiller.setSize(progress.getHeight(), progress.getWidth());
         progress.setVisible(false);
-        SelectClassiCube();
+        
+        if(SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService){
+            selectClassiCubeNet();
+        }else{
+            selectMinecraftNet();
+        }
+        
         enableGUI();
     }
 
@@ -159,18 +165,18 @@ final class SignInScreen extends javax.swing.JFrame {
     private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
             LogUtil.Log(Level.FINE, "[Minecraft.Net]");
-            SelectMinecraftNet();
+            selectMinecraftNet();
         }
     }//GEN-LAST:event_bMinecraftNetItemStateChanged
 
     private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
             LogUtil.Log(Level.FINE, "[ClassiCube.Net]");
-            SelectClassiCube();
+            selectClassiCubeNet();
         }
     }//GEN-LAST:event_bClassiCubeNetItemStateChanged
 
-    void SelectClassiCube() {
+    void selectClassiCubeNet() {
         LogUtil.Log(Level.FINE, "SignInScreen.SelectClassiCube");
         bgPanel.setImage(Resources.getClassiCubeBackground());
         ipLogo.setImage(Resources.getClassiCubeLogo());
@@ -178,12 +184,12 @@ final class SignInScreen extends javax.swing.JFrame {
         bMinecraftNet.setSelected(false);
         bClassiCubeNet.setEnabled(false);
         buttonToDisableOnSignIn = bMinecraftNet;
-        SetAccountManager("ClassiCube.net");
-        this.repaint();
-        this.cUsername.requestFocus();
+        SessionManager.selectService(GameServiceType.ClassiCubeNetService);
+        onAfterServiceChanged();
+        
     }
 
-    void SelectMinecraftNet() {
+    void selectMinecraftNet() {
         LogUtil.Log(Level.FINE, "SignInScreen.SelectMinecraftNet");
         bgPanel.setImage(Resources.getMinecraftNetBackground());
         ipLogo.setImage(Resources.getMinecraftNetLogo());
@@ -191,17 +197,20 @@ final class SignInScreen extends javax.swing.JFrame {
         bClassiCubeNet.setSelected(false);
         bMinecraftNet.setEnabled(false);
         buttonToDisableOnSignIn = bClassiCubeNet;
-        SetAccountManager("Minecraft.net");
-        this.repaint();
-        this.cUsername.requestFocus();
+        SessionManager.selectService(GameServiceType.MinecraftNetService);
+        onAfterServiceChanged();
     }
 
-    void SetAccountManager(String serviceName) {
-        accountManager = new AccountManager(serviceName);
+    void onAfterServiceChanged() {
+        String curUsername = (String)cUsername.getSelectedItem();
         this.cUsername.removeAllItems();
-        for (UserAccount account : accountManager.GetAccountsBySignInDate()) {
+        UserAccount[] accounts = SessionManager.getAccountManager().GetAccountsBySignInDate();
+        for (UserAccount account : accounts) {
             this.cUsername.addItem(account.SignInUsername);
         }
+        cUsername.setSelectedItem(curUsername);
+        this.repaint();
+        this.cUsername.requestFocus();
     }
 
     // =============================================================================================
@@ -215,8 +224,8 @@ final class SignInScreen extends javax.swing.JFrame {
         boolean remember = this.xRememberMe.isSelected();
 
         // Create an async task for signing in
-        GameService.activeService = new MinecraftNetService(newAcct);
-        signInTask = GameService.activeService.signInAsync(remember);
+        GameSession session = SessionManager.createSession(newAcct);
+        signInTask = session.signInAsync(remember);
 
         // Get ready to handle the task completion
         signInTask.addPropertyChangeListener(
@@ -392,7 +401,6 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            APPLICATION FIELDS
     // =============================================================================================
-    AccountManager accountManager;
     ImagePanel bgPanel;
     JToggleButton buttonToDisableOnSignIn;
     UsernameOrPasswordChangedListener fieldChangeListener;

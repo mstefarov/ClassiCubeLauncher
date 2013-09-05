@@ -3,9 +3,9 @@ package net.classicube.launcher;
 import java.net.URI;
 import javax.swing.SwingWorker;
 
-class ClassiCubeNetService extends GameService {
+class ClassiCubeNetSession extends GameSession {
 
-    public ClassiCubeNetService(UserAccount acct) {
+    public ClassiCubeNetSession(UserAccount acct) {
         super("ClassiCubeNetService", acct);
     }
 

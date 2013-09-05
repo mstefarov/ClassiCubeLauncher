@@ -17,7 +17,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         
         tSearch.setText("Loading server list...");
         tSearch.setEnabled(false);
-        getServerListTask = GameService.activeService.getServerListAsync();
+        getServerListTask = SessionManager.getSession().getServerListAsync();
 
         getServerListTask.addPropertyChangeListener(
                 new PropertyChangeListener() {

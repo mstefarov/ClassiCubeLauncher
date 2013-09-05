@@ -12,13 +12,12 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 // Base class for service-specific handlers.
 // A new single-use GameService object is created for every session.
-abstract class GameService {
+abstract class GameSession {
 
-    public static GameService activeService;
     private static final String UserAgent = "ClassiCube Launcher";
 
     // constructor used by implementations
-    protected GameService(String serviceName, UserAccount account) {
+    protected GameSession(String serviceName, UserAccount account) {
         store = Preferences.userNodeForPackage(this.getClass())
                 .node("GameServices")
                 .node(serviceName);
@@ -176,9 +175,9 @@ abstract class GameService {
             return null;
         }
     }
-    
+
     // Decodes an HTML-escaped string
-    protected String htmlDecode(String str){
+    protected String htmlDecode(String str) {
         return StringEscapeUtils.UNESCAPE_HTML4.translate(str);
     }
 

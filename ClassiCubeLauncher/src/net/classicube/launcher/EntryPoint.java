@@ -10,7 +10,8 @@ public class EntryPoint {
     public static void main(String[] args) {
         // initialize shared code
         LogUtil.Init();
-        GameService.Init();
+        GameSession.Init();
+        SessionManager.Init();
 
         // set look-and-feel to Numbus
         try {

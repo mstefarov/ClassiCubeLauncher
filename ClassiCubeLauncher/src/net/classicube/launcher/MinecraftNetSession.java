@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.SwingWorker;
 
-class MinecraftNetService extends GameService {
+class MinecraftNetSession extends GameSession {
 
     private static final String LoginSecureUri = "https://minecraft.net/login",
             LogoutUri = "http://minecraft.net/logout",
@@ -28,7 +28,7 @@ class MinecraftNetService extends GameService {
             serverNameRegex = Pattern.compile(serverNamePattern),
             otherServerDataRegex = Pattern.compile(otherServerDataPattern);
 
-    public MinecraftNetService(UserAccount account) {
+    public MinecraftNetSession(UserAccount account) {
         super("MinecraftNetService", account);
         try {
             siteUri = new URI(HomepageUri);
