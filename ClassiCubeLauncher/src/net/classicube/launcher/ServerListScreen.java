@@ -1,18 +1,50 @@
 package net.classicube.launcher;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.concurrent.ExecutionException;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 public class ServerListScreen extends javax.swing.JFrame {
 
     public ServerListScreen() {
         initComponents();
-        /*
-        ServerInfo[] serverList = GameService.activeService.getServerList();
-        DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
-        for( ServerInfo server : serverList ){
-            model.addRow(new Object[]{server.name,server.players,server.maxPlayers,server.flag});
-        }*/
+
+        getServerListTask = GameService.activeService.getServerListAsync();
+
+        getServerListTask.addPropertyChangeListener(
+                new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("state".equals(evt.getPropertyName())) {
+                    if (evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
+                        onServerListAdded();
+                    }
+                }
+            }
+        });
+        getServerListTask.execute();
     }
+
+    private void onServerListAdded() {
+        try {
+            ServerInfo[] result = getServerListTask.get();
+            DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
+            for (ServerInfo server : result) {
+                model.addRow(new Object[]{
+                    server.name,
+                    server.players,
+                    server.maxPlayers,
+                    server.uptime,
+                    server.flag
+                });
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.ShowWarning(ex.toString(), "Problem signing in");
+        }
+    }
+    SwingWorker<ServerInfo[], ServerInfo> getServerListTask;
 
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT
@@ -141,7 +173,6 @@ public class ServerListScreen extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;

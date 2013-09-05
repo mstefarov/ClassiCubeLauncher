@@ -477,7 +477,7 @@
       </StatementProvider>
       <Parameters>
         <CodeExpression id="24_separator1">
-          <CodeVariable name="separator1" type="4096" declaredType="javax.swing.JSeparator"/>
+          <CodeVariable name="separator1" type="20480" declaredType="javax.swing.JSeparator"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
               <ComponentRef name="separator1"/>
@@ -559,7 +559,7 @@
       </StatementProvider>
       <Parameters>
         <CodeExpression id="30_separator2">
-          <CodeVariable name="separator2" type="4096" declaredType="javax.swing.JSeparator"/>
+          <CodeVariable name="separator2" type="20480" declaredType="javax.swing.JSeparator"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
               <ComponentRef name="separator2"/>
