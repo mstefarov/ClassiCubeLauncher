@@ -18,6 +18,10 @@ class LogUtil {
         File launcherDir = new File(userDir, LauncherDirName);
         File logFile = new File(launcherDir, LogFileName);
 
+        if (launcherDir.exists()) {
+            launcherDir.mkdir();
+        }
+
         try {
             FileHandler handler = new FileHandler(logFile.getAbsolutePath());
             handler.setFormatter(new SimpleFormatter());
