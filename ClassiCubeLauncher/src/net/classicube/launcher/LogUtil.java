@@ -8,19 +8,16 @@ import javax.swing.JOptionPane;
 // Global logging class (to make life easier)
 class LogUtil {
 
+    private static final String MacSuffix = "/Library/Application Support";
+    private static final String LauncherDirName = "net.classicube.launcher";
+    private static final String LogFileName = "launcher.log";
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 
     // Sets up logging to file (%AppData%/net.classicube.launcher/launcher.log)
     public static void Init() {
         logger.setLevel(Level.FINE);
 
-        File userDir = findUserDir();
-        File launcherDir = new File(userDir, LauncherDirName);
-        File logFile = new File(launcherDir, LogFileName);
-
-        if (launcherDir.exists()) {
-            launcherDir.mkdir();
-        }
+        File logFile = new File(getLauncherDir(), LogFileName);
 
         try {
             FileHandler handler = new FileHandler(logFile.getAbsolutePath());
@@ -30,6 +27,17 @@ class LogUtil {
             ShowError("Could not open log file: " + ex, "Fatal error");
             System.exit(2);
         }
+    }
+
+    public static File getLauncherDir() {
+        if (launcherDir == null) {
+            File userDir = findUserDir();
+            launcherDir = new File(userDir, LauncherDirName);
+            if (launcherDir.exists()) {
+                launcherDir.mkdir();
+            }
+        }
+        return launcherDir;
     }
 
     // Records a log message with given severity level and message
@@ -85,7 +93,5 @@ class LogUtil {
         }
         return new File(path);
     }
-    private static final String MacSuffix = "/Library/Application Support";
-    private static final String LauncherDirName = "net.classicube.launcher";
-    private static final String LogFileName = "launcher.log";
+    private static File launcherDir;
 }

@@ -7,7 +7,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 // This class handles persistence/"remembering" for user accounts.
-// SignInScreen keeps separate copies of AccountManagers for each GameService.
+// SignInScreen keeps separate copies of AccountManagers for each GameServiceType.
 class AccountManager {
 
     // Creates a new account manager for specified service name
