@@ -16,7 +16,8 @@ class AccountManager {
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
         }
-        this.store = Preferences.userNodeForPackage(this.getClass()).node("Accounts").node(serviceName);
+        final Preferences baseNode = Preferences.userNodeForPackage(this.getClass());
+        this.store = baseNode.node("Accounts").node(serviceName);
     }
 
     // Loads 

@@ -51,8 +51,7 @@ class MinecraftNetSession extends GameSession {
 
         @Override
         protected SignInResult doInBackground() throws Exception {
-            LogUtil.getLogger().log(Level.FINE, "MinecraftNetSignInWorker.doInBackground");
-            final String logPrefix = "MinecraftNetSignInWorker.doInBackground: ";
+            LogUtil.getLogger().log(Level.FINE, "MinecraftNetSignInWorker");
             boolean restoredSession = false;
             try {
                 restoredSession = loadSessionCookie(remember);
@@ -74,15 +73,15 @@ class MinecraftNetSession extends GameSession {
                         && actualPlayerName.equalsIgnoreCase(account.PlayerName)) {
                     // If player is already logged in with the right account: reuse a previous session
                     account.PlayerName = actualPlayerName;
-                    LogUtil.getLogger().log(Level.INFO, logPrefix + "Restored session for " + account.PlayerName);
+                    LogUtil.getLogger().log(Level.INFO, "Restored session for {0}", account.PlayerName);
                     storeCookies();
                     return SignInResult.SUCCESS;
 
                 } else {
                     // If we're not supposed to reuse session, if old username is different,
                     // or if there is no play session cookie set - relog
-                    LogUtil.getLogger().log(Level.INFO, logPrefix + "Switching accounts from "
-                            + actualPlayerName + " to " + account.PlayerName);
+                    LogUtil.getLogger().log(Level.INFO, "Switching accounts from {0} to {1}",
+                            new Object[]{actualPlayerName, account.PlayerName});
                     HttpUtil.downloadString(LogoutUri);
                     clearCookies();
                     loginPage = HttpUtil.downloadString(LoginSecureUri);
@@ -97,7 +96,7 @@ class MinecraftNetSession extends GameSession {
                     HttpUtil.downloadString(LogoutUri);
                     clearCookies();
                     LogUtil.getLogger().log(Level.WARNING,
-                            logPrefix + "Unrecognized login form served by minecraft.net; retrying.");
+                            "Unrecognized login form served by minecraft.net; retrying.");
 
                 } else {
                     // something unexpected happened, panic!
@@ -154,7 +153,7 @@ class MinecraftNetSession extends GameSession {
 
         @Override
         protected ServerInfo[] doInBackground() throws Exception {
-            LogUtil.getLogger().log(Level.FINE, "MinecraftNetGetServerListWorker.doInBackground");
+            LogUtil.getLogger().log(Level.FINE, "MinecraftNetGetServerListWorker");
             String serverListString = HttpUtil.downloadString(ServerListUri);
             final Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             final Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
@@ -176,12 +175,14 @@ class MinecraftNetSession extends GameSession {
                     try {
                         server.uptime = parseUptime(uptimeString);
                     } catch (IllegalArgumentException ex) {
-                        LogUtil.getLogger().log(Level.WARNING, "Error parsing server uptime (\""
-                                + uptimeString + "\") for " + server.name, ex);
+                        String logMsg = String.format("Error parsing server uptime (\"{0}\") for {1}",
+                                uptimeString, server.name);
+                        LogUtil.getLogger().log(Level.WARNING, logMsg, ex);
                     }
                     server.flag = otherServerDataMatch.group(4);
                 } else {
-                    LogUtil.getLogger().log(Level.WARNING, "Error passing extended server info for " + server.name);
+                    LogUtil.getLogger().log(Level.WARNING,
+                            "Error passing extended server info for {0}", server.name);
                 }
                 servers.add(server);
             }
@@ -208,7 +209,6 @@ class MinecraftNetSession extends GameSession {
     // Tries to restore previous session (if possible)
     private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
         LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
-        final String logPrefix = "MinecraftNetSession.loadSessionCookie: ";
         clearCookies();
         if (store.childrenNames().length > 0) {
             if (remember) {
@@ -217,17 +217,17 @@ class MinecraftNetSession extends GameSession {
                 final String userToken = "username%3A" + account.SignInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
                     LogUtil.getLogger().log(Level.FINE,
-                            logPrefix + "Loaded saved session for " + account.SignInUsername);
+                            "Loaded saved session for {0}", account.SignInUsername);
                     return true;
                 } else {
                     LogUtil.getLogger().log(Level.FINE,
-                            logPrefix + "Discarded saved session (username mismatch).");
+                            "Discarded saved session (username mismatch).");
                 }
             } else {
-                LogUtil.getLogger().log(Level.FINE, logPrefix + "Discarded a saved session.");
+                LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
             }
         } else {
-            LogUtil.getLogger().log(Level.FINE, logPrefix + "No session saved.");
+            LogUtil.getLogger().log(Level.FINE, "No session saved.");
         }
         return false;
     }

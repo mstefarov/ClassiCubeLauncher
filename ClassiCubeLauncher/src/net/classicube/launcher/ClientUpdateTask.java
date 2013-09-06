@@ -36,17 +36,17 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         boolean needsUpdate;
 
         if (!clientFile.exists()) {
-            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: No local copy, will download.");
+            LogUtil.getLogger().log(Level.INFO, "No local copy, will download.");
             // if local file does not exist, always update/download
             needsUpdate = true;
 
         } else {
-            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Checking for update.");
+            LogUtil.getLogger().log(Level.INFO, "Checking for update.");
             // else check if remote hash is different from local hash
             final String remoteString = HttpUtil.downloadString(ClientHashUrl);
             final String remoteHash = remoteString.substring(0,32);
             if (remoteHash == null) {
-                LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Error downloading remote hash, aborting.");
+                LogUtil.getLogger().log(Level.INFO, "Error downloading remote hash, aborting.");
                 needsUpdate = false; // remote server is down, dont try to update
             } else {
                 final String localHashString = computeLocalHash(clientFile);
@@ -55,14 +55,14 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         }
 
         if (needsUpdate) {
-            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Downloading.");
+            LogUtil.getLogger().log(Level.INFO, "Downloading.");
             // download (or re-download) the client
             final File clientTempFile = new File(targetPath, ClientTempJar);
             downloadClientJar(clientTempFile);
             replaceFile(clientTempFile, clientFile);
-            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Update applied.");
+            LogUtil.getLogger().log(Level.INFO, "Update applied.");
         } else {
-            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: No update needed.");
+            LogUtil.getLogger().log(Level.INFO, "No update needed.");
         }
 
         return needsUpdate;

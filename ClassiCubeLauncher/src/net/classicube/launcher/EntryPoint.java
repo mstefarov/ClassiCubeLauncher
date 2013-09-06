@@ -12,7 +12,7 @@ public class EntryPoint {
         LogUtil.Init();
         GameSession.Init();
         SessionManager.Init();
-        
+
         // begin the update process
         ClientUpdateTask.getInstance().execute();
 

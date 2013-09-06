@@ -35,6 +35,8 @@ final class SignInScreen extends javax.swing.JFrame {
         this.getRootPane().setDefaultButton(bSignIn);
         progressFiller.setSize(progress.getHeight(), progress.getWidth());
         progress.setVisible(false);
+        
+        // center the form on screen (initially)
         setLocationRelativeTo(null);
         
         // pick the appropriate game service
