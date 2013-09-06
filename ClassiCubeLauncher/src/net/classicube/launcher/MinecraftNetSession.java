@@ -277,7 +277,7 @@ class MinecraftNetSession extends GameSession {
 
     // Parses Minecraft.net server list's way of showing uptime (e.g. 1s, 1m, 1h, 1d)
     // Returns the number of seconds
-    private int parseUptime(String uptime)
+    private static int parseUptime(String uptime)
             throws IllegalArgumentException {
         if (uptime == null) {
             throw new NullPointerException("uptime");
@@ -296,6 +296,18 @@ class MinecraftNetSession extends GameSession {
                 return number * 60 * 60 * 24;
             default:
                 throw new IllegalArgumentException("Invalid date/time parameter.");
+        }
+    }
+
+    public static String formatUptime(int seconds) {
+        if (seconds < 60) {
+            return seconds + "s";
+        } else if (seconds < 60 * 60) {
+            return (seconds / 60) + "m";
+        } else if (seconds < 60 * 60 * 24) {
+            return (seconds / (60 * 60)) + "h";
+        } else {
+            return (seconds / (60 * 60 * 24)) + "d";
         }
     }
     private URI siteUri;

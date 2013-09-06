@@ -1,11 +1,20 @@
 package net.classicube.launcher;
 
+import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.SwingWorker.StateValue;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class ServerListScreen extends javax.swing.JFrame {
@@ -22,6 +31,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.setAutoCreateRowSorter(true);
         serverTable.setCellSelectionEnabled(false);
         serverTable.setRowSelectionAllowed(true);
+        serverTable.removeColumn(serverTable.getColumn("hiddenHash"));
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -44,6 +54,22 @@ public class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.execute();
     }
 
+    class UptimeCellRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (column == 3) {
+                final int ticks = (int) value;
+                this.setText(MinecraftNetSession.formatUptime(ticks));
+            } else {
+                this.setText("");
+
+            }
+            return this;
+        }
+    }
+
     private void onServerListDone() {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerListDone");
         try {
@@ -57,7 +83,7 @@ public class ServerListScreen extends javax.swing.JFrame {
                     server.uptime,
                     server.flag
                 });
-                lastServer=server;
+                lastServer = server;
             }
             tSearch.setText("Search...");
             tSearch.setEnabled(true);
@@ -171,14 +197,14 @@ public class ServerListScreen extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Name", "Players", "Max", "Uptime", "Location"
+                "Name", "Players", "Max", "Uptime", "Location", "hiddenHash"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -199,8 +225,10 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.getColumnModel().getColumn(2).setPreferredWidth(60);
         serverTable.getColumnModel().getColumn(3).setResizable(false);
         serverTable.getColumnModel().getColumn(3).setPreferredWidth(60);
+        serverTable.getColumnModel().getColumn(3).setCellRenderer(new UptimeCellRenderer());
         serverTable.getColumnModel().getColumn(4).setResizable(false);
         serverTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+        serverTable.getColumnModel().getColumn(5).setResizable(false);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -241,18 +269,6 @@ public class ServerListScreen extends javax.swing.JFrame {
         }
     }
 
-    private void launchClient(ServerInfo server) {
-        // wait for updater to finish (if running)
-        try {
-            final boolean result = ClientUpdateTask.getInstance().get();
-            LogUtil.showInfo(Boolean.toString(result), "Update result"); // temporary
-            LogUtil.showInfo(server.hash, "Server details obtained!");
-            // todo: actually launch
-        } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.showError(ex.toString(), "Error while updating");
-        }
-    }
-
     private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
         // TODO: figure out which ServerInfo is selected
         getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(lastServer);
@@ -269,6 +285,50 @@ public class ServerListScreen extends javax.swing.JFrame {
         });
         progress.setVisible(true);
         getServerDetailsTask.execute();
+    }
+
+    private void launchClient(ServerInfo server) {
+        try {
+            // wait for updater to finish (if still running)
+            ClientUpdateTask.getInstance().get();
+
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.die("Error while updating: " + ex);
+            return;
+        }
+
+        final File java = getJavaPath();
+        final ProcessBuilder processBuilder = new ProcessBuilder(
+                java.getAbsolutePath(),
+                "-jar",
+                ClientUpdateTask.getClientPath().getAbsolutePath(),
+                server.address.getHostAddress(),
+                Integer.toString(server.port),
+                SessionManager.getSession().account.PlayerName,
+                server.hash);
+
+        try {
+            setVisible(false);
+            LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
+            processBuilder.start();
+            System.exit(0);
+        } catch (IOException ex) {
+            LogUtil.die("Error launching client: " + ex);
+        }
+    }
+
+    public static String concatStringsWSep(List<String> strings, String separator) {
+        StringBuilder sb = new StringBuilder();
+        String sep = "";
+        for (String s : strings) {
+            sb.append(sep).append(s);
+            sep = separator;
+        }
+        return sb.toString();
+    }
+
+    private File getJavaPath() {
+        return new File(System.getProperty("java.home"), "bin/java");
     }//GEN-LAST:event_bConnectActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;

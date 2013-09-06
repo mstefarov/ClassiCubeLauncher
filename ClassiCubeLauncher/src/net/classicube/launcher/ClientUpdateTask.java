@@ -32,7 +32,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     protected Boolean doInBackground() throws Exception {
         LogUtil.getLogger().log(Level.FINE, "ClientUpdateTask.doInBackground");
         final File targetPath = LogUtil.getLauncherDir();
-        final File clientFile = new File(targetPath, ClientJar);
+        final File clientFile = getClientPath();
         boolean needsUpdate;
 
         if (!clientFile.exists()) {
@@ -44,7 +44,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
             LogUtil.getLogger().log(Level.INFO, "Checking for update.");
             // else check if remote hash is different from local hash
             final String remoteString = HttpUtil.downloadString(ClientHashUrl);
-            final String remoteHash = remoteString.substring(0,32);
+            final String remoteHash = remoteString.substring(0, 32);
             if (remoteHash == null) {
                 LogUtil.getLogger().log(Level.INFO, "Error downloading remote hash, aborting.");
                 needsUpdate = false; // remote server is down, dont try to update
@@ -118,5 +118,10 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         }
 
         sourceFile.delete();
+    }
+
+    public static File getClientPath() {
+        final File targetPath = LogUtil.getLauncherDir();
+        return new File(targetPath, ClientJar);
     }
 }
