@@ -1,6 +1,7 @@
 package net.classicube.launcher;
 
 import java.net.HttpCookie;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,17 +17,20 @@ class MinecraftNetSession extends GameSession {
             LogoutUri = "http://minecraft.net/logout",
             HomepageUri = "http://minecraft.net",
             ServerListUri = "http://minecraft.net/classic/list",
+            PlayUri = "http://minecraft.net/classic/play/",
             MigratedAccountMessage = "Your account has been migrated",
             WrongUsernameOrPasswordMessage = "Oops, unknown username or password.",
             authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
             loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
             serverNamePattern = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
             otherServerDataPattern = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)",
+            appletParamPattern = "<param name=\"\\w+\" value=\".+\">",
             CookieName = "PLAY_SESSION";
     private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
             loggedInAsRegex = Pattern.compile(loggedInAsPattern),
             serverNameRegex = Pattern.compile(serverNamePattern),
-            otherServerDataRegex = Pattern.compile(otherServerDataPattern);
+            otherServerDataRegex = Pattern.compile(otherServerDataPattern),
+            appletParamRegex = Pattern.compile(appletParamPattern);
 
     public MinecraftNetSession(UserAccount account) {
         super("MinecraftNetSession", account);
@@ -38,14 +42,14 @@ class MinecraftNetSession extends GameSession {
     }
 
     @Override
-    public SwingWorker<SignInResult, String> signInAsync(boolean remember) {
-        return new MinecraftNetSignInWorker(remember);
+    public SignInTask signInAsync(boolean remember) {
+        return new SignInWorker(remember);
     }
 
     // Asynchronously try signing in our user
-    private class MinecraftNetSignInWorker extends SwingWorker<SignInResult, String> {
+    private class SignInWorker extends SignInTask {
 
-        public MinecraftNetSignInWorker(boolean remember) {
+        public SignInWorker(boolean remember) {
             this.remember = remember;
         }
 
@@ -141,15 +145,15 @@ class MinecraftNetSession extends GameSession {
                 throw new SignInException("Login failed: Unrecognized response served by minecraft.net");
             }
         }
-        boolean remember;
+        private boolean remember;
     }
 
     @Override
-    public SwingWorker<ServerInfo[], ServerInfo> getServerListAsync() {
-        return new MinecraftNetGetServerListWorker();
+    public GetServerListTask getServerListAsync() {
+        return new GetServerListWorker();
     }
 
-    private class MinecraftNetGetServerListWorker extends SwingWorker<ServerInfo[], ServerInfo> {
+    private class GetServerListWorker extends GetServerListTask {
 
         @Override
         protected ServerInfo[] doInBackground() throws Exception {
@@ -192,8 +196,50 @@ class MinecraftNetSession extends GameSession {
     }
 
     @Override
-    public SwingWorker<Boolean, Boolean> getServerPassAsync(ServerInfo server) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public GetServerDetailsTask getServerDetailsAsync(ServerInfo server) {
+        return new GetServerPassWorker(server);
+    }
+
+    private class GetServerPassWorker extends GetServerDetailsTask {
+
+        public GetServerPassWorker(ServerInfo server) {
+            this.server = server;
+        }
+
+        @Override
+        protected Boolean doInBackground() throws Exception {
+            LogUtil.getLogger().log(Level.FINE, "GetServerPassWorker");
+            String serverLink = PlayUri + server.hash;
+
+            String playPage = HttpUtil.downloadString(serverLink);
+            if (playPage == null) {
+                LogUtil.getLogger().log(Level.SEVERE,
+                        "Error downloading play page for \"{0}\"", server.name);
+                return false;
+            }
+
+            Matcher appletParamMatch = appletParamRegex.matcher(playPage);
+            while (appletParamMatch.find()) {
+                String name = appletParamMatch.group(1);
+                String value = appletParamMatch.group(2);
+                switch (name) {
+                    case "username":
+                        account.PlayerName = value;
+                        break;
+                    case "server":
+                        server.address = InetAddress.getByName(value);
+                        break;
+                    case "port":
+                        server.port = Integer.parseInt(value);
+                        break;
+                    case "mppass":
+                        server.pass = value;
+                        break;
+                }
+            }
+            return true;
+        }
+        ServerInfo server;
     }
 
     @Override

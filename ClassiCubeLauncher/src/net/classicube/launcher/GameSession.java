@@ -32,13 +32,13 @@ abstract class GameSession {
     // Asynchronously sign a user in.
     // If "remember" is true, service should attempt to reuse stored credentials (if possible),
     // and store working credentials for next time after signing in.
-    public abstract SwingWorker<SignInResult, String> signInAsync(boolean remember);
+    public abstract SignInTask signInAsync(boolean remember);
 
     // Asynchronously fetches the server list.
-    public abstract SwingWorker<ServerInfo[], ServerInfo> getServerListAsync();
+    public abstract GetServerListTask getServerListAsync();
 
     // Gets mppass for given server
-    public abstract SwingWorker<Boolean, Boolean> getServerPassAsync(ServerInfo server);
+    public abstract GetServerDetailsTask getServerDetailsAsync(ServerInfo server);
 
     // Gets service site's root URL (for cookie filtering).
     public abstract URI getSiteUri();
@@ -125,4 +125,8 @@ abstract class GameSession {
     private static CookieStore cookieJar;
     protected UserAccount account;
     protected Preferences store;
+    
+    public static abstract class SignInTask extends SwingWorker<SignInResult, String>{}
+    public static abstract class GetServerListTask extends SwingWorker<ServerInfo[], ServerInfo>{}
+    public static abstract class GetServerDetailsTask extends SwingWorker<Boolean, Boolean>{}
 }

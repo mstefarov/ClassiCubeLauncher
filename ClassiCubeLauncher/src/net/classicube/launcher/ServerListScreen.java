@@ -5,7 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.JTable;
-import javax.swing.SwingWorker;
+import javax.swing.SwingWorker.StateValue;
 import javax.swing.table.DefaultTableModel;
 
 public class ServerListScreen extends javax.swing.JFrame {
@@ -35,7 +35,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ("state".equals(evt.getPropertyName())) {
-                    if (evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
+                    if (evt.getNewValue().equals(StateValue.DONE)) {
                         onServerListDone();
                     }
                 }
@@ -62,6 +62,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             tSearch.setEnabled(true);
             tSearch.selectAll();
             tSearch.requestFocus();
+            progress.setVisible(false);
 
             tca.adjustColumns();
 
@@ -89,11 +90,12 @@ public class ServerListScreen extends javax.swing.JFrame {
         bConnect = new javax.swing.JButton();
         serverTableContainer = new javax.swing.JScrollPane();
         serverTable = new javax.swing.JTable();
+        progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWidths = new int[] {0, 5, 0, 5, 0};
-        layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
+        layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
         getContentPane().setLayout(layout);
 
         bChangeUser.setText("< Change User");
@@ -206,6 +208,14 @@ public class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         getContentPane().add(serverTableContainer, gridBagConstraints);
 
+        progress.setIndeterminate(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(progress, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -229,11 +239,12 @@ public class ServerListScreen extends javax.swing.JFrame {
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;
     private javax.swing.JButton bPreferences;
+    private javax.swing.JProgressBar progress;
     private javax.swing.JTable serverTable;
     private javax.swing.JScrollPane serverTableContainer;
     private javax.swing.JTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
-    private SwingWorker<ServerInfo[], ServerInfo> getServerListTask;
+    private GameSession.GetServerListTask getServerListTask;
     private TableColumnAdjuster tca;
 }

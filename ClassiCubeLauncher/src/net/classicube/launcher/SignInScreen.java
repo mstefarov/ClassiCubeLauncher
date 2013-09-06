@@ -410,5 +410,5 @@ final class SignInScreen extends javax.swing.JFrame {
     private ImagePanel bgPanel;
     private JToggleButton buttonToDisableOnSignIn;
     private UsernameOrPasswordChangedListener fieldChangeListener;
-    private SwingWorker<SignInResult, String> signInTask;
+    private GameSession.SignInTask signInTask;
 }
