@@ -17,6 +17,9 @@ public class ServerListScreen extends javax.swing.JFrame {
         // prepare to auto-adjust table columns (when the data arrives)
         serverTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tca = new TableColumnAdjuster(serverTable);
+        serverTable.setAutoCreateRowSorter(true);
+        serverTable.setCellSelectionEnabled(false);
+        serverTable.setRowSelectionAllowed(true);
 
         // some UI tweaks
         setLocationRelativeTo(null);
