@@ -21,7 +21,7 @@ class MinecraftNetSession extends GameSession {
             authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
             loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
             serverNamePattern = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
-            otherServerDataPattern = "<td>(\\d+)</td>[^<]*<td>(\\d+)</td>[^<]*<td>([^<]+)</td>.+url\\(/images/flags/([a-z]+).png\\)",
+            otherServerDataPattern = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)",
             CookieName = "PLAY_SESSION";
     private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
             loggedInAsRegex = Pattern.compile(loggedInAsPattern),
