@@ -299,16 +299,5 @@ class MinecraftNetSession extends GameSession {
         }
     }
 
-    public static String formatUptime(int seconds) {
-        if (seconds < 60) {
-            return seconds + "s";
-        } else if (seconds < 60 * 60) {
-            return (seconds / 60) + "m";
-        } else if (seconds < 60 * 60 * 24) {
-            return (seconds / (60 * 60)) + "h";
-        } else {
-            return (seconds / (60 * 60 * 24)) + "d";
-        }
-    }
     private URI siteUri;
 }

@@ -263,10 +263,11 @@ final class SignInScreen extends javax.swing.JFrame {
                 EntryPoint.ShowServerListScreen();
             } else {
                 // TODO: make this less ugly
-                LogUtil.showInfo(result.name(), "Sign in result.");
+                LogUtil.showWarning(result.name(), "Sign in result.");
             }
         } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.showWarning(ex.toString(), "Problem signing in");
+            LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
+            LogUtil.showError(ex.toString(), "Error signing in");
         }
         enableGUI();
     }

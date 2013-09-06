@@ -140,6 +140,9 @@ abstract class GameSession {
     public static abstract class GetServerDetailsTask extends SwingWorker<Boolean, Boolean> {
 
         public GetServerDetailsTask(ServerInfo serverInfo) {
+            if(serverInfo == null){
+                throw new NullPointerException("serverInfo");
+            }
             this.serverInfo = serverInfo;
         }
 

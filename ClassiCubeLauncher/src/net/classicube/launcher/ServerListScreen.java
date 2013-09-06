@@ -5,13 +5,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -31,7 +27,9 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.setAutoCreateRowSorter(true);
         serverTable.setCellSelectionEnabled(false);
         serverTable.setRowSelectionAllowed(true);
-        serverTable.removeColumn(serverTable.getColumn("hiddenHash"));
+
+        // hide the hash column (used to get servers)
+        //serverTable.removeColumn(serverTable.getColumn("hiddenHash"));
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -54,6 +52,15 @@ public class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.execute();
     }
 
+    private void disableGui() {
+        this.bChangeUser.setEnabled(false);
+        this.bPreferences.setEnabled(false);
+        this.tSearch.setEnabled(false);
+        this.serverTable.setEnabled(false);
+        this.tServerURL.setEnabled(false);
+        this.bConnect.setEnabled(false);
+    }
+
     class UptimeCellRenderer extends DefaultTableCellRenderer {
 
         @Override
@@ -61,7 +68,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (column == 3) {
                 final int ticks = (int) value;
-                this.setText(MinecraftNetSession.formatUptime(ticks));
+                this.setText(ServerInfo.formatUptime(ticks));
             } else {
                 this.setText("");
 
@@ -73,17 +80,16 @@ public class ServerListScreen extends javax.swing.JFrame {
     private void onServerListDone() {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerListDone");
         try {
-            final ServerInfo[] result = getServerListTask.get();
+            serverList = getServerListTask.get();
             final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
-            for (ServerInfo server : result) {
+            for (ServerInfo server : serverList) {
                 model.addRow(new Object[]{
                     server.name,
                     server.players,
                     server.maxPlayers,
                     server.uptime,
-                    server.flag
+                    ServerInfo.toCountryName(server.flag)
                 });
-                lastServer = server;
             }
             tSearch.setText("Search...");
             tSearch.setEnabled(true);
@@ -94,9 +100,19 @@ public class ServerListScreen extends javax.swing.JFrame {
             tableColumnAdjuster.adjustColumns();
 
         } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading server list", ex);
             LogUtil.showWarning(ex.toString(), "Problem loading server list");
             tSearch.setText("Could not load server list.");
         }
+    }
+
+    private ServerInfo getSelectedServer() {
+        int[] rowIndex = serverTable.getSelectedRows();
+        if (rowIndex.length == 1) {
+            int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
+            return serverList[trueIndex];
+        }
+        return null;
     }
 
     /**
@@ -197,14 +213,14 @@ public class ServerListScreen extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Name", "Players", "Max", "Uptime", "Location", "hiddenHash"
+                "Name", "Players", "Max", "Uptime", "Location"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -219,22 +235,19 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.getTableHeader().setReorderingAllowed(false);
         serverTableContainer.setViewportView(serverTable);
         serverTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        serverTable.getColumnModel().getColumn(1).setResizable(false);
         serverTable.getColumnModel().getColumn(1).setPreferredWidth(60);
-        serverTable.getColumnModel().getColumn(2).setResizable(false);
         serverTable.getColumnModel().getColumn(2).setPreferredWidth(60);
-        serverTable.getColumnModel().getColumn(3).setResizable(false);
         serverTable.getColumnModel().getColumn(3).setPreferredWidth(60);
         serverTable.getColumnModel().getColumn(3).setCellRenderer(new UptimeCellRenderer());
-        serverTable.getColumnModel().getColumn(4).setResizable(false);
         serverTable.getColumnModel().getColumn(4).setPreferredWidth(60);
-        serverTable.getColumnModel().getColumn(5).setResizable(false);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.weighty = 0.1;
         getContentPane().add(serverTableContainer, gridBagConstraints);
 
         progress.setIndeterminate(true);
@@ -264,14 +277,16 @@ public class ServerListScreen extends javax.swing.JFrame {
                 LogUtil.showError("Could not fetch server details.", "Error");
             }
         } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.showWarning(ex.toString(), "Problem loading server list");
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
+            LogUtil.showWarning(ex.toString(), "Problem loading server details");
             tSearch.setText("Could not load server list.");
         }
     }
 
     private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
-        // TODO: figure out which ServerInfo is selected
-        getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(lastServer);
+        final ServerInfo selectedServer = getSelectedServer();
+        
+        getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(selectedServer);
         getServerDetailsTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
             @Override
@@ -284,6 +299,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             }
         });
         progress.setVisible(true);
+        disableGui();
         getServerDetailsTask.execute();
     }
 
@@ -293,6 +309,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             ClientUpdateTask.getInstance().get();
 
         } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error updating", ex);
             LogUtil.die("Error while updating: " + ex);
             return;
         }
@@ -343,5 +360,5 @@ public class ServerListScreen extends javax.swing.JFrame {
     private GameSession.GetServerListTask getServerListTask;
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private TableColumnAdjuster tableColumnAdjuster;
-    ServerInfo lastServer; // temporary -- for testing
+    private ServerInfo[] serverList;
 }
