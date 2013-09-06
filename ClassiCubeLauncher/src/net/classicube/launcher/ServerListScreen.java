@@ -12,7 +12,7 @@ import javax.swing.table.DefaultTableModel;
 public class ServerListScreen extends javax.swing.JFrame {
 
     public ServerListScreen() {
-        LogUtil.Log(Level.FINE, "ServerListScreen");
+        LogUtil.getLogger().log(Level.FINE, "ServerListScreen");
         initComponents();
 
         // prepare to auto-adjust table columns (when the data arrives)
@@ -41,7 +41,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     }
 
     private void onServerListDone() {
-        LogUtil.Log(Level.FINE, "ServerListScreen.onServerListDone");
+        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerListDone");
         try {
             final ServerInfo[] result = getServerListTask.get();
             final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
@@ -62,7 +62,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             tca.adjustColumns();
 
         } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.ShowWarning(ex.toString(), "Problem loading server list");
+            LogUtil.showWarning(ex.toString(), "Problem loading server list");
             tSearch.setText("Could not load server list.");
         }
     }
@@ -206,7 +206,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bChangeUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeUserActionPerformed
-        LogUtil.Log(Level.INFO, "[Change User]");
+        LogUtil.getLogger().log(Level.INFO, "[Change User]");
         EntryPoint.ShowSignInScreen();
     }//GEN-LAST:event_bChangeUserActionPerformed
 
@@ -215,9 +215,9 @@ public class ServerListScreen extends javax.swing.JFrame {
         // TODO: probably show another window (or a progress bar) while details are being fetched
         try {
             final boolean result = ClientUpdateTask.getInstance().get();
-            LogUtil.ShowInfo(Boolean.toString(result), "Update result"); // temporary
+            LogUtil.showInfo(Boolean.toString(result), "Update result"); // temporary
         } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.ShowError(ex.toString(), "Error while updating");
+            LogUtil.showError(ex.toString(), "Error while updating");
         }
         // TODO: launch the client after all details are done
     }//GEN-LAST:event_bConnectActionPerformed

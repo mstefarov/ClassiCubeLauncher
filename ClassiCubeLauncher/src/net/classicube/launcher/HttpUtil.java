@@ -14,7 +14,7 @@ public class HttpUtil {
     public static HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
             throws MalformedURLException, IOException {
         if (urlString == null) {
-            throw new IllegalArgumentException("urlString may not be null");
+            throw new NullPointerException("urlString");
         }
         final URL url = new URL(urlString);
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -79,7 +79,7 @@ public class HttpUtil {
             return response.toString();
 
         } catch (IOException ex) {
-            LogUtil.Log(Level.SEVERE, "Error while sending request to " + urlString, ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error while sending request to " + urlString, ex);
             return null;
 
         } finally {

@@ -9,10 +9,10 @@ import java.util.prefs.Preferences;
 class UserAccount {
     public UserAccount(String username, String password){
         if(username == null){
-            throw new IllegalArgumentException("username may not be null");
+            throw new NullPointerException("username");
         }
         if(password == null){
-            throw new IllegalArgumentException("password may not be null");
+            throw new NullPointerException("password");
         }
         SignInUsername = username;
         PlayerName = username;
@@ -23,7 +23,7 @@ class UserAccount {
     // Loads all information from a given Preferences node
     public UserAccount(Preferences prefs) {
         if (prefs == null) {
-            throw new IllegalArgumentException("prefs may not be null");
+            throw new NullPointerException("prefs");
         }
         SignInUsername = prefs.get("SignInUsername", null);
         PlayerName = prefs.get("PlayerName", null);
@@ -31,15 +31,15 @@ class UserAccount {
         final long dateTicks = prefs.getLong("SignInDate", 0);
         SignInDate = new Date(dateTicks);
         if (SignInUsername == null || PlayerName == null || Password == null) {
-            LogUtil.Log(Level.WARNING, "Could not parse pref as a sign-in account.");
-            throw new IllegalArgumentException();
+            LogUtil.getLogger().log(Level.WARNING, "Could not parse pref as a sign-in account.");
+            throw new IllegalArgumentException("Pref could not be parsed");
         }
     }
 
     // Stores all information into a given Preferences node
     public void Store(Preferences prefs) {
         if (prefs == null) {
-            throw new IllegalArgumentException("prefs may not be null");
+            throw new NullPointerException("prefs");
         }
         prefs.put("SignInUsername", SignInUsername);
         prefs.put("PlayerName", PlayerName);

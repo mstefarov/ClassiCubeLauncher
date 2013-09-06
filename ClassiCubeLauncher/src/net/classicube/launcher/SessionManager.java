@@ -25,7 +25,7 @@ class SessionManager {
 
     public static GameSession createSession(UserAccount userAccount) {
         if (userAccount == null) {
-            throw new IllegalArgumentException("userAccount may not be null");
+            throw new NullPointerException("userAccount");
         }
         if (activeServiceType == GameServiceType.ClassiCubeNetService) {
             activeSession = new ClassiCubeNetSession(userAccount);

@@ -21,7 +21,7 @@ final class SignInScreen extends javax.swing.JFrame {
     static final long serialVersionUID = 1L;
 
     public SignInScreen() {
-        LogUtil.Log(Level.FINE, "SignInScreen");
+        LogUtil.getLogger().log(Level.FINE, "SignInScreen");
         // add our fancy custom background
         bgPanel = new ImagePanel(null, true);
         this.setContentPane(bgPanel);
@@ -166,20 +166,20 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.Log(Level.INFO, "[Minecraft.Net]");
+            LogUtil.getLogger().log(Level.INFO, "[Minecraft.Net]");
             selectMinecraftNet();
         }
     }//GEN-LAST:event_bMinecraftNetItemStateChanged
 
     private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.Log(Level.INFO, "[ClassiCube.Net]");
+            LogUtil.getLogger().log(Level.INFO, "[ClassiCube.Net]");
             selectClassiCubeNet();
         }
     }//GEN-LAST:event_bClassiCubeNetItemStateChanged
 
     void selectClassiCubeNet() {
-        LogUtil.Log(Level.FINE, "SignInScreen.SelectClassiCube");
+        LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectClassiCube");
         bgPanel.setImage(Resources.getClassiCubeBackground());
         ipLogo.setImage(Resources.getClassiCubeLogo());
         bMinecraftNet.setEnabled(true);
@@ -192,7 +192,7 @@ final class SignInScreen extends javax.swing.JFrame {
     }
 
     void selectMinecraftNet() {
-        LogUtil.Log(Level.FINE, "SignInScreen.SelectMinecraftNet");
+        LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectMinecraftNet");
         bgPanel.setImage(Resources.getMinecraftNetBackground());
         ipLogo.setImage(Resources.getMinecraftNetLogo());
         bClassiCubeNet.setEnabled(true);
@@ -220,7 +220,7 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     private void bSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSignInActionPerformed
         // Grab user information from the form
-        LogUtil.Log(Level.INFO, "[Sign In]");
+        LogUtil.getLogger().log(Level.INFO, "[Sign In]");
         final String username = (String) cUsername.getSelectedItem();
         final String password = new String(tPassword.getPassword());
         final UserAccount newAcct = new UserAccount(username, password);
@@ -254,17 +254,17 @@ final class SignInScreen extends javax.swing.JFrame {
     // If we signed in, advance to the server list screen.
     // Otherwise, inform the user that something went wrong.
     private void onSignInDone(SwingWorker<SignInResult, String> signInTask) {
-        LogUtil.Log(Level.FINE, "SignInScreen.onSignInDone");
+        LogUtil.getLogger().log(Level.FINE, "SignInScreen.onSignInDone");
         try {
             final SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {
                 EntryPoint.ShowServerListScreen();
             } else {
                 // TODO: make this less ugly
-                LogUtil.ShowInfo(result.name(), "Sign in result.");
+                LogUtil.showInfo(result.name(), "Sign in result.");
             }
         } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.ShowWarning(ex.toString(), "Problem signing in");
+            LogUtil.showWarning(ex.toString(), "Problem signing in");
         }
         enableGUI();
     }

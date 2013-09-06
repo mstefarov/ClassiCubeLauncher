@@ -24,7 +24,7 @@ class LogUtil {
             handler.setFormatter(new SimpleFormatter());
             logger.addHandler(handler);
         } catch (IOException | SecurityException ex) {
-            ShowError("Could not open log file: " + ex, "Fatal error");
+            showError("Could not open log file: " + ex, "Fatal error");
             System.exit(2);
         }
     }
@@ -40,42 +40,36 @@ class LogUtil {
         return launcherDir;
     }
 
-    // Records a log message with given severity level and message
-    public static void Log(Level level, String message) {
-        logger.log(level, message);
-    }
-
-    // Records a log message with given severity level, message, and exception details
-    public static void Log(Level level, String message, Throwable ex) {
-        logger.log(level, message, ex);
+    public static Logger getLogger(){
+        return logger;
     }
 
     // Shows an informative modal dialog box
-    public static void ShowInfo(String message, String title) {
+    public static void showInfo(String message, String title) {
         JOptionPane.showMessageDialog(null, message, "Info: " + title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Shows a warning modal dialog box
-    public static void ShowWarning(String message, String title) {
+    public static void showWarning(String message, String title) {
         JOptionPane.showMessageDialog(null, message, "Warning: " + title, JOptionPane.WARNING_MESSAGE);
     }
 
     // Shows an alarming modal dialog box
-    public static void ShowError(String message, String title) {
+    public static void showError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, "ERROR: " + title, JOptionPane.ERROR_MESSAGE);
     }
 
     // Kills the process after showing and loging a message
-    public static void Die(String message) {
-        Log(Level.SEVERE, message);
-        ShowError(message, "Fatal error");
+    public static void die(String message) {
+        getLogger().log(Level.SEVERE, message);
+        showError(message, "Fatal error");
         System.exit(2);
     }
 
     // Kills the process after showing and loging a message, and logging the error
-    public static void Die(String message, Throwable ex) {
-        Log(Level.SEVERE, message, ex);
-        ShowError(message, "Fatal error");
+    public static void die(String message, Throwable ex) {
+        getLogger().log(Level.SEVERE, message, ex);
+        showError(message, "Fatal error");
         System.exit(2);
     }
 

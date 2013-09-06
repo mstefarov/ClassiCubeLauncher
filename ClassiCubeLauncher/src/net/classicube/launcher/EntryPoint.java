@@ -28,7 +28,7 @@ public class EntryPoint {
                 InstantiationException |
                 IllegalAccessException |
                 UnsupportedLookAndFeelException ex) {
-            LogUtil.Log(Level.WARNING, "Error configuring GUI style", ex);
+            LogUtil.getLogger().log(Level.WARNING, "Error configuring GUI style", ex);
         }
 
         // display the form

@@ -30,31 +30,39 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
     @Override
     protected Boolean doInBackground() throws Exception {
-        LogUtil.Log(Level.FINE, "ClientUpdateTask.doInBackground");
+        LogUtil.getLogger().log(Level.FINE, "ClientUpdateTask.doInBackground");
         final File targetPath = LogUtil.getLauncherDir();
         final File clientFile = new File(targetPath, ClientJar);
         boolean needsUpdate;
 
         if (!clientFile.exists()) {
+            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: No local copy, will download.");
             // if local file does not exist, always update/download
             needsUpdate = true;
 
         } else {
+            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Checking for update.");
             // else check if remote hash is different from local hash
-            final String remoteHash = HttpUtil.downloadString(ClientHashUrl);
+            final String remoteString = HttpUtil.downloadString(ClientHashUrl);
+            final String remoteHash = remoteString.substring(0,32);
             if (remoteHash == null) {
+                LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Error downloading remote hash, aborting.");
                 needsUpdate = false; // remote server is down, dont try to update
             } else {
                 final String localHashString = computeLocalHash(clientFile);
-                needsUpdate = localHashString.equalsIgnoreCase(remoteHash);
+                needsUpdate = !localHashString.equalsIgnoreCase(remoteHash);
             }
         }
 
         if (needsUpdate) {
+            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Downloading.");
             // download (or re-download) the client
             final File clientTempFile = new File(targetPath, ClientTempJar);
             downloadClientJar(clientTempFile);
             replaceFile(clientTempFile, clientFile);
+            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: Update applied.");
+        } else {
+            LogUtil.getLogger().log(Level.INFO, "ClientUpdateTask: No update needed.");
         }
 
         return needsUpdate;
@@ -63,7 +71,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     private String computeLocalHash(File clientJar)
             throws NoSuchAlgorithmException, FileNotFoundException, IOException {
         if (clientJar == null) {
-            throw new IllegalArgumentException("clientJar may not be null");
+            throw new NullPointerException("clientJar");
         }
         final MessageDigest digest = MessageDigest.getInstance("MD5");
         final byte[] buffer = new byte[8192];
@@ -80,7 +88,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     private void downloadClientJar(File clientJar)
             throws MalformedURLException, FileNotFoundException, IOException {
         if (clientJar == null) {
-            throw new IllegalArgumentException("clientJar may not be null");
+            throw new NullPointerException("clientJar");
         }
         clientJar.delete();
         final URL website = new URL(ClientDownloadUrl);
@@ -94,10 +102,10 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     static void replaceFile(File sourceFile, File destFile)
             throws IOException {
         if (sourceFile == null) {
-            throw new IllegalArgumentException("sourceFile may not be null");
+            throw new NullPointerException("sourceFile");
         }
         if (destFile == null) {
-            throw new IllegalArgumentException("destFile may not be null");
+            throw new NullPointerException("destFile");
         }
         if (!destFile.exists()) {
             destFile.createNewFile();

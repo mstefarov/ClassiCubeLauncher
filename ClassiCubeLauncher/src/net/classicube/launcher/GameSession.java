@@ -17,17 +17,14 @@ abstract class GameSession {
     // constructor used by implementations
     protected GameSession(String serviceName, UserAccount account) {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName may not be null");
+            throw new NullPointerException("serviceName");
         }
         if (account == null) {
-            throw new IllegalArgumentException("account may not be null");
+            throw new NullPointerException("account");
         }
         store = Preferences.userNodeForPackage(this.getClass())
                 .node("GameServices")
                 .node(serviceName);
-        if (account == null) {
-            throw new IllegalArgumentException("account may not be null");
-        }
         this.account = account;
         cookieJar.removeAll();
     }
@@ -59,7 +56,7 @@ abstract class GameSession {
         try {
             store.clear();
         } catch (BackingStoreException ex) {
-            LogUtil.Log(Level.SEVERE, "Error storing session", ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error storing session", ex);
         }
         for (HttpCookie cookie : cookieJar.getCookies()) {
             store.put(cookie.getName(), cookie.toString());
@@ -74,14 +71,14 @@ abstract class GameSession {
                 cookieJar.add(getSiteUri(), newCookie);
             }
         } catch (BackingStoreException ex) {
-            LogUtil.Log(Level.SEVERE, "Error loading session", ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading session", ex);
         }
     }
 
     // Tries to find a cookie by name. Returns null if not found.
     protected HttpCookie getCookie(String name) {
         if (name == null) {
-            throw new IllegalArgumentException("name may not be null");
+            throw new NullPointerException("name");
         }
         final List<HttpCookie> cookies = cookieJar.get(getSiteUri());
         for (HttpCookie cookie : cookies) {
@@ -100,13 +97,13 @@ abstract class GameSession {
     // Encodes a string in a URL-friendly format, for GET or POST
     protected String urlEncode(String rawString) {
         if (rawString == null) {
-            throw new IllegalArgumentException("rawString may not be null");
+            throw new NullPointerException("rawString");
         }
         final String enc = StandardCharsets.UTF_8.name();
         try {
             return URLEncoder.encode(rawString, enc);
         } catch (UnsupportedEncodingException ex) {
-            LogUtil.Log(Level.SEVERE, "UrlEncode error: " + ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Encoding error", ex);
             return null;
         }
     }
@@ -114,7 +111,7 @@ abstract class GameSession {
     // Decodes an HTML-escaped string
     protected String htmlDecode(String encodedString) {
         if (encodedString == null) {
-            throw new IllegalArgumentException("encodedString may not be null");
+            throw new NullPointerException("encodedString");
         }
         return StringEscapeUtils.UNESCAPE_HTML4.translate(encodedString);
     }

@@ -14,27 +14,27 @@ class AccountManager {
     // serviceName is used to separate storage of data from different services
     public AccountManager(String serviceName) {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName may not be null");
+            throw new NullPointerException("serviceName");
         }
         this.store = Preferences.userNodeForPackage(this.getClass()).node("Accounts").node(serviceName);
     }
 
     // Loads 
     public void Load() {
-        LogUtil.Log(Level.FINE, "AccountManager.Load");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.Load");
         try {
             for (String accountName : store.childrenNames()) {
                 final UserAccount acct = new UserAccount(store.node(accountName));
                 accounts.put(acct.SignInUsername.toLowerCase(), acct);
             }
         } catch (BackingStoreException ex) {
-            LogUtil.Log(Level.SEVERE, "Error loading accounts", ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading accounts", ex);
         }
     }
 
     // Stores all 
     public void Store() {
-        LogUtil.Log(Level.FINE, "AccountManager.Store");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.Store");
         ClearStore();
         for (UserAccount acct : accounts.values()) {
             acct.Store(store.node(acct.SignInUsername.toLowerCase()));
@@ -43,7 +43,7 @@ class AccountManager {
 
     // Removes all stored accounts
     public void Clear() {
-        LogUtil.Log(Level.FINE, "AccountManager.Clear");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.Clear");
         accounts.clear();
         ClearStore();
     }
@@ -51,7 +51,7 @@ class AccountManager {
     // Tries to find stored UserAccount data for given sign-in name
     public UserAccount FindAccount(String signInName) {
         if (signInName == null) {
-            throw new IllegalArgumentException("signInName may not be null");
+            throw new NullPointerException("signInName");
         }
         return accounts.get(signInName.toLowerCase());
     }
@@ -64,13 +64,13 @@ class AccountManager {
     }
 
     private void ClearStore() {
-        LogUtil.Log(Level.FINE, "AccountManager.ClearStore");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.ClearStore");
         try {
             for (String accountName : store.childrenNames()) {
                 store.node(accountName.toLowerCase()).removeNode();
             }
         } catch (BackingStoreException ex) {
-            LogUtil.Log(Level.SEVERE, "Error clearing accounts", ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error clearing accounts", ex);
         }
     }
     private Preferences store;
