@@ -9,7 +9,6 @@ import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.SwingWorker;
 
 class MinecraftNetSession extends GameSession {
 
@@ -24,7 +23,7 @@ class MinecraftNetSession extends GameSession {
             loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
             serverNamePattern = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
             otherServerDataPattern = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)",
-            appletParamPattern = "<param name=\"\\w+\" value=\".+\">",
+            appletParamPattern = "<param name=\"(\\w+)\" value=\"(.+)\">",
             CookieName = "PLAY_SESSION";
     private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
             loggedInAsRegex = Pattern.compile(loggedInAsPattern),
@@ -50,7 +49,7 @@ class MinecraftNetSession extends GameSession {
     private class SignInWorker extends SignInTask {
 
         public SignInWorker(boolean remember) {
-            this.remember = remember;
+            super(remember);
         }
 
         @Override
@@ -145,7 +144,6 @@ class MinecraftNetSession extends GameSession {
                 throw new SignInException("Login failed: Unrecognized response served by minecraft.net");
             }
         }
-        private boolean remember;
     }
 
     @Override
@@ -197,24 +195,24 @@ class MinecraftNetSession extends GameSession {
 
     @Override
     public GetServerDetailsTask getServerDetailsAsync(ServerInfo server) {
-        return new GetServerPassWorker(server);
+        return new GetServerDetailsWorker(server);
     }
 
-    private class GetServerPassWorker extends GetServerDetailsTask {
+    private class GetServerDetailsWorker extends GetServerDetailsTask {
 
-        public GetServerPassWorker(ServerInfo server) {
-            this.server = server;
+        public GetServerDetailsWorker(ServerInfo server) {
+            super(server);
         }
 
         @Override
         protected Boolean doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "GetServerPassWorker");
-            String serverLink = PlayUri + server.hash;
+            String serverLink = PlayUri + serverInfo.hash;
 
             String playPage = HttpUtil.downloadString(serverLink);
             if (playPage == null) {
                 LogUtil.getLogger().log(Level.SEVERE,
-                        "Error downloading play page for \"{0}\"", server.name);
+                        "Error downloading play page for \"{0}\"", serverInfo.name);
                 return false;
             }
 
@@ -227,19 +225,18 @@ class MinecraftNetSession extends GameSession {
                         account.PlayerName = value;
                         break;
                     case "server":
-                        server.address = InetAddress.getByName(value);
+                        serverInfo.address = InetAddress.getByName(value);
                         break;
                     case "port":
-                        server.port = Integer.parseInt(value);
+                        serverInfo.port = Integer.parseInt(value);
                         break;
                     case "mppass":
-                        server.pass = value;
+                        serverInfo.pass = value;
                         break;
                 }
             }
             return true;
         }
-        ServerInfo server;
     }
 
     @Override

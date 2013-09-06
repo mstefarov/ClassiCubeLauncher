@@ -35,14 +35,14 @@ final class SignInScreen extends javax.swing.JFrame {
         this.getRootPane().setDefaultButton(bSignIn);
         progressFiller.setSize(progress.getHeight(), progress.getWidth());
         progress.setVisible(false);
-        
+
         // center the form on screen (initially)
         setLocationRelativeTo(null);
-        
+
         // pick the appropriate game service
-        if(SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService){
+        if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
             selectClassiCubeNet();
-        }else{
+        } else {
             selectMinecraftNet();
         }
         enableGUI();
@@ -190,7 +190,7 @@ final class SignInScreen extends javax.swing.JFrame {
         buttonToDisableOnSignIn = bMinecraftNet;
         SessionManager.selectService(GameServiceType.ClassiCubeNetService);
         onAfterServiceChanged();
-        
+
     }
 
     void selectMinecraftNet() {
@@ -206,7 +206,7 @@ final class SignInScreen extends javax.swing.JFrame {
     }
 
     void onAfterServiceChanged() {
-        final String curUsername = (String)cUsername.getSelectedItem();
+        final String curUsername = (String) cUsername.getSelectedItem();
         this.cUsername.removeAllItems();
         final UserAccount[] accounts = SessionManager.getAccountManager().GetAccountsBySignInDate();
         for (UserAccount account : accounts) {

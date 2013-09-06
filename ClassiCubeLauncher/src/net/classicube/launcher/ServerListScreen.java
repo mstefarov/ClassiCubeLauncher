@@ -16,8 +16,8 @@ public class ServerListScreen extends javax.swing.JFrame {
 
         // prepare to auto-adjust table columns (when the data arrives)
         serverTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        tca = new TableColumnAdjuster(serverTable);
-        
+        tableColumnAdjuster = new TableColumnAdjuster(serverTable);
+
         // configure table sorting and selection
         serverTable.setAutoCreateRowSorter(true);
         serverTable.setCellSelectionEnabled(false);
@@ -57,6 +57,7 @@ public class ServerListScreen extends javax.swing.JFrame {
                     server.uptime,
                     server.flag
                 });
+                lastServer=server;
             }
             tSearch.setText("Search...");
             tSearch.setEnabled(true);
@@ -64,7 +65,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             tSearch.requestFocus();
             progress.setVisible(false);
 
-            tca.adjustColumns();
+            tableColumnAdjuster.adjustColumns();
 
         } catch (InterruptedException | ExecutionException ex) {
             LogUtil.showWarning(ex.toString(), "Problem loading server list");
@@ -224,16 +225,50 @@ public class ServerListScreen extends javax.swing.JFrame {
         EntryPoint.ShowSignInScreen();
     }//GEN-LAST:event_bChangeUserActionPerformed
 
-    private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
-        // TODO: fetch server details here
-        // TODO: probably show another window (or a progress bar) while details are being fetched
+    private void onServerDetailsDone() {
+        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerDetailsDone");
+        try {
+            final boolean result = getServerDetailsTask.get();
+            if (result) {
+                ServerInfo server = getServerDetailsTask.getServerInfo();
+                launchClient(server);
+            } else {
+                LogUtil.showError("Could not fetch server details.", "Error");
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.showWarning(ex.toString(), "Problem loading server list");
+            tSearch.setText("Could not load server list.");
+        }
+    }
+
+    private void launchClient(ServerInfo server) {
+        // wait for updater to finish (if running)
         try {
             final boolean result = ClientUpdateTask.getInstance().get();
             LogUtil.showInfo(Boolean.toString(result), "Update result"); // temporary
+            LogUtil.showInfo(server.hash, "Server details obtained!");
+            // todo: actually launch
         } catch (InterruptedException | ExecutionException ex) {
             LogUtil.showError(ex.toString(), "Error while updating");
         }
-        // TODO: launch the client after all details are done
+    }
+
+    private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
+        // TODO: figure out which ServerInfo is selected
+        getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(lastServer);
+        getServerDetailsTask.addPropertyChangeListener(
+                new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("state".equals(evt.getPropertyName())) {
+                    if (evt.getNewValue().equals(StateValue.DONE)) {
+                        onServerDetailsDone();
+                    }
+                }
+            }
+        });
+        progress.setVisible(true);
+        getServerDetailsTask.execute();
     }//GEN-LAST:event_bConnectActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
@@ -246,5 +281,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
     private GameSession.GetServerListTask getServerListTask;
-    private TableColumnAdjuster tca;
+    private GameSession.GetServerDetailsTask getServerDetailsTask;
+    private TableColumnAdjuster tableColumnAdjuster;
+    ServerInfo lastServer; // temporary -- for testing
 }

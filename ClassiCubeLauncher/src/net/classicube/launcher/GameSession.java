@@ -125,8 +125,27 @@ abstract class GameSession {
     private static CookieStore cookieJar;
     protected UserAccount account;
     protected Preferences store;
-    
-    public static abstract class SignInTask extends SwingWorker<SignInResult, String>{}
-    public static abstract class GetServerListTask extends SwingWorker<ServerInfo[], ServerInfo>{}
-    public static abstract class GetServerDetailsTask extends SwingWorker<Boolean, Boolean>{}
+
+    public static abstract class SignInTask extends SwingWorker<SignInResult, String> {
+
+        public SignInTask(boolean remember) {
+            this.remember = remember;
+        }
+        protected boolean remember;
+    }
+
+    public static abstract class GetServerListTask extends SwingWorker<ServerInfo[], ServerInfo> {
+    }
+
+    public static abstract class GetServerDetailsTask extends SwingWorker<Boolean, Boolean> {
+
+        public GetServerDetailsTask(ServerInfo serverInfo) {
+            this.serverInfo = serverInfo;
+        }
+
+        public ServerInfo getServerInfo() {
+            return serverInfo;
+        }
+        protected ServerInfo serverInfo;
+    }
 }
