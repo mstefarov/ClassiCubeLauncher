@@ -20,7 +20,7 @@ class ClassiCubeNetSession extends GameSession {
     }
 
     @Override
-    public String getServerPass(ServerInfo server) {
+    public SwingWorker<Boolean, Boolean> getServerPassAsync(ServerInfo server) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

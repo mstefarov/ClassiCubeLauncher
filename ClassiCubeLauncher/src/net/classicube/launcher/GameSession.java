@@ -41,7 +41,7 @@ abstract class GameSession {
     public abstract SwingWorker<ServerInfo[], ServerInfo> getServerListAsync();
 
     // Gets mppass for given server
-    public abstract String getServerPass(ServerInfo server);
+    public abstract SwingWorker<Boolean, Boolean> getServerPassAsync(ServerInfo server);
 
     // Gets service site's root URL (for cookie filtering).
     public abstract URI getSiteUri();
