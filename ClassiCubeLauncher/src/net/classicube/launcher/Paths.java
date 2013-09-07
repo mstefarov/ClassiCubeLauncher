@@ -1,6 +1,10 @@
 package net.classicube.launcher;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 public class Paths {
 
@@ -11,7 +15,6 @@ public class Paths {
             LauncherDirName = "net.classicube.launcher",
             LogFileName = "launcher.log",
             LibsDirName = "libs";
-            
 
     public static File getClientJar() {
         if (clientJar == null) {
@@ -22,7 +25,7 @@ public class Paths {
     }
 
     public static File getClientDir() {
-        if(clientPath == null){
+        if (clientPath == null) {
             clientPath = new File(getAppDataDir(), ClientDirName);
         }
         if (!clientPath.exists() && !clientPath.mkdirs()) {
@@ -34,7 +37,7 @@ public class Paths {
     public static File getAppDataDir() {
         if (appDataPath == null) {
             final String home = System.getProperty("user.home", ".");
-            final OperatingSystem os = getOs();
+            final OperatingSystem os = OperatingSystem.detect();
 
             switch (os) {
                 case Windows:
@@ -57,21 +60,6 @@ public class Paths {
         return appDataPath;
     }
 
-    private static OperatingSystem getOs() {
-        final String osName = System.getProperty("os.name").toLowerCase();
-        if (osName.contains("win")) {
-            return OperatingSystem.Windows;
-        } else if (osName.contains("mac")) {
-            return OperatingSystem.MacOS;
-        } else if (osName.contains("solaris") || osName.contains("sunos")) {
-            return OperatingSystem.Solaris;
-        } else if (osName.contains("linux") || osName.contains("unix")) {
-            return OperatingSystem.Nix;
-        } else {
-            return OperatingSystem.UNKNOWN;
-        }
-    }
-
     public static File getLauncherDir() {
         if (launcherPath == null) {
             final File userDir = getAppDataDir();
@@ -88,6 +76,42 @@ public class Paths {
             logFilePath = new File(Paths.getLauncherDir(), Paths.LogFileName);
         }
         return logFilePath;
+    }
+
+    // Replace contents of destFile with sourceFile
+    static void replaceFile(File sourceFile, File destFile)
+            throws IOException {
+        if (sourceFile == null) {
+            throw new NullPointerException("sourceFile");
+        }
+        if (destFile == null) {
+            throw new NullPointerException("destFile");
+        }
+        if (!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
+            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
+                destination.transferFrom(source, 0, source.size());
+            }
+        }
+
+        sourceFile.delete();
+    }
+
+    // Deletes a directory and all of its children
+    public boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
     }
     private static File clientJar,
             clientPath,

@@ -75,7 +75,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         // download (or re-download) the client
         final File clientTempFile = new File(targetPath, Paths.ClientTempJar);
         downloadClientJar(clientTempFile);
-        replaceFile(clientTempFile, clientFile);
+        Paths.replaceFile(clientTempFile, clientFile);
     }
 
     private String computeLocalHash(File clientJar)
@@ -106,27 +106,5 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         try (FileOutputStream fos = new FileOutputStream(clientJar)) {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         }
-    }
-
-    // Replace contents of destFile with sourceFile
-    static void replaceFile(File sourceFile, File destFile)
-            throws IOException {
-        if (sourceFile == null) {
-            throw new NullPointerException("sourceFile");
-        }
-        if (destFile == null) {
-            throw new NullPointerException("destFile");
-        }
-        if (!destFile.exists()) {
-            destFile.createNewFile();
-        }
-
-        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
-            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
-                destination.transferFrom(source, 0, source.size());
-            }
-        }
-
-        sourceFile.delete();
     }
 }
