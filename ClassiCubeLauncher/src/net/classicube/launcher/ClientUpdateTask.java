@@ -30,8 +30,8 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     @Override
     protected Boolean doInBackground() throws Exception {
         LogUtil.getLogger().log(Level.FINE, "ClientUpdateTask.doInBackground");
-        targetPath = Paths.getLauncherDir();
-        clientFile = Paths.getClientJar();
+        targetPath = PathUtil.getLauncherDir();
+        clientFile = PathUtil.getClientJar();
 
         final boolean needsUpdate = checkForClientUpdate();
 
@@ -73,9 +73,9 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     private void getClientUpdate()
             throws MalformedURLException, FileNotFoundException, IOException {
         // download (or re-download) the client
-        final File clientTempFile = new File(targetPath, Paths.ClientTempJar);
+        final File clientTempFile = new File(targetPath, PathUtil.ClientTempJar);
         downloadClientJar(clientTempFile);
-        Paths.replaceFile(clientTempFile, clientFile);
+        PathUtil.replaceFile(clientTempFile, clientFile);
     }
 
     private String computeLocalHash(File clientJar)

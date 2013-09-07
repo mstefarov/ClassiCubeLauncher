@@ -327,7 +327,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         final ProcessBuilder processBuilder = new ProcessBuilder(
                 java.getAbsolutePath(),
                 "-cp",
-                Paths.getLauncherDir().getAbsolutePath(),
+                PathUtil.getLauncherDir().getAbsolutePath(),
                 ClientClassPath,
                 server.address.getHostAddress(),
                 Integer.toString(server.port),

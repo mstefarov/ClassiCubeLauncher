@@ -9,9 +9,10 @@ import java.nio.channels.FileChannel;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-public class Paths {
+public class PathUtil {
 
     private static final String MacSuffix = "/Library/Application Support";
     public static final String ClientDirName = "net.classicube.client",
@@ -78,7 +79,7 @@ public class Paths {
 
     public static File getLogFile() {
         if (logFilePath == null) {
-            logFilePath = new File(Paths.getLauncherDir(), Paths.LogFileName);
+            logFilePath = new File(PathUtil.getLauncherDir(), PathUtil.LogFileName);
         }
         return logFilePath;
     }
@@ -86,14 +87,14 @@ public class Paths {
     // Safely replace contents of destFile with sourceFile
     static void replaceFile(File sourceFile, File destFile)
             throws IOException {
-        Path sourcePath = java.nio.file.Paths.get(sourceFile.getAbsolutePath());
-        Path destPath = java.nio.file.Paths.get(destFile.getAbsolutePath());
+        Path sourcePath = Paths.get(sourceFile.getAbsolutePath());
+        Path destPath = Paths.get(destFile.getAbsolutePath());
         Files.move(sourcePath, destPath, FileReplaceOptions);
     }
     private static final CopyOption[] FileReplaceOptions = new CopyOption[]{
-            StandardCopyOption.ATOMIC_MOVE,
-            StandardCopyOption.REPLACE_EXISTING
-        };
+        StandardCopyOption.ATOMIC_MOVE,
+        StandardCopyOption.REPLACE_EXISTING
+    };
 
     // Deletes a directory and all of its children
     public boolean deleteDir(File dir) {

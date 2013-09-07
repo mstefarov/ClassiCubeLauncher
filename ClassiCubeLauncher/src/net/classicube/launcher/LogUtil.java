@@ -13,7 +13,7 @@ class LogUtil {
     public static void Init() {
         logger.setLevel(Level.FINE);
 
-        final File logFile = Paths.getLogFile();
+        final File logFile = PathUtil.getLogFile();
 
         try {
             final FileHandler handler = new FileHandler(logFile.getAbsolutePath());
