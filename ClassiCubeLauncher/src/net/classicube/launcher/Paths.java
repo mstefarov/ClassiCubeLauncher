@@ -2,6 +2,7 @@ package net.classicube.launcher;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -81,22 +82,7 @@ public class Paths {
     // Replace contents of destFile with sourceFile
     static void replaceFile(File sourceFile, File destFile)
             throws IOException {
-        if (sourceFile == null) {
-            throw new NullPointerException("sourceFile");
-        }
-        if (destFile == null) {
-            throw new NullPointerException("destFile");
-        }
-        if (!destFile.exists()) {
-            destFile.createNewFile();
-        }
-
-        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
-            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
-                destination.transferFrom(source, 0, source.size());
-            }
-        }
-
+        copyFile(sourceFile, destFile);
         sourceFile.delete();
     }
 
@@ -112,6 +98,50 @@ public class Paths {
             }
         }
         return dir.delete();
+    }
+
+    //Copies a directory, creates dir if needed
+    public static void copyDir(File sourceDir, File destDir)
+            throws FileNotFoundException, IOException {
+        if (sourceDir == null) {
+            throw new NullPointerException("sourceDir");
+        }
+        if (destDir == null) {
+            throw new NullPointerException("destDir");
+        }
+        if (sourceDir.isDirectory()) {
+            if (!destDir.exists()) {
+                destDir.mkdir();
+            }
+            String files[] = sourceDir.list();
+            for (String file : files) {
+                File srcFile = new File(sourceDir, file);
+                File destFile = new File(destDir, file);
+                copyDir(srcFile, destFile);
+            }
+        } else {
+            copyFile(sourceDir, destDir);
+        }
+    }
+
+    // Copies a file
+    public static void copyFile(File sourceFile, File destFile)
+            throws FileNotFoundException, IOException {
+        if (sourceFile == null) {
+            throw new NullPointerException("sourceFile");
+        }
+        if (destFile == null) {
+            throw new NullPointerException("destFile");
+        }
+        if (!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
+            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
+                destination.transferFrom(source, 0, source.size());
+            }
+        }
     }
     private static File clientJar,
             clientPath,
