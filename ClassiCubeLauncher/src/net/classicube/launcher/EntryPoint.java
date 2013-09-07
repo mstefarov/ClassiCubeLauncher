@@ -35,10 +35,13 @@ public class EntryPoint {
         ShowSignInScreen();
     }
 
-    // Shows sign-in screen (hides server-list screen, if visible)
+    // Shows sign-in screen (hides any other screens)
     public static void ShowSignInScreen() {
-        if (serverListScreen != null) {
+        if (serverListScreen != null && serverListScreen.isVisible()) {
             serverListScreen.setVisible(false);
+        }
+        if (clientUpdateScreen != null && clientUpdateScreen.isVisible()) {
+            clientUpdateScreen.setVisible(false);
         }
         if (signInScreen == null) {
             signInScreen = new SignInScreen();
@@ -46,16 +49,34 @@ public class EntryPoint {
         signInScreen.setVisible(true);
     }
 
-    // Shows server-list screen (hides sign-in screen, if visible)
+    // Shows server-list screen (hides any other screens)
     public static void ShowServerListScreen() {
-        if (signInScreen != null) {
+        if (signInScreen != null && signInScreen.isVisible()) {
             signInScreen.setVisible(false);
+        }
+        if (clientUpdateScreen != null && clientUpdateScreen.isVisible()) {
+            clientUpdateScreen.setVisible(false);
         }
         if (serverListScreen == null) {
             serverListScreen = new ServerListScreen();
         }
         serverListScreen.setVisible(true);
     }
+
+    // Shows client-download screen (hides any other screens)
+    public static void ShowClientUpdateScreen() {
+        if (serverListScreen != null && serverListScreen.isVisible()) {
+            serverListScreen.setVisible(false);
+        }
+        if (signInScreen != null && signInScreen.isVisible()) {
+            signInScreen.setVisible(false);
+        }
+        if (clientUpdateScreen == null) {
+            clientUpdateScreen = new ClientUpdateScreen();
+        }
+        clientUpdateScreen.setVisible(true);
+    }
     private static SignInScreen signInScreen;
     private static ServerListScreen serverListScreen;
+    private static ClientUpdateScreen clientUpdateScreen;
 }

@@ -7,17 +7,13 @@ import javax.swing.JOptionPane;
 
 // Global logging class (to make life easier)
 class LogUtil {
-
-    private static final String MacSuffix = "/Library/Application Support",
-            LauncherDirName = "net.classicube.launcher",
-            LogFileName = "launcher.log";
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 
     // Sets up logging to file (%AppData%/net.classicube.launcher/launcher.log)
     public static void Init() {
         logger.setLevel(Level.FINE);
 
-        final File logFile = new File(getLauncherDir(), LogFileName);
+        final File logFile = Paths.getLogFile();
 
         try {
             final FileHandler handler = new FileHandler(logFile.getAbsolutePath());
@@ -27,17 +23,6 @@ class LogUtil {
             showError("Could not open log file: " + ex, "Fatal error");
             System.exit(2);
         }
-    }
-
-    public static File getLauncherDir() {
-        if (launcherDir == null) {
-            final File userDir = findUserDir();
-            launcherDir = new File(userDir, LauncherDirName);
-            if (launcherDir.exists()) {
-                launcherDir.mkdir();
-            }
-        }
-        return launcherDir;
     }
 
     public static Logger getLogger(){
@@ -72,20 +57,4 @@ class LogUtil {
         showError(message, "Fatal error");
         System.exit(2);
     }
-
-    // Find OS-specific application data dir (reused from ClassiCubeSelfUpdater)
-    private static File findUserDir() {
-        final String os = System.getProperty("os.name");
-        String path;
-        if (os.contains("Windows")) {
-            path = System.getenv("AppData");
-        } else {
-            path = System.getProperty("user.home");
-            if (os.contains("MacOS")) {
-                path += MacSuffix;
-            }
-        }
-        return new File(path);
-    }
-    private static File launcherDir;
 }

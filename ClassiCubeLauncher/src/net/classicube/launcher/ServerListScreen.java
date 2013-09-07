@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -315,19 +316,34 @@ public class ServerListScreen extends javax.swing.JFrame {
         }
 
         final File java = getJavaPath();
-        final ProcessBuilder processBuilder = new ProcessBuilder(
+        /*final ProcessBuilder processBuilder = new ProcessBuilder(
                 java.getAbsolutePath(),
                 "-jar",
                 ClientUpdateTask.getClientPath().getAbsolutePath(),
                 server.address.getHostAddress(),
                 Integer.toString(server.port),
                 SessionManager.getSession().account.PlayerName,
+                server.hash);*/
+        final ProcessBuilder processBuilder = new ProcessBuilder(
+                java.getAbsolutePath(),
+                "-cp",
+                Paths.getLauncherDir().getAbsolutePath(),
+                ClientClassPath,
+                server.address.getHostAddress(),
+                Integer.toString(server.port),
+                SessionManager.getSession().account.PlayerName,
                 server.hash);
+        processBuilder.inheritIO();
 
         try {
             setVisible(false);
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
-            processBuilder.start();
+            Process p = processBuilder.start();
+            try {
+                p.waitFor();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ServerListScreen.class.getName()).log(Level.SEVERE, null, ex);
+            }
             System.exit(0);
         } catch (IOException ex) {
             LogUtil.die("Error launching client: " + ex);
@@ -361,4 +377,5 @@ public class ServerListScreen extends javax.swing.JFrame {
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private TableColumnAdjuster tableColumnAdjuster;
     private ServerInfo[] serverList;
+    final static String ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
 }

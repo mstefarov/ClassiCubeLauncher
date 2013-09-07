@@ -15,9 +15,7 @@ import javax.swing.SwingWorker;
 
 public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
-    private static final String ClientJar = "ClassiCubeClient.jar",
-            ClientTempJar = "ClassiCubeClient.jar.tmp",
-            ClientDownloadUrl = "http://www.classicube.net/static/client/client.jar",
+    private static final String ClientDownloadUrl = "http://www.classicube.net/static/client/client.jar",
             ClientHashUrl = "http://www.classicube.net/static/client/client.jar.md5";
 
     private ClientUpdateTask() {
@@ -27,14 +25,30 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     public static ClientUpdateTask getInstance() {
         return instance;
     }
+    File targetPath, clientFile;
 
     @Override
     protected Boolean doInBackground() throws Exception {
         LogUtil.getLogger().log(Level.FINE, "ClientUpdateTask.doInBackground");
-        final File targetPath = LogUtil.getLauncherDir();
-        final File clientFile = getClientPath();
-        boolean needsUpdate;
+        targetPath = Paths.getLauncherDir();
+        clientFile = Paths.getClientJar();
 
+        final boolean needsUpdate = checkForClientUpdate();
+
+        if (needsUpdate) {
+            LogUtil.getLogger().log(Level.INFO, "Downloading.");
+            getClientUpdate();
+            LogUtil.getLogger().log(Level.INFO, "Update applied.");
+        } else {
+            LogUtil.getLogger().log(Level.INFO, "No update needed.");
+        }
+
+        return needsUpdate;
+    }
+
+    private boolean checkForClientUpdate()
+            throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+        boolean needsUpdate;
         if (!clientFile.exists()) {
             LogUtil.getLogger().log(Level.INFO, "No local copy, will download.");
             // if local file does not exist, always update/download
@@ -53,19 +67,15 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
                 needsUpdate = !localHashString.equalsIgnoreCase(remoteHash);
             }
         }
-
-        if (needsUpdate) {
-            LogUtil.getLogger().log(Level.INFO, "Downloading.");
-            // download (or re-download) the client
-            final File clientTempFile = new File(targetPath, ClientTempJar);
-            downloadClientJar(clientTempFile);
-            replaceFile(clientTempFile, clientFile);
-            LogUtil.getLogger().log(Level.INFO, "Update applied.");
-        } else {
-            LogUtil.getLogger().log(Level.INFO, "No update needed.");
-        }
-
         return needsUpdate;
+    }
+
+    private void getClientUpdate()
+            throws MalformedURLException, FileNotFoundException, IOException {
+        // download (or re-download) the client
+        final File clientTempFile = new File(targetPath, Paths.ClientTempJar);
+        downloadClientJar(clientTempFile);
+        replaceFile(clientTempFile, clientFile);
     }
 
     private String computeLocalHash(File clientJar)
@@ -118,10 +128,5 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         }
 
         sourceFile.delete();
-    }
-
-    public static File getClientPath() {
-        final File targetPath = LogUtil.getLauncherDir();
-        return new File(targetPath, ClientJar);
     }
 }
