@@ -8,23 +8,22 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 import java.util.jar.Pack200.Unpacker;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
 
 public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
-    private static final String ClientDownloadUrl = "http://www.classicube.net/static/client/client.jar",
-            ClientHashUrl = "http://www.classicube.net/static/client/client.jar.md5";
+    MessageDigest digest;
+    private static final String ClientHashUrl = "client.jar.md5",
+            LauncherHashUrl = "ClassiCubeLauncher.jar.md5",
+            BaseUrl = "http://www.classicube.net/static/client/";
 
     private ClientUpdateTask() {
     }
@@ -33,69 +32,115 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     public static ClientUpdateTask getInstance() {
         return instance;
     }
-    File targetPath, clientFile;
 
     @Override
     protected Boolean doInBackground() throws Exception {
+        digest = MessageDigest.getInstance("MD5");
+
         LogUtil.getLogger().log(Level.FINE, "ClientUpdateTask.doInBackground");
-        targetPath = PathUtil.getLauncherDir();
-        clientFile = PathUtil.getClientJar();
 
-        final boolean needsUpdate = checkForClientUpdate();
+        // step 1: build up file list
+        LogUtil.getLogger().log(Level.INFO, "Checking for updates.");
+        List<FileToDownload> files = findFilesToDownload();
 
-        if (needsUpdate) {
-            LogUtil.getLogger().log(Level.INFO, "Downloading.");
-            getClientUpdate();
-            LogUtil.getLogger().log(Level.INFO, "Update applied.");
+        if (files.isEmpty()) {
+            LogUtil.getLogger().log(Level.INFO, "No updates needed.");
         } else {
-            LogUtil.getLogger().log(Level.INFO, "No update needed.");
+            LogUtil.getLogger().log(Level.INFO, "Downloading updates.");
+            for (FileToDownload file : files) {
+                try {
+                    // step 2: download
+                    File downloadedFile = downloadFile(file);
+
+                    // step 3: unpack
+                    File processedFile = processDownload(downloadedFile, file.localName);
+
+                    // step 4: deploy
+                    PathUtil.replaceFile(processedFile, file.localName);
+
+                } catch (IOException ex) {
+                    LogUtil.getLogger().log(Level.SEVERE, "Error while downloading update.", ex);
+                }
+            }
+            LogUtil.getLogger().log(Level.INFO, "Updates applied.");
         }
 
-        return needsUpdate;
+        return true;
     }
 
-    private boolean checkForClientUpdate()
-            throws NoSuchAlgorithmException, FileNotFoundException, IOException {
-        boolean needsUpdate;
-        if (!clientFile.exists()) {
-            LogUtil.getLogger().log(Level.INFO, "No local copy, will download.");
+    private List<FileToDownload> findFilesToDownload() {
+        List<FileToDownload> files = new ArrayList<>();
+
+        File clientDir = PathUtil.getClientDir();
+        File launcherDir = PathUtil.getLauncherDir();
+
+        if (checkForLauncherUpdate()) {
+            files.add(new FileToDownload(
+                    BaseUrl + "ClassiCubeLauncher.jar",
+                    new File(launcherDir, "ClassiCubeLauncher.jar.new")));
+        }
+        if (checkForClientUpdate()) {
+            files.add(new FileToDownload(
+                    BaseUrl + "client.jar",
+                    new File(clientDir, "client.jar")));
+        }
+        if (checkForLibraries()) {
+            files.add(new FileToDownload(
+                    BaseUrl + "lwjgl.jar.pack.lzma",
+                    new File(clientDir, "libs/lwjgl.jar")));
+            files.add(new FileToDownload(
+                    BaseUrl + "lwjgl_util.jar.pack.lzma",
+                    new File(clientDir, "libs/lwjgl_util.jar")));
+            files.add(pickNativeDownload());
+        }
+        return files;
+    }
+
+    private boolean checkForLauncherUpdate() {
+        File launcherFile = new File(PathUtil.getLauncherDir(), "ClassiCubeLauncher.jar");
+        return checkUpdateByHash(launcherFile, LauncherHashUrl);
+    }
+
+    private boolean checkForClientUpdate() {
+        File clientFile = new File(PathUtil.getClientDir(), "client.jar");
+        return checkUpdateByHash(clientFile, ClientHashUrl);
+    }
+
+    private boolean checkUpdateByHash(File localFile, String hashUrl) {
+        String name = localFile.getName();
+        if (!localFile.exists()) {
+            LogUtil.getLogger().log(Level.FINE, "{0}: No local copy, will download.", name);
             // if local file does not exist, always update/download
-            needsUpdate = true;
+            return true;
 
         } else {
-            LogUtil.getLogger().log(Level.INFO, "Checking for update.");
             // else check if remote hash is different from local hash
-            final String remoteString = HttpUtil.downloadString(ClientHashUrl);
+            final String remoteString = HttpUtil.downloadString(hashUrl);
             final String remoteHash = remoteString.substring(0, 32);
             if (remoteHash == null) {
-                LogUtil.getLogger().log(Level.INFO, "Error downloading remote hash, aborting.");
-                needsUpdate = false; // remote server is down, dont try to update
+                LogUtil.getLogger().log(Level.FINE, "{0}: Error downloading remote hash, aborting.", name);
+                return false; // remote server is down, dont try to update
             } else {
-                final String localHashString = computeLocalHash(clientFile);
-                needsUpdate = !localHashString.equalsIgnoreCase(remoteHash);
+                try {
+                    final String localHashString;
+                    localHashString = computeLocalHash(localFile);
+                    return !localHashString.equalsIgnoreCase(remoteHash);
+                } catch (IOException ex) {
+                    LogUtil.getLogger().log(Level.SEVERE, name + ": Error computing local hash, aborting.", ex);
+                    return false;
+                }
             }
         }
-        return needsUpdate;
-    }
-
-    private void getClientUpdate()
-            throws MalformedURLException, FileNotFoundException, IOException {
-        // download (or re-download) the client
-        final File clientTempFile = new File(targetPath, PathUtil.ClientTempJar);
-        downloadClientJar(clientTempFile);
-        PathUtil.replaceFile(clientTempFile, clientFile);
     }
 
     private String computeLocalHash(File clientJar)
-            throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+            throws FileNotFoundException, IOException {
         if (clientJar == null) {
             throw new NullPointerException("clientJar");
         }
-        final MessageDigest digest = MessageDigest.getInstance("MD5");
-        final byte[] buffer = new byte[8192];
         try (FileInputStream is = new FileInputStream(clientJar)) {
             final DigestInputStream dis = new DigestInputStream(is, digest);
-            while (dis.read(buffer) != -1) {
+            while (dis.read(ioBuffer) != -1) {
                 // DigestInputStream is doing its job, we just need to read through it.
             }
         }
@@ -103,45 +148,37 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         return new BigInteger(1, localHashBytes).toString(16);
     }
 
-    private void downloadClientJar(File clientJar)
+    private File downloadFile(FileToDownload file)
             throws MalformedURLException, FileNotFoundException, IOException {
-        if (clientJar == null) {
-            throw new NullPointerException("clientJar");
-        }
-        clientJar.delete();
-        final URL website = new URL(ClientDownloadUrl);
+        File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
+        final URL website = new URL(file.remoteUrl);
         final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        try (FileOutputStream fos = new FileOutputStream(clientJar)) {
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            // todo: progress updates
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         }
+        return tempFile;
     }
-    private static final String baseDownloadUrl = "http://www.classicube.net/static/client/";
-    private static final FileToDownload[] libFileNames = new FileToDownload[]{
-        new FileToDownload("lwjgl.jar.pack.lzma", "libs/lwjgl.jar"),
-        new FileToDownload("lwjgl_util.jar.pack.lzma", "libs/lwjgl_util.jar")
-    };
 
-    private void processDownload(File tempFile, File destinationFile)
+    private File processDownload(File tempFile, File destinationFile)
             throws FileNotFoundException, IOException {
-        LogUtil.getLogger().log(Level.FINE, "unpackLib({0})", destinationFile.getName());
+        LogUtil.getLogger().log(Level.FINE, "processDownload({0})", destinationFile.getName());
+        String targetName = destinationFile.getName().toLowerCase();
 
         // decompress(LZMA), if needed
-        if (tempFile.getName().toLowerCase().endsWith(".lzma")) {
-            final File newFile = PathUtil.removeExtension(tempFile);
+        if (targetName.endsWith(".lzma")) {
+            File newFile = File.createTempFile(targetName, ".tmp");
             decompressLZMA(tempFile, newFile);
-            tempFile.delete();
             tempFile = newFile;
         }
 
         // unpack (Pack200), if needed
-        if (tempFile.getName().toLowerCase().endsWith(".pack")) {
-            final File newFile = PathUtil.removeExtension(tempFile);
+        if (targetName.contains(".pack.")) {
+            File newFile = File.createTempFile(targetName, ".tmp");
             unpack200(tempFile, newFile);
-            tempFile.delete();
             tempFile = newFile;
         }
-
-        PathUtil.replaceFile(tempFile, destinationFile);
+        return tempFile;
     }
 
     private void decompressLZMA(File compressedInput, File decompressedOutput)
@@ -151,14 +188,14 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
                 final LzmaInputStream compressedIn = new LzmaInputStream(bufferedIn, new Decoder());
                 try (FileOutputStream fileOut = new FileOutputStream(decompressedOutput)) {
                     int len;
-                    while ((len = compressedIn.read(lzmaBuffer)) > 0) {
-                        fileOut.write(lzmaBuffer, 0, len);
+                    while ((len = compressedIn.read(ioBuffer)) > 0) {
+                        fileOut.write(ioBuffer, 0, len);
                     }
                 }
             }
         }
     }
-    private final byte[] lzmaBuffer = new byte[65536];
+    private final byte[] ioBuffer = new byte[65536];
 
     private void unpack200(File compressedInput, File decompressedOutput)
             throws FileNotFoundException, IOException {
@@ -171,74 +208,47 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     }
 
     private FileToDownload pickNativeDownload() {
-        String baseName;
+        String osName;
         switch (OperatingSystem.detect()) {
             case Windows:
-                baseName = "windows";
+                osName = "windows";
                 break;
             case MacOS:
-                baseName = "macosx";
+                osName = "macosx";
                 break;
             case Nix:
-                baseName = "linux";
+                osName = "linux";
                 break;
             case Solaris:
-                baseName = "solaris";
+                osName = "solaris";
                 break;
             default:
                 throw new IllegalArgumentException();
         }
-        String remoteName = baseName + "_natives.jar.lzma";
-        String localName = "natives/" + baseName + "_natives.jar";
-        return new FileToDownload(remoteName, localName);
+        String remoteName = BaseUrl + osName + "_natives.jar.lzma";
+        File localPath = new File("natives/" + osName + "_natives.jar");
+        return new FileToDownload(remoteName, localPath);
     }
 
-    private void downloadLibs() {
-        List<FileToDownload> allFileNames = Arrays.asList(libFileNames);
-        allFileNames.add(pickNativeDownload());
-        signalBeginDownload(allFileNames.size());
-
-        for (FileToDownload file : allFileNames) {
-            String fullURL = baseDownloadUrl + file;
-            signalFileChange(file.localName);
-        }
+    private boolean checkForLibraries() {
+        File libDir = new File(PathUtil.getClientDir(), "libs");
+        FileToDownload nativeLib = pickNativeDownload();
+        File mainLib = new File(libDir, "lwjgl.jar");
+        File mainUtilLib = new File(libDir, "lwjgl_util.jar");
+        return !libDir.exists()
+                || !nativeLib.localName.exists()
+                || !mainLib.exists()
+                || !mainUtilLib.exists();
     }
 
     static class FileToDownload {
 
-        public String remoteName, localName;
+        public String remoteUrl;
+        public File localName;
 
-        public FileToDownload(String remoteName, String localName) {
-            this.remoteName = remoteName;
+        public FileToDownload(String remoteName, File localName) {
+            this.remoteUrl = remoteName;
             this.localName = localName;
         }
     }
-
-    // =============================================================================================
-    //                                                                            PROGRESS SIGNALING
-    // =============================================================================================
-    private void signalBeginDownload(int totalFiles) {
-        status.filesTotal = totalFiles;
-        status.overallProgress = 10;
-        signalProgress();
-    }
-
-    private void signalFileChange(String fileName) {
-        status.operation = ClientUpdateStatus.Op.Downloading;
-        status.fileName = fileName;
-        status.bytesDownloaded = 0;
-        status.bytesTotal = 1;
-        status.filesProcessed++;
-        status.overallProgress = 10 + (90 * status.filesProcessed) / status.filesTotal;
-        signalProgress();
-    }
-
-    private void signalProgress() {
-        try {
-            ClientUpdateStatus clone = (ClientUpdateStatus) status.clone();
-        } catch (CloneNotSupportedException ex) {
-            // ignored
-        }
-    }
-    ClientUpdateStatus status;
 }

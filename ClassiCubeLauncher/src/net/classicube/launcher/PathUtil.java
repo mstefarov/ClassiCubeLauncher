@@ -22,14 +22,6 @@ public class PathUtil {
             LogFileName = "launcher.log",
             LibsDirName = "libs";
 
-    public static File getClientJar() {
-        if (clientJar == null) {
-            final File targetPath = getLauncherDir();
-            clientJar = new File(targetPath, ClientJar);
-        }
-        return clientJar;
-    }
-
     public static File getClientDir() {
         if (clientPath == null) {
             clientPath = new File(getAppDataDir(), ClientDirName);
