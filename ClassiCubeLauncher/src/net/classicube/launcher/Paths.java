@@ -6,6 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class Paths {
 
@@ -79,12 +83,17 @@ public class Paths {
         return logFilePath;
     }
 
-    // Replace contents of destFile with sourceFile
+    // Safely replace contents of destFile with sourceFile
     static void replaceFile(File sourceFile, File destFile)
             throws IOException {
-        copyFile(sourceFile, destFile);
-        sourceFile.delete();
+        Path sourcePath = java.nio.file.Paths.get(sourceFile.getAbsolutePath());
+        Path destPath = java.nio.file.Paths.get(destFile.getAbsolutePath());
+        Files.move(sourcePath, destPath, FileReplaceOptions);
     }
+    private static final CopyOption[] FileReplaceOptions = new CopyOption[]{
+            StandardCopyOption.ATOMIC_MOVE,
+            StandardCopyOption.REPLACE_EXISTING
+        };
 
     // Deletes a directory and all of its children
     public boolean deleteDir(File dir) {
