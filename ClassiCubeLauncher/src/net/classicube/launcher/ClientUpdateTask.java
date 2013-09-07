@@ -51,21 +51,25 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
         if (files.isEmpty()) {
             LogUtil.getLogger().log(Level.INFO, "No updates needed.");
         } else {
-            LogUtil.getLogger().log(Level.INFO, "Downloading updates.");
+            LogUtil.getLogger().log(Level.INFO, "Downloading updates: {0}", listFileNames(files));
+            int i = 0;
             for (FileToDownload file : files) {
                 try {
                     // step 2: download
+                    this.signalDownloadProgress(files, i);
                     final File downloadedFile = downloadFile(file);
 
                     // step 3: unpack
+                    this.signalUnpackProgress(files, i);
                     final File processedFile = processDownload(downloadedFile, file.localName);
 
                     // step 4: deploy
-                    PathUtil.replaceFile(processedFile, file.localName);
+                    deployFile(processedFile, file.localName);
 
                 } catch (IOException ex) {
                     LogUtil.getLogger().log(Level.SEVERE, "Error while downloading update.", ex);
                 }
+                i++;
             }
             LogUtil.getLogger().log(Level.INFO, "Updates applied.");
         }
@@ -99,6 +103,16 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
             files.add(pickNativeDownload());
         }
         return files;
+    }
+
+    private static String listFileNames(List<FileToDownload> files) {
+        StringBuilder sb = new StringBuilder();
+        String sep = "";
+        for (FileToDownload s : files) {
+            sb.append(sep).append(s.localName.getName());
+            sep = ", ";
+        }
+        return sb.toString();
     }
     // =============================================================================================
     //                                                                        CHECKING / DOWNLOADING
@@ -193,7 +207,8 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
                 throw new IllegalArgumentException();
         }
         final String remoteName = BaseUrl + osName + "_natives.jar.lzma";
-        final File localPath = new File("natives/" + osName + "_natives.jar");
+        final File localPath = new File(PathUtil.getClientDir(),
+                "natives/" + osName + "_natives.jar");
         return new FileToDownload(remoteName, localPath);
     }
 
@@ -292,6 +307,18 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
         String fileName = files.get(i).localName.getName();
         String status = String.format("Unpacking...", fileName);
         publish(new ClientUpdateStatus(fileName, status, overallProgress));
+    }
+
+    private void deployFile(File processedFile, File localName) {
+        try {
+            File parentDir = localName.getCanonicalFile().getParentFile();
+            if (!parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+            PathUtil.replaceFile(processedFile, localName);
+        } catch (IOException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + localName.getName(), ex);
+        }
     }
 
     // =============================================================================================
