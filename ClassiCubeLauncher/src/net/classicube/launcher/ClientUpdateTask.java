@@ -20,7 +20,6 @@ import lzma.streams.LzmaInputStream;
 
 public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
-    MessageDigest digest;
     private static final String ClientHashUrl = "client.jar.md5",
             LauncherHashUrl = "ClassiCubeLauncher.jar.md5",
             BaseUrl = "http://www.classicube.net/static/client/";
@@ -41,7 +40,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
         // step 1: build up file list
         LogUtil.getLogger().log(Level.INFO, "Checking for updates.");
-        List<FileToDownload> files = findFilesToDownload();
+        final List<FileToDownload> files = findFilesToDownload();
 
         if (files.isEmpty()) {
             LogUtil.getLogger().log(Level.INFO, "No updates needed.");
@@ -50,10 +49,10 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
             for (FileToDownload file : files) {
                 try {
                     // step 2: download
-                    File downloadedFile = downloadFile(file);
+                    final File downloadedFile = downloadFile(file);
 
                     // step 3: unpack
-                    File processedFile = processDownload(downloadedFile, file.localName);
+                    final File processedFile = processDownload(downloadedFile, file.localName);
 
                     // step 4: deploy
                     PathUtil.replaceFile(processedFile, file.localName);
@@ -69,10 +68,10 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     }
 
     private List<FileToDownload> findFilesToDownload() {
-        List<FileToDownload> files = new ArrayList<>();
+        final List<FileToDownload> files = new ArrayList<>();
 
-        File clientDir = PathUtil.getClientDir();
-        File launcherDir = PathUtil.getLauncherDir();
+        final File clientDir = PathUtil.getClientDir();
+        final File launcherDir = PathUtil.getLauncherDir();
 
         if (checkForLauncherUpdate()) {
             files.add(new FileToDownload(
@@ -97,17 +96,17 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     }
 
     private boolean checkForLauncherUpdate() {
-        File launcherFile = new File(PathUtil.getLauncherDir(), "ClassiCubeLauncher.jar");
+        final File launcherFile = new File(PathUtil.getLauncherDir(), "ClassiCubeLauncher.jar");
         return checkUpdateByHash(launcherFile, LauncherHashUrl);
     }
 
     private boolean checkForClientUpdate() {
-        File clientFile = new File(PathUtil.getClientDir(), "client.jar");
+        final File clientFile = new File(PathUtil.getClientDir(), "client.jar");
         return checkUpdateByHash(clientFile, ClientHashUrl);
     }
 
     private boolean checkUpdateByHash(File localFile, String hashUrl) {
-        String name = localFile.getName();
+        final String name = localFile.getName();
         if (!localFile.exists()) {
             LogUtil.getLogger().log(Level.FINE, "{0}: No local copy, will download.", name);
             // if local file does not exist, always update/download
@@ -148,9 +147,9 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         return new BigInteger(1, localHashBytes).toString(16);
     }
 
-    private File downloadFile(FileToDownload file)
+    private static File downloadFile(FileToDownload file)
             throws MalformedURLException, FileNotFoundException, IOException {
-        File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
+        final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
         final URL website = new URL(file.remoteUrl);
         final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
         try (FileOutputStream fos = new FileOutputStream(tempFile)) {
@@ -163,18 +162,18 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
     private File processDownload(File tempFile, File destinationFile)
             throws FileNotFoundException, IOException {
         LogUtil.getLogger().log(Level.FINE, "processDownload({0})", destinationFile.getName());
-        String targetName = destinationFile.getName().toLowerCase();
+        final String targetName = destinationFile.getName().toLowerCase();
 
         // decompress(LZMA), if needed
         if (targetName.endsWith(".lzma")) {
-            File newFile = File.createTempFile(targetName, ".tmp");
+            final File newFile = File.createTempFile(targetName, ".tmp");
             decompressLZMA(tempFile, newFile);
             tempFile = newFile;
         }
 
         // unpack (Pack200), if needed
         if (targetName.contains(".pack.")) {
-            File newFile = File.createTempFile(targetName, ".tmp");
+            final File newFile = File.createTempFile(targetName, ".tmp");
             unpack200(tempFile, newFile);
             tempFile = newFile;
         }
@@ -195,9 +194,8 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
             }
         }
     }
-    private final byte[] ioBuffer = new byte[65536];
 
-    private void unpack200(File compressedInput, File decompressedOutput)
+    private static void unpack200(File compressedInput, File decompressedOutput)
             throws FileNotFoundException, IOException {
         try (FileOutputStream fostream = new FileOutputStream(decompressedOutput)) {
             try (JarOutputStream jostream = new JarOutputStream(fostream)) {
@@ -207,8 +205,8 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         }
     }
 
-    private FileToDownload pickNativeDownload() {
-        String osName;
+    private static FileToDownload pickNativeDownload() {
+        final String osName;
         switch (OperatingSystem.detect()) {
             case Windows:
                 osName = "windows";
@@ -225,26 +223,28 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
             default:
                 throw new IllegalArgumentException();
         }
-        String remoteName = BaseUrl + osName + "_natives.jar.lzma";
-        File localPath = new File("natives/" + osName + "_natives.jar");
+        final String remoteName = BaseUrl + osName + "_natives.jar.lzma";
+        final File localPath = new File("natives/" + osName + "_natives.jar");
         return new FileToDownload(remoteName, localPath);
     }
 
-    private boolean checkForLibraries() {
-        File libDir = new File(PathUtil.getClientDir(), "libs");
-        FileToDownload nativeLib = pickNativeDownload();
-        File mainLib = new File(libDir, "lwjgl.jar");
-        File mainUtilLib = new File(libDir, "lwjgl_util.jar");
+    private static boolean checkForLibraries() {
+        final File libDir = new File(PathUtil.getClientDir(), "libs");
+        final FileToDownload nativeLib = pickNativeDownload();
+        final File mainLib = new File(libDir, "lwjgl.jar");
+        final File mainUtilLib = new File(libDir, "lwjgl_util.jar");
         return !libDir.exists()
                 || !nativeLib.localName.exists()
                 || !mainLib.exists()
                 || !mainUtilLib.exists();
     }
+    private final byte[] ioBuffer = new byte[65536];
+    MessageDigest digest;
 
     static class FileToDownload {
 
-        public String remoteUrl;
-        public File localName;
+        public final String remoteUrl;
+        public final File localName;
 
         public FileToDownload(String remoteName, File localName) {
             this.remoteUrl = remoteName;
