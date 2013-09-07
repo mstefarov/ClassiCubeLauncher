@@ -28,9 +28,9 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JLabel" name="lFilename">
+    <Component class="javax.swing.JLabel" name="lFileName">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Downloading {0}"/>
+        <Property name="text" type="java.lang.String" value="&lt;fileName&gt;"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -40,7 +40,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="lStats">
       <Properties>
-        <Property name="text" type="java.lang.String" value="{0}% ({1}/{2} KB)"/>
+        <Property name="text" type="java.lang.String" value="&lt;status&gt;"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -285,11 +285,11 @@
         <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
       </StatementProvider>
       <Parameters>
-        <CodeExpression id="16_lFilename">
-          <CodeVariable name="lFilename" type="8194" declaredType="javax.swing.JLabel"/>
+        <CodeExpression id="16_lFileName">
+          <CodeVariable name="lFileName" type="8194" declaredType="javax.swing.JLabel"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
-              <ComponentRef name="lFilename"/>
+              <ComponentRef name="lFileName"/>
             </ExpressionProvider>
           </ExpressionOrigin>
         </CodeExpression>

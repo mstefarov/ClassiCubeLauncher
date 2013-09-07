@@ -5,13 +5,21 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Pack200;
+import java.util.jar.Pack200.Unpacker;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingWorker;
+import lzma.sdk.lzma.Decoder;
+import lzma.streams.LzmaInputStream;
 
 public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
 
@@ -107,4 +115,130 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         }
     }
+    private static final String baseDownloadUrl = "http://www.classicube.net/static/client/";
+    private static final FileToDownload[] libFileNames = new FileToDownload[]{
+        new FileToDownload("lwjgl.jar.pack.lzma", "libs/lwjgl.jar"),
+        new FileToDownload("lwjgl_util.jar.pack.lzma", "libs/lwjgl_util.jar")
+    };
+
+    private void processDownload(File tempFile, File destinationFile)
+            throws FileNotFoundException, IOException {
+        LogUtil.getLogger().log(Level.FINE, "unpackLib({0})", destinationFile.getName());
+
+        // decompress(LZMA), if needed
+        if (tempFile.getName().toLowerCase().endsWith(".lzma")) {
+            final File newFile = PathUtil.removeExtension(tempFile);
+            decompressLZMA(tempFile, newFile);
+            tempFile.delete();
+            tempFile = newFile;
+        }
+
+        // unpack (Pack200), if needed
+        if (tempFile.getName().toLowerCase().endsWith(".pack")) {
+            final File newFile = PathUtil.removeExtension(tempFile);
+            unpack200(tempFile, newFile);
+            tempFile.delete();
+            tempFile = newFile;
+        }
+
+        PathUtil.replaceFile(tempFile, destinationFile);
+    }
+
+    private void decompressLZMA(File compressedInput, File decompressedOutput)
+            throws FileNotFoundException, IOException {
+        try (FileInputStream fileIn = new FileInputStream(compressedInput)) {
+            try (BufferedInputStream bufferedIn = new BufferedInputStream(fileIn)) {
+                final LzmaInputStream compressedIn = new LzmaInputStream(bufferedIn, new Decoder());
+                try (FileOutputStream fileOut = new FileOutputStream(decompressedOutput)) {
+                    int len;
+                    while ((len = compressedIn.read(lzmaBuffer)) > 0) {
+                        fileOut.write(lzmaBuffer, 0, len);
+                    }
+                }
+            }
+        }
+    }
+    private final byte[] lzmaBuffer = new byte[65536];
+
+    private void unpack200(File compressedInput, File decompressedOutput)
+            throws FileNotFoundException, IOException {
+        try (FileOutputStream fostream = new FileOutputStream(decompressedOutput)) {
+            try (JarOutputStream jostream = new JarOutputStream(fostream)) {
+                final Unpacker unpacker = Pack200.newUnpacker();
+                unpacker.unpack(compressedInput, jostream);
+            }
+        }
+    }
+
+    private FileToDownload pickNativeDownload() {
+        String baseName;
+        switch (OperatingSystem.detect()) {
+            case Windows:
+                baseName = "windows";
+                break;
+            case MacOS:
+                baseName = "macosx";
+                break;
+            case Nix:
+                baseName = "linux";
+                break;
+            case Solaris:
+                baseName = "solaris";
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        String remoteName = baseName + "_natives.jar.lzma";
+        String localName = "natives/" + baseName + "_natives.jar";
+        return new FileToDownload(remoteName, localName);
+    }
+
+    private void downloadLibs() {
+        List<FileToDownload> allFileNames = Arrays.asList(libFileNames);
+        allFileNames.add(pickNativeDownload());
+        signalBeginDownload(allFileNames.size());
+
+        for (FileToDownload file : allFileNames) {
+            String fullURL = baseDownloadUrl + file;
+            signalFileChange(file.localName);
+        }
+    }
+
+    static class FileToDownload {
+
+        public String remoteName, localName;
+
+        public FileToDownload(String remoteName, String localName) {
+            this.remoteName = remoteName;
+            this.localName = localName;
+        }
+    }
+
+    // =============================================================================================
+    //                                                                            PROGRESS SIGNALING
+    // =============================================================================================
+    private void signalBeginDownload(int totalFiles) {
+        status.filesTotal = totalFiles;
+        status.overallProgress = 10;
+        signalProgress();
+    }
+
+    private void signalFileChange(String fileName) {
+        status.operation = ClientUpdateStatus.Op.Downloading;
+        status.fileName = fileName;
+        status.bytesDownloaded = 0;
+        status.bytesTotal = 1;
+        status.filesProcessed++;
+        status.overallProgress = 10 + (90 * status.filesProcessed) / status.filesTotal;
+        signalProgress();
+    }
+
+    private void signalProgress() {
+        try {
+            ClientUpdateStatus clone = (ClientUpdateStatus) status.clone();
+        } catch (CloneNotSupportedException ex) {
+            // ignored
+        }
+    }
+    ClientUpdateStatus status;
 }

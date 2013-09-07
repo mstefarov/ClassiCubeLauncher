@@ -4,18 +4,18 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
 
     public ClientUpdateScreen() {
         initComponents();
-        filenameFormat = lFilename.getText();
-        statsFormat = lStats.getText();
     }
 
-    public void setStatus(FileDownload dl) {
+    public void setStatus(ClientUpdateStatus dl) {
         progress.setValue(dl.overallProgress);
-        final int fileProgress = (int) ((dl.bytesDownloaded * 100L) / dl.bytesTotal);
-        this.lFilename.setText(String.format(filenameFormat, dl.name));
-        this.lStats.setText(String.format(statsFormat,
-                fileProgress,
-                dl.bytesDownloaded / 1024,
-                dl.bytesTotal / 1024));
+        this.lFileName.setText(dl.fileName);
+        if (dl.operation == ClientUpdateStatus.Op.Downloading) {
+            this.lStats.setText(String.format("Downloading ({1}/{2} KB)",
+                    dl.bytesDownloaded / 1024,
+                    dl.bytesTotal / 1024));
+        } else {
+            this.lStats.setText(dl.operation.name());
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -23,7 +23,7 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         progress = new javax.swing.JProgressBar();
-        lFilename = new javax.swing.JLabel();
+        lFileName = new javax.swing.JLabel();
         lStats = new javax.swing.JLabel();
         lNotice = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
@@ -41,14 +41,14 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(progress, gridBagConstraints);
 
-        lFilename.setText("Downloading {0}");
+        lFileName.setText("<fileName>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
-        getContentPane().add(lFilename, gridBagConstraints);
+        getContentPane().add(lFileName, gridBagConstraints);
 
-        lStats.setText("{0}% ({1}/{2} KB)");
+        lStats.setText("<status>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -81,10 +81,9 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bContinue;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JLabel lFilename;
+    private javax.swing.JLabel lFileName;
     private javax.swing.JLabel lNotice;
     private javax.swing.JLabel lStats;
     private javax.swing.JProgressBar progress;
     // End of variables declaration//GEN-END:variables
-    String filenameFormat, statsFormat;
 }
