@@ -3,12 +3,8 @@ package net.classicube.launcher;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -272,8 +268,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         try {
             final boolean result = getServerDetailsTask.get();
             if (result) {
-                ServerInfo server = getServerDetailsTask.getServerInfo();
-                launchClient(server);
+                SessionManager.serverDetails = getServerDetailsTask.getServerInfo();
+                EntryPoint.ShowClientUpdateScreen();
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");
             }
@@ -286,7 +282,7 @@ public class ServerListScreen extends javax.swing.JFrame {
 
     private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
         final ServerInfo selectedServer = getSelectedServer();
-        
+
         getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(selectedServer);
         getServerDetailsTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
@@ -302,66 +298,6 @@ public class ServerListScreen extends javax.swing.JFrame {
         progress.setVisible(true);
         disableGui();
         getServerDetailsTask.execute();
-    }
-
-    private void launchClient(ServerInfo server) {
-        try {
-            // wait for updater to finish (if still running)
-            ClientUpdateTask.getInstance().get();
-
-        } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error updating", ex);
-            LogUtil.die("Error while updating: " + ex);
-            return;
-        }
-
-        final File java = getJavaPath();
-        /*final ProcessBuilder processBuilder = new ProcessBuilder(
-                java.getAbsolutePath(),
-                "-jar",
-                ClientUpdateTask.getClientPath().getAbsolutePath(),
-                server.address.getHostAddress(),
-                Integer.toString(server.port),
-                SessionManager.getSession().account.PlayerName,
-                server.hash);*/
-        final ProcessBuilder processBuilder = new ProcessBuilder(
-                java.getAbsolutePath(),
-                "-cp",
-                PathUtil.getLauncherDir().getAbsolutePath(),
-                ClientClassPath,
-                server.address.getHostAddress(),
-                Integer.toString(server.port),
-                SessionManager.getSession().account.PlayerName,
-                server.hash);
-        processBuilder.inheritIO();
-
-        try {
-            setVisible(false);
-            LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
-            Process p = processBuilder.start();
-            try {
-                p.waitFor();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ServerListScreen.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            System.exit(0);
-        } catch (IOException ex) {
-            LogUtil.die("Error launching client: " + ex);
-        }
-    }
-
-    public static String concatStringsWSep(List<String> strings, String separator) {
-        StringBuilder sb = new StringBuilder();
-        String sep = "";
-        for (String s : strings) {
-            sb.append(sep).append(s);
-            sep = separator;
-        }
-        return sb.toString();
-    }
-
-    private File getJavaPath() {
-        return new File(System.getProperty("java.home"), "bin/java");
     }//GEN-LAST:event_bConnectActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
@@ -377,5 +313,4 @@ public class ServerListScreen extends javax.swing.JFrame {
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private TableColumnAdjuster tableColumnAdjuster;
     private ServerInfo[] serverList;
-    final static String ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
 }

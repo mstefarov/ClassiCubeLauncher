@@ -14,7 +14,7 @@ public class EntryPoint {
         SessionManager.Init();
 
         // begin the update process
-        ClientUpdateTask.getInstance().execute();
+        //ClientUpdateTask.getInstance().execute(); // TEMP: testing updates
 
         // set look-and-feel to Numbus
         try {
@@ -36,7 +36,7 @@ public class EntryPoint {
     }
 
     // Shows sign-in screen (hides any other screens)
-    public static void ShowSignInScreen() {
+    static void ShowSignInScreen() {
         if (serverListScreen != null && serverListScreen.isVisible()) {
             serverListScreen.setVisible(false);
         }
@@ -50,7 +50,7 @@ public class EntryPoint {
     }
 
     // Shows server-list screen (hides any other screens)
-    public static void ShowServerListScreen() {
+    static void ShowServerListScreen() {
         if (signInScreen != null && signInScreen.isVisible()) {
             signInScreen.setVisible(false);
         }
@@ -64,7 +64,7 @@ public class EntryPoint {
     }
 
     // Shows client-download screen (hides any other screens)
-    public static void ShowClientUpdateScreen() {
+    static void ShowClientUpdateScreen() {
         if (serverListScreen != null && serverListScreen.isVisible()) {
             serverListScreen.setVisible(false);
         }
@@ -73,6 +73,7 @@ public class EntryPoint {
         }
         if (clientUpdateScreen == null) {
             clientUpdateScreen = new ClientUpdateScreen();
+            ClientUpdateTask.getInstance().execute();
             clientUpdateScreen.registerWithUpdateTask();
         }
         clientUpdateScreen.setVisible(true);

@@ -1,15 +1,38 @@
 package net.classicube.launcher;
 
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+
 public class ClientUpdateScreen extends javax.swing.JFrame {
 
     public ClientUpdateScreen() {
         initComponents();
+        
+        // center the form on screen (initially)
+        setLocationRelativeTo(null);
     }
 
     public void setStatus(ClientUpdateStatus dl) {
+        LogUtil.getLogger().info("ClientUpdateScreen.setStatus");
         progress.setValue(dl.progress);
         this.lFileName.setText(dl.fileName);
         this.lStats.setText(dl.status);
+    }
+
+    public void onUpdateDone() {
+        LogUtil.getLogger().info("onUpdateDone");
+        try {
+            // wait for updater to finish (if still running)
+            ClientUpdateTask.getInstance().get();
+
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error updating", ex);
+            LogUtil.die("Error while updating: " + ex);
+            return;
+        }
+
+        ClientLauncher.launchClient();
+        setVisible(false);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

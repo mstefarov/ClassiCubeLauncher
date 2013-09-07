@@ -47,4 +47,8 @@ class SessionManager {
         activeServiceType = GameServiceType.valueOf(serviceName);
     }
     private static Preferences prefs;
+    
+    
+    
+    public static ServerInfo serverDetails;
 }

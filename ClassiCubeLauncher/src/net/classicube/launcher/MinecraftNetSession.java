@@ -15,6 +15,7 @@ class MinecraftNetSession extends GameSession {
     private static final String LoginSecureUri = "https://minecraft.net/login",
             LogoutUri = "http://minecraft.net/logout",
             HomepageUri = "http://minecraft.net",
+            SkinUri = "http://s3.amazonaws.com/MinecraftSkins/",
             ServerListUri = "http://minecraft.net/classic/list",
             PlayUri = "http://minecraft.net/classic/play/",
             MigratedAccountMessage = "Your account has been migrated",
@@ -67,6 +68,9 @@ class MinecraftNetSession extends GameSession {
 
             // download the login page
             String loginPage = HttpUtil.downloadString(LoginSecureUri);
+            if(loginPage == null){
+                return SignInResult.CONNECTION_ERROR;
+            }
 
             // See if we're already logged in
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
@@ -126,7 +130,10 @@ class MinecraftNetSession extends GameSession {
             // POST our data to the login handler
             this.publish("Signing in...");
             String loginResponse = HttpUtil.uploadString(LoginSecureUri, requestStr.toString());
-
+            if(loginResponse == null){
+                return SignInResult.CONNECTION_ERROR;
+            }
+            
             // Check for common failure scenarios
             if (loginResponse.contains(WrongUsernameOrPasswordMessage)) {
                 return SignInResult.WRONG_USER_OR_PASS;
@@ -241,7 +248,7 @@ class MinecraftNetSession extends GameSession {
 
     @Override
     public String getSkinUrl() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return SkinUri;
     }
 
     @Override

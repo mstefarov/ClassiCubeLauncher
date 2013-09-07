@@ -227,25 +227,37 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
     // =============================================================================================
     //                                                                      POST-DOWNLOAD PROCESSING
     // =============================================================================================
-    private File processDownload(File tempFile, File destinationFile)
+    private File processDownload(File rawFile, File destinationFile)
             throws FileNotFoundException, IOException {
         LogUtil.getLogger().log(Level.FINE, "processDownload({0})", destinationFile.getName());
         final String targetName = destinationFile.getName().toLowerCase();
 
-        // decompress(LZMA), if needed
-        if (targetName.endsWith(".lzma")) {
-            final File newFile = File.createTempFile(targetName, ".tmp");
-            decompressLzma(tempFile, newFile);
-            tempFile = newFile;
-        }
+        if (targetName.endsWith(".pack.lzma")) {
+            final File newFile1 = File.createTempFile(targetName, ".decompressed.tmp");
+            decompressLzma(rawFile, newFile1);
+            rawFile.delete();
+            final File newFile2 = File.createTempFile(targetName, ".unpacked.tmp");
+            unpack200(newFile1, newFile2);
+            newFile1.delete();
+            return newFile2;
 
-        // unpack (Pack200), if needed
-        if (targetName.contains(".pack.")) {
-            final File newFile = File.createTempFile(targetName, ".tmp");
-            unpack200(tempFile, newFile);
-            tempFile = newFile;
+        } else if (targetName.endsWith(".lzma")) {
+            // decompress(LZMA), if needed
+            final File newFile = File.createTempFile(targetName, ".decompressed.tmp");
+            decompressLzma(rawFile, newFile);
+            rawFile.delete();
+            return newFile;
+
+        } else if (targetName.contains(".pack.")) {
+            // unpack (Pack200), if needed
+            final File newFile = File.createTempFile(targetName, ".unpacked.tmp");
+            unpack200(rawFile, newFile);
+            rawFile.delete();
+            return newFile;
+
+        } else {
+            return rawFile;
         }
-        return tempFile;
     }
 
     private void decompressLzma(File compressedInput, File decompressedOutput)
@@ -310,6 +322,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
     }
 
     private void deployFile(File processedFile, File localName) {
+        LogUtil.getLogger().log(Level.INFO, "deployFile({0})", localName.getName());
         try {
             File parentDir = localName.getCanonicalFile().getParentFile();
             if (!parentDir.exists()) {
@@ -318,6 +331,14 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
             PathUtil.replaceFile(processedFile, localName);
         } catch (IOException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + localName.getName(), ex);
+        }
+    }
+
+    @Override
+    protected void done() {
+        ClientUpdateScreen screen = updateScreen;
+        if (screen != null) {
+            screen.onUpdateDone();
         }
     }
 
