@@ -7,15 +7,9 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
     }
 
     public void setStatus(ClientUpdateStatus dl) {
-        progress.setValue(dl.overallProgress);
+        progress.setValue(dl.progress);
         this.lFileName.setText(dl.fileName);
-        if (dl.operation == ClientUpdateStatus.Op.Downloading) {
-            this.lStats.setText(String.format("Downloading ({1}/{2} KB)",
-                    dl.bytesDownloaded / 1024,
-                    dl.bytesTotal / 1024));
-        } else {
-            this.lStats.setText(dl.operation.name());
-        }
+        this.lStats.setText(dl.status);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -86,4 +80,8 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
     private javax.swing.JLabel lStats;
     private javax.swing.JProgressBar progress;
     // End of variables declaration//GEN-END:variables
+
+    void registerWithUpdateTask() {
+        ClientUpdateTask.getInstance().registerUpdateScreen(this);
+    }
 }

@@ -18,20 +18,26 @@ import javax.swing.SwingWorker;
 import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
 
-public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
+public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
+    // =============================================================================================
+    //                                                                    CONSTANTS & INITIALIZATION
+    // =============================================================================================
 
-    private static final String ClientHashUrl = "client.jar.md5",
-            LauncherHashUrl = "ClassiCubeLauncher.jar.md5",
-            BaseUrl = "http://www.classicube.net/static/client/";
-
-    private ClientUpdateTask() {
-    }
+    private static final String BaseUrl = "http://www.classicube.net/static/client/",
+            ClientHashUrl = BaseUrl + "client.jar.md5",
+            LauncherHashUrl = BaseUrl + "ClassiCubeLauncher.jar.md5";
     private static ClientUpdateTask instance = new ClientUpdateTask();
 
     public static ClientUpdateTask getInstance() {
         return instance;
     }
 
+    private ClientUpdateTask() {
+    }
+
+    // =============================================================================================
+    //                                                                                          MAIN
+    // =============================================================================================
     @Override
     protected Boolean doInBackground() throws Exception {
         digest = MessageDigest.getInstance("MD5");
@@ -94,13 +100,20 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         }
         return files;
     }
+    // =============================================================================================
+    //                                                                        CHECKING / DOWNLOADING
+    // =============================================================================================
+    private MessageDigest digest;
+    private final byte[] ioBuffer = new byte[65536];
 
     private boolean checkForLauncherUpdate() {
+        signalCheckProgress(0, "launcher");
         final File launcherFile = new File(PathUtil.getLauncherDir(), "ClassiCubeLauncher.jar");
         return checkUpdateByHash(launcherFile, LauncherHashUrl);
     }
 
     private boolean checkForClientUpdate() {
+        signalCheckProgress(1, "client");
         final File clientFile = new File(PathUtil.getClientDir(), "client.jar");
         return checkUpdateByHash(clientFile, ClientHashUrl);
     }
@@ -117,7 +130,8 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
             final String remoteString = HttpUtil.downloadString(hashUrl);
             final String remoteHash = remoteString.substring(0, 32);
             if (remoteHash == null) {
-                LogUtil.getLogger().log(Level.FINE, "{0}: Error downloading remote hash, aborting.", name);
+                LogUtil.getLogger().log(Level.FINE,
+                        "{0}: Error downloading remote hash, aborting.", name);
                 return false; // remote server is down, dont try to update
             } else {
                 try {
@@ -125,7 +139,8 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
                     localHashString = computeLocalHash(localFile);
                     return !localHashString.equalsIgnoreCase(remoteHash);
                 } catch (IOException ex) {
-                    LogUtil.getLogger().log(Level.SEVERE, name + ": Error computing local hash, aborting.", ex);
+                    LogUtil.getLogger().log(Level.SEVERE,
+                            name + ": Error computing local hash, aborting.", ex);
                     return false;
                 }
             }
@@ -147,62 +162,16 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         return new BigInteger(1, localHashBytes).toString(16);
     }
 
-    private static File downloadFile(FileToDownload file)
-            throws MalformedURLException, FileNotFoundException, IOException {
-        final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
-        final URL website = new URL(file.remoteUrl);
-        final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-            // todo: progress updates
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        }
-        return tempFile;
-    }
-
-    private File processDownload(File tempFile, File destinationFile)
-            throws FileNotFoundException, IOException {
-        LogUtil.getLogger().log(Level.FINE, "processDownload({0})", destinationFile.getName());
-        final String targetName = destinationFile.getName().toLowerCase();
-
-        // decompress(LZMA), if needed
-        if (targetName.endsWith(".lzma")) {
-            final File newFile = File.createTempFile(targetName, ".tmp");
-            decompressLZMA(tempFile, newFile);
-            tempFile = newFile;
-        }
-
-        // unpack (Pack200), if needed
-        if (targetName.contains(".pack.")) {
-            final File newFile = File.createTempFile(targetName, ".tmp");
-            unpack200(tempFile, newFile);
-            tempFile = newFile;
-        }
-        return tempFile;
-    }
-
-    private void decompressLZMA(File compressedInput, File decompressedOutput)
-            throws FileNotFoundException, IOException {
-        try (FileInputStream fileIn = new FileInputStream(compressedInput)) {
-            try (BufferedInputStream bufferedIn = new BufferedInputStream(fileIn)) {
-                final LzmaInputStream compressedIn = new LzmaInputStream(bufferedIn, new Decoder());
-                try (FileOutputStream fileOut = new FileOutputStream(decompressedOutput)) {
-                    int len;
-                    while ((len = compressedIn.read(ioBuffer)) > 0) {
-                        fileOut.write(ioBuffer, 0, len);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void unpack200(File compressedInput, File decompressedOutput)
-            throws FileNotFoundException, IOException {
-        try (FileOutputStream fostream = new FileOutputStream(decompressedOutput)) {
-            try (JarOutputStream jostream = new JarOutputStream(fostream)) {
-                final Unpacker unpacker = Pack200.newUnpacker();
-                unpacker.unpack(compressedInput, jostream);
-            }
-        }
+    private boolean checkForLibraries() {
+        signalCheckProgress(2, "library");
+        final File libDir = new File(PathUtil.getClientDir(), "libs");
+        final FileToDownload nativeLib = pickNativeDownload();
+        final File mainLib = new File(libDir, "lwjgl.jar");
+        final File mainUtilLib = new File(libDir, "lwjgl_util.jar");
+        return !libDir.exists()
+                || !nativeLib.localName.exists()
+                || !mainLib.exists()
+                || !mainUtilLib.exists();
     }
 
     private static FileToDownload pickNativeDownload() {
@@ -228,20 +197,107 @@ public class ClientUpdateTask extends SwingWorker<Boolean, Boolean> {
         return new FileToDownload(remoteName, localPath);
     }
 
-    private static boolean checkForLibraries() {
-        final File libDir = new File(PathUtil.getClientDir(), "libs");
-        final FileToDownload nativeLib = pickNativeDownload();
-        final File mainLib = new File(libDir, "lwjgl.jar");
-        final File mainUtilLib = new File(libDir, "lwjgl_util.jar");
-        return !libDir.exists()
-                || !nativeLib.localName.exists()
-                || !mainLib.exists()
-                || !mainUtilLib.exists();
+    private static File downloadFile(FileToDownload file)
+            throws MalformedURLException, FileNotFoundException, IOException {
+        final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
+        final URL website = new URL(file.remoteUrl);
+        final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            // todo: progress updates
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+        }
+        return tempFile;
     }
-    private final byte[] ioBuffer = new byte[65536];
-    MessageDigest digest;
 
-    static class FileToDownload {
+    // =============================================================================================
+    //                                                                      POST-DOWNLOAD PROCESSING
+    // =============================================================================================
+    private File processDownload(File tempFile, File destinationFile)
+            throws FileNotFoundException, IOException {
+        LogUtil.getLogger().log(Level.FINE, "processDownload({0})", destinationFile.getName());
+        final String targetName = destinationFile.getName().toLowerCase();
+
+        // decompress(LZMA), if needed
+        if (targetName.endsWith(".lzma")) {
+            final File newFile = File.createTempFile(targetName, ".tmp");
+            decompressLzma(tempFile, newFile);
+            tempFile = newFile;
+        }
+
+        // unpack (Pack200), if needed
+        if (targetName.contains(".pack.")) {
+            final File newFile = File.createTempFile(targetName, ".tmp");
+            unpack200(tempFile, newFile);
+            tempFile = newFile;
+        }
+        return tempFile;
+    }
+
+    private void decompressLzma(File compressedInput, File decompressedOutput)
+            throws FileNotFoundException, IOException {
+        try (FileInputStream fileIn = new FileInputStream(compressedInput)) {
+            try (BufferedInputStream bufferedIn = new BufferedInputStream(fileIn)) {
+                final LzmaInputStream compressedIn = new LzmaInputStream(bufferedIn, new Decoder());
+                try (FileOutputStream fileOut = new FileOutputStream(decompressedOutput)) {
+                    int len;
+                    while ((len = compressedIn.read(ioBuffer)) > 0) {
+                        fileOut.write(ioBuffer, 0, len);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void unpack200(File compressedInput, File decompressedOutput)
+            throws FileNotFoundException, IOException {
+        try (FileOutputStream fostream = new FileOutputStream(decompressedOutput)) {
+            try (JarOutputStream jostream = new JarOutputStream(fostream)) {
+                final Unpacker unpacker = Pack200.newUnpacker();
+                unpacker.unpack(compressedInput, jostream);
+            }
+        }
+    }
+    // =============================================================================================
+    //                                                                            PROGRESS REPORTING
+    // =============================================================================================
+    private volatile ClientUpdateScreen updateScreen;
+
+    public void registerUpdateScreen(ClientUpdateScreen updateScreen) {
+        this.updateScreen = updateScreen;
+    }
+
+    @Override
+    protected void process(List<ClientUpdateStatus> chunks) {
+        ClientUpdateScreen screen = updateScreen;
+        if (screen != null) {
+            screen.setStatus(chunks.get(chunks.size() - 1));
+        }
+    }
+
+    private void signalCheckProgress(int step, String fileName) {
+        int overallProgress = step * 5; // between 0 and 15%
+        String status = String.format("Checking for updates...", fileName);
+        publish(new ClientUpdateStatus(fileName, status, overallProgress));
+    }
+
+    private void signalDownloadProgress(List<FileToDownload> files, int i) {
+        int overallProgress = 15 + (i * 170) / (files.size() * 2);
+        String fileName = files.get(i).localName.getName();
+        String status = String.format("Downloading...", fileName);
+        publish(new ClientUpdateStatus(fileName, status, overallProgress));
+    }
+
+    private void signalUnpackProgress(List<FileToDownload> files, int i) {
+        int overallProgress = 15 + ((i + 1) * 170) / (files.size() * 2);
+        String fileName = files.get(i).localName.getName();
+        String status = String.format("Unpacking...", fileName);
+        publish(new ClientUpdateStatus(fileName, status, overallProgress));
+    }
+
+    // =============================================================================================
+    //                                                                                   INNER TYPES
+    // =============================================================================================
+    private static class FileToDownload {
 
         public final String remoteUrl;
         public final File localName;

@@ -73,6 +73,7 @@ public class EntryPoint {
         }
         if (clientUpdateScreen == null) {
             clientUpdateScreen = new ClientUpdateScreen();
+            clientUpdateScreen.registerWithUpdateTask();
         }
         clientUpdateScreen.setVisible(true);
     }
