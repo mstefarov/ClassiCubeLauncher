@@ -153,6 +153,13 @@ public class PathUtil {
             }
         }
     }
+    
+    
+    public static File removeExtension(File fileName) {
+        final String oldName = fileName.getPath();
+        final String newName = oldName.substring(0, oldName.lastIndexOf('.'));
+        return new File(newName);
+    }
     private static File clientJar,
             clientPath,
             launcherPath,
