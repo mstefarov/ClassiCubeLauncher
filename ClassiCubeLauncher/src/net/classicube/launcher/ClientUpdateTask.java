@@ -5,11 +5,16 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 import java.util.jar.Pack200.Unpacker;
@@ -61,7 +66,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
 
                     // step 3: unpack
                     this.signalUnpackProgress(files, i);
-                    final File processedFile = processDownload(downloadedFile, file.localName);
+                    final File processedFile = processDownload(downloadedFile, file);
 
                     // step 4: deploy
                     deployFile(processedFile, file.localName);
@@ -100,6 +105,9 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
             files.add(new FileToDownload(
                     BaseUrl + "lwjgl_util.jar.pack.lzma",
                     new File(clientDir, "libs/lwjgl_util.jar")));
+            files.add(new FileToDownload(
+                    BaseUrl + "jinput.jar.pack.lzma",
+                    new File(clientDir, "libs/jinput.jar")));
             files.add(pickNativeDownload());
         }
         return files;
@@ -180,12 +188,14 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
         signalCheckProgress(2, "library");
         final File libDir = new File(PathUtil.getClientDir(), "libs");
         final FileToDownload nativeLib = pickNativeDownload();
-        final File mainLib = new File(libDir, "lwjgl.jar");
-        final File mainUtilLib = new File(libDir, "lwjgl_util.jar");
+        final File libLwjgl = new File(libDir, "lwjgl.jar");
+        final File libLwjglUtil = new File(libDir, "lwjgl_util.jar");
+        final File libJInput = new File(libDir, "jinput.jar");
         return !libDir.exists()
                 || !nativeLib.localName.exists()
-                || !mainLib.exists()
-                || !mainUtilLib.exists();
+                || !libLwjgl.exists()
+                || !libLwjglUtil.exists()
+                || !libJInput.exists();
     }
 
     private static FileToDownload pickNativeDownload() {
@@ -227,30 +237,32 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
     // =============================================================================================
     //                                                                      POST-DOWNLOAD PROCESSING
     // =============================================================================================
-    private File processDownload(File rawFile, File destinationFile)
+    private File processDownload(File rawFile, FileToDownload fileInfo)
             throws FileNotFoundException, IOException {
-        LogUtil.getLogger().log(Level.FINE, "processDownload({0})", destinationFile.getName());
-        final String targetName = destinationFile.getName().toLowerCase();
+        LogUtil.getLogger().log(Level.FINE, "processDownload({0})", fileInfo.localName.getName());
+        final String remoteUrlLower = fileInfo.remoteUrl.toLowerCase();
+        final String namePart = fileInfo.localName.getName();
 
-        if (targetName.endsWith(".pack.lzma")) {
-            final File newFile1 = File.createTempFile(targetName, ".decompressed.tmp");
+        if (remoteUrlLower.endsWith(".pack.lzma")) {
+            // decompress (LZMA) and then unpack (Pack200)
+            final File newFile1 = File.createTempFile(namePart, ".decompressed.tmp");
             decompressLzma(rawFile, newFile1);
             rawFile.delete();
-            final File newFile2 = File.createTempFile(targetName, ".unpacked.tmp");
+            final File newFile2 = File.createTempFile(namePart, ".unpacked.tmp");
             unpack200(newFile1, newFile2);
             newFile1.delete();
             return newFile2;
 
-        } else if (targetName.endsWith(".lzma")) {
-            // decompress(LZMA), if needed
-            final File newFile = File.createTempFile(targetName, ".decompressed.tmp");
+        } else if (remoteUrlLower.endsWith(".lzma")) {
+            // decompress (LZMA)
+            final File newFile = File.createTempFile(namePart, ".decompressed.tmp");
             decompressLzma(rawFile, newFile);
             rawFile.delete();
             return newFile;
 
-        } else if (targetName.contains(".pack.")) {
-            // unpack (Pack200), if needed
-            final File newFile = File.createTempFile(targetName, ".unpacked.tmp");
+        } else if (remoteUrlLower.endsWith(".pack")) {
+            // unpack (Pack200)
+            final File newFile = File.createTempFile(namePart, ".unpacked.tmp");
             unpack200(rawFile, newFile);
             rawFile.delete();
             return newFile;
@@ -262,6 +274,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
 
     private void decompressLzma(File compressedInput, File decompressedOutput)
             throws FileNotFoundException, IOException {
+        LogUtil.getLogger().info("LZMA: " + compressedInput.getName());
         try (FileInputStream fileIn = new FileInputStream(compressedInput)) {
             try (BufferedInputStream bufferedIn = new BufferedInputStream(fileIn)) {
                 final LzmaInputStream compressedIn = new LzmaInputStream(bufferedIn, new Decoder());
@@ -277,6 +290,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
 
     private static void unpack200(File compressedInput, File decompressedOutput)
             throws FileNotFoundException, IOException {
+        LogUtil.getLogger().info("unpack200: " + compressedInput.getName());
         try (FileOutputStream fostream = new FileOutputStream(decompressedOutput)) {
             try (JarOutputStream jostream = new JarOutputStream(fostream)) {
                 final Unpacker unpacker = Pack200.newUnpacker();
@@ -329,6 +343,9 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
                 parentDir.mkdirs();
             }
             PathUtil.replaceFile(processedFile, localName);
+            if (localName.getName().endsWith("natives.jar")) {
+                extractNatives(localName);
+            }
         } catch (IOException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + localName.getName(), ex);
         }
@@ -353,6 +370,46 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
         public FileToDownload(String remoteName, File localName) {
             this.remoteUrl = remoteName;
             this.localName = localName;
+        }
+    }
+
+    protected void extractNatives(File jarPath)
+            throws FileNotFoundException, IOException {
+        LogUtil.getLogger().log(Level.FINE, "extractNatives({0})", jarPath.getName());
+
+        File nativeFolder = new File(PathUtil.getClientDir(), "natives");
+
+        if (!nativeFolder.exists()) {
+            nativeFolder.mkdir();
+        }
+
+        try (JarFile jarFile = new JarFile(jarPath, true)) {
+            Enumeration entities = jarFile.entries();
+
+            while (entities.hasMoreElements()) {
+                JarEntry entry = (JarEntry) entities.nextElement();
+
+                if (!entry.isDirectory() && (entry.getName().indexOf('/') == -1)) {
+
+                    File outFile = new File(nativeFolder, entry.getName());
+
+                    if (outFile.exists() && !outFile.delete()) {
+                        LogUtil.getLogger().log(Level.SEVERE,
+                                "Could not replace native file: {0}", entry.getName());
+                        continue;
+                    }
+
+                    try (InputStream in = jarFile.getInputStream(entry)) {
+                        try (OutputStream out = new FileOutputStream(outFile)) {
+                            byte[] buffer = new byte[65536];
+                            int bufferSize;
+                            while ((bufferSize = in.read(buffer, 0, buffer.length)) != -1) {
+                                out.write(buffer, 0, bufferSize);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

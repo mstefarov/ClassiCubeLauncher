@@ -8,17 +8,30 @@ import java.util.logging.Logger;
 
 public class ClientLauncher {
 
-    final static String ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
-    private static final String ClassPath = "client.jar;libs/*";
+    private static final String ClassPath = "client.jar;libs/*",
+            ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone",
+            JavaArgs = "-Dorg.lwjgl.util.Debug=true -Dsun.java2d.noddraw=true -Dsun.awt.noerasebackground=true -Dsun.java2d.d3d=false -Dsun.java2d.opengl=false -Dsun.java2d.pmoffscreen=false -Xmx800M";
 
     public static void launchClient() {
         LogUtil.getLogger().info("launchClient");
         ServerInfo server = SessionManager.serverDetails;
         final File java = getJavaPath();
-        final ProcessBuilder processBuilder = new ProcessBuilder(
+        final ProcessBuilder processBuilder;
+        
+        String nativePath;
+        try {
+            nativePath = new File(PathUtil.getClientDir(), "natives").getCanonicalPath();
+        } catch (IOException ex) {
+            LogUtil.die(ex.toString());
+            return;
+        }
+
+        processBuilder = new ProcessBuilder(
                 java.getAbsolutePath(),
                 "-cp",
                 ClassPath,
+                JavaArgs,
+                "-Djava.library.path=" + nativePath,
                 ClientClassPath,
                 server.address.getHostAddress(),
                 Integer.toString(server.port),
