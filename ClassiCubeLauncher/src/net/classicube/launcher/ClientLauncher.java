@@ -4,20 +4,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientLauncher {
 
     private static final String ClassPath = "client.jar;libs/*",
             ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone",
-            JavaArgs = "-Dorg.lwjgl.util.Debug=true -Dsun.java2d.noddraw=true -Dsun.awt.noerasebackground=true -Dsun.java2d.d3d=false -Dsun.java2d.opengl=false -Dsun.java2d.pmoffscreen=false -Xmx800M";
+            JavaArgs = "-Dorg.lwjgl.util.Debug=true "
+            + "-Dsun.java2d.noddraw=true "
+            + "-Dsun.awt.noerasebackground=true "
+            + "-Dsun.java2d.d3d=false "
+            + "-Dsun.java2d.opengl=false "
+            + "-Dsun.java2d.pmoffscreen=false "
+            + "-Xmx800M";
 
     public static void launchClient() {
         LogUtil.getLogger().info("launchClient");
         ServerInfo server = SessionManager.serverDetails;
         final File java = getJavaPath();
         final ProcessBuilder processBuilder;
-        
+
         String nativePath;
         try {
             nativePath = new File(PathUtil.getClientDir(), "natives").getCanonicalPath();
@@ -44,13 +49,9 @@ public class ClientLauncher {
         try {
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
             Process p = processBuilder.start();
-            try {
-                p.waitFor();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ServerListScreen.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            p.waitFor(); // temporary: don't wait for client to exit once we go into production
             System.exit(0);
-        } catch (IOException ex) {
+        } catch (IOException | InterruptedException ex) {
             LogUtil.die("Error launching client: " + ex);
         }
     }
