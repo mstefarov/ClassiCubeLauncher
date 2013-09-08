@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 
 // Global logging class (to make life easier)
 class LogUtil {
+
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 
     // Sets up logging to file (%AppData%/net.classicube.launcher/launcher.log)
@@ -25,7 +26,7 @@ class LogUtil {
         }
     }
 
-    public static Logger getLogger(){
+    public static Logger getLogger() {
         return logger;
     }
 
