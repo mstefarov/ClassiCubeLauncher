@@ -7,9 +7,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -117,10 +120,20 @@ public class ServerListScreen extends javax.swing.JFrame {
 
     private void fillServerTable() {
         final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
-        model.setRowCount(0);
+
+        // reset sort order
+        RowSorter rs = serverTable.getRowSorter();
+        rs.setSortKeys(null);
+
+        // remove all rows
+        model.setNumRows(0);
+        displayedServerList.clear();
+
+        // add new rows
         String searchTerm = tSearch.getText().toLowerCase();
         for (ServerInfo server : serverList) {
             if (server.name.toLowerCase().contains(searchTerm)) {
+                displayedServerList.add(server);
                 model.addRow(new Object[]{
                     server.name,
                     server.players,
@@ -130,14 +143,20 @@ public class ServerListScreen extends javax.swing.JFrame {
                 });
             }
         }
-        serverTable.setRowSelectionInterval(0, 0);
+
+        // select first server
+        if (model.getRowCount() > 0) {
+            serverTable.setRowSelectionInterval(0, 0);
+        }
     }
 
     private ServerInfo getSelectedServer() {
         int[] rowIndex = serverTable.getSelectedRows();
         if (rowIndex.length == 1) {
             int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
-            return serverList[trueIndex];
+            System.out.println("row=" + rowIndex[0] + "  true=" + trueIndex);
+            System.out.println("displayedServerList[" + trueIndex + "] = " + displayedServerList.get(trueIndex).name);
+            return displayedServerList.get(trueIndex);
         }
         return null;
     }
@@ -328,6 +347,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_bConnectActionPerformed
 
     private void tSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tSearchKeyReleased
+        System.out.println(tSearch.getText());
         fillServerTable();
     }//GEN-LAST:event_tSearchKeyReleased
 
@@ -336,15 +356,15 @@ public class ServerListScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_tSearchFocusGained
 
     private void tSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tSearchActionPerformed
-        if(serverTable.getSelectedRows().length == 1){
+        if (serverTable.getSelectedRows().length == 1) {
             joinSelectedServer();
         }
     }//GEN-LAST:event_tSearchActionPerformed
 
-    
-    void joinSelectedServer(){
+    void joinSelectedServer() {
         final ServerInfo selectedServer = getSelectedServer();
 
+        LogUtil.getLogger().log(Level.INFO, "Fetching details for server: {0}", selectedServer.name);
         getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(selectedServer);
         getServerDetailsTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
@@ -361,7 +381,6 @@ public class ServerListScreen extends javax.swing.JFrame {
         disableGui();
         getServerDetailsTask.execute();
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;
@@ -372,8 +391,9 @@ public class ServerListScreen extends javax.swing.JFrame {
     private net.classicube.launcher.PlaceholderTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
+    private List<ServerInfo> displayedServerList = new ArrayList<>();
     private GameSession.GetServerListTask getServerListTask;
     private GameSession.GetServerDetailsTask getServerDetailsTask;
-    private TableColumnAdjuster tableColumnAdjuster;
     private ServerInfo[] serverList;
+    private TableColumnAdjuster tableColumnAdjuster;
 }
