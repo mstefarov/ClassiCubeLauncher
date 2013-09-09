@@ -1,6 +1,8 @@
 package net.classicube.launcher;
 
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.ExecutionException;
@@ -24,9 +26,9 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.setAutoCreateRowSorter(true);
         serverTable.setCellSelectionEnabled(false);
         serverTable.setRowSelectionAllowed(true);
-
-        // hide the hash column (used to get servers)
-        //serverTable.removeColumn(serverTable.getColumn("hiddenHash"));
+        
+        // allow double-clicking servers on the list, to join them
+        serverTable.addMouseListener(new ServerDoubleClickListener());
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -56,6 +58,16 @@ public class ServerListScreen extends javax.swing.JFrame {
         this.serverTable.setEnabled(false);
         this.tServerURL.setEnabled(false);
         this.bConnect.setEnabled(false);
+    }
+
+    class ServerDoubleClickListener extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                bConnectActionPerformed(null);
+            }
+        }
     }
 
     class UptimeCellRenderer extends DefaultTableCellRenderer {
