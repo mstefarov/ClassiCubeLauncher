@@ -44,8 +44,9 @@ public class EntryPoint {
 
     // Shows sign-in screen (hides any other screens)
     static void ShowSignInScreen() {
-        if (serverListScreen != null && serverListScreen.isVisible()) {
-            serverListScreen.setVisible(false);
+        if (serverListScreen != null) {
+            serverListScreen.dispose();
+            serverListScreen = null;
         }
         if (clientUpdateScreen != null && clientUpdateScreen.isVisible()) {
             clientUpdateScreen.setVisible(false);
@@ -72,8 +73,9 @@ public class EntryPoint {
 
     // Shows client-download screen (hides any other screens)
     static void ShowClientUpdateScreen() {
-        if (serverListScreen != null && serverListScreen.isVisible()) {
-            serverListScreen.setVisible(false);
+        if (serverListScreen != null) {
+            serverListScreen.dispose();
+            serverListScreen = null;
         }
         if (signInScreen != null && signInScreen.isVisible()) {
             signInScreen.setVisible(false);
