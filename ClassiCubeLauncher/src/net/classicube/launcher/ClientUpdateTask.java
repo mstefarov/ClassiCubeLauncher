@@ -10,8 +10,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -65,11 +63,11 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
             for (FileToDownload file : files) {
                 try {
                     // step 2: download
-                    this.signalDownloadProgress(files, i);
+                    signalDownloadProgress(files, i);
                     final File downloadedFile = downloadFile(file);
 
                     // step 3: unpack
-                    this.signalUnpackProgress(files, i);
+                    signalUnpackProgress(files, i);
                     final File processedFile = processDownload(downloadedFile, file);
 
                     // step 4: deploy
@@ -130,7 +128,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
     //                                                                        CHECKING / DOWNLOADING
     // =============================================================================================
     private MessageDigest digest;
-    private final byte[] ioBuffer = new byte[65536];
+    private final byte[] ioBuffer = new byte[64*1024];
 
     private boolean checkForLauncherUpdate() {
         signalCheckProgress(0, "launcher");
@@ -226,14 +224,22 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
         return new FileToDownload(remoteName, localPath);
     }
 
-    private static File downloadFile(FileToDownload file)
+    private File downloadFile(FileToDownload file)
             throws MalformedURLException, FileNotFoundException, IOException {
         final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
         final URL website = new URL(file.remoteUrl);
-        final ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-            // todo: progress updates
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+        int fileSize = website.openConnection().getContentLength();
+
+        try (InputStream siteIn = website.openStream()) {
+            try (FileOutputStream fileOut = new FileOutputStream(tempFile)) {
+                int len;
+                int total = 0;
+                while ((len = siteIn.read(ioBuffer)) > 0) {
+                    fileOut.write(ioBuffer, 0, len);
+                    total += len;
+                    signalDownloadPercent(total, fileSize);
+                }
+            }
         }
         return tempFile;
     }
@@ -278,7 +284,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
 
     private void decompressLzma(File compressedInput, File decompressedOutput)
             throws FileNotFoundException, IOException {
-        LogUtil.getLogger().info("LZMA: " + compressedInput.getName());
+        LogUtil.getLogger().log(Level.FINE, "LZMA: {0}", compressedInput.getName());
         try (FileInputStream fileIn = new FileInputStream(compressedInput)) {
             try (BufferedInputStream bufferedIn = new BufferedInputStream(fileIn)) {
                 final LzmaInputStream compressedIn = new LzmaInputStream(bufferedIn, new Decoder());
@@ -294,7 +300,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
 
     private static void unpack200(File compressedInput, File decompressedOutput)
             throws FileNotFoundException, IOException {
-        LogUtil.getLogger().info("unpack200: " + compressedInput.getName());
+        LogUtil.getLogger().log(Level.FINE, "unpack200: {0}", compressedInput.getName());
         try (FileOutputStream fostream = new FileOutputStream(decompressedOutput)) {
             try (JarOutputStream jostream = new JarOutputStream(fostream)) {
                 final Unpacker unpacker = Pack200.newUnpacker();
@@ -302,10 +308,28 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
             }
         }
     }
+
+    private void deployFile(File processedFile, File localName) {
+        LogUtil.getLogger().log(Level.INFO, "deployFile({0})", localName.getName());
+        try {
+            File parentDir = localName.getCanonicalFile().getParentFile();
+            if (!parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+            PathUtil.replaceFile(processedFile, localName);
+            if (localName.getName().endsWith("natives.jar")) {
+                extractNatives(localName);
+            }
+        } catch (IOException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + localName.getName(), ex);
+        }
+    }
     // =============================================================================================
     //                                                                            PROGRESS REPORTING
     // =============================================================================================
     private volatile ClientUpdateScreen updateScreen;
+    int activeFile;
+    List<FileToDownload> fileList;
 
     public void registerUpdateScreen(ClientUpdateScreen updateScreen) {
         this.updateScreen = updateScreen;
@@ -326,9 +350,28 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
     }
 
     private void signalDownloadProgress(List<FileToDownload> files, int i) {
+        this.fileList = files;
+        this.activeFile = i;
         int overallProgress = 15 + (i * 170) / (files.size() * 2);
         String fileName = files.get(i).localName.getName();
-        String status = String.format("Downloading...", fileName);
+        String status = "Downloading...";
+        publish(new ClientUpdateStatus(fileName, status, overallProgress));
+    }
+
+    private void signalDownloadPercent(int bytesSoFar, int bytesTotal) {
+        String fileName = fileList.get(activeFile).localName.getName();
+        String status;
+        int overallProgress;
+        if (bytesTotal > 0 && bytesTotal < bytesSoFar) {
+            int percent = Math.max(0, Math.min(100, (bytesSoFar * 100) / bytesTotal));
+            int baseProgress = 15 + (activeFile * 170) / (fileList.size() * 2);
+            int deltaProgress = 15 + ((activeFile + 1) * 170) / (fileList.size() * 2) - baseProgress;
+            overallProgress = baseProgress + (deltaProgress * percent) / 100;
+            status = String.format("Downloading (%s / %s)", bytesSoFar, bytesTotal);
+        } else {
+            status = String.format("Downloading... (%s)", bytesSoFar);
+            overallProgress = 15 + (activeFile * 170) / (fileList.size() * 2);
+        }
         publish(new ClientUpdateStatus(fileName, status, overallProgress));
     }
 
@@ -337,22 +380,6 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
         String fileName = files.get(i).localName.getName();
         String status = String.format("Unpacking...", fileName);
         publish(new ClientUpdateStatus(fileName, status, overallProgress));
-    }
-
-    private void deployFile(File processedFile, File localName) {
-        LogUtil.getLogger().log(Level.INFO, "deployFile({0})", localName.getName());
-        try {
-            File parentDir = localName.getCanonicalFile().getParentFile();
-            if (!parentDir.exists()) {
-                parentDir.mkdirs();
-            }
-            PathUtil.replaceFile(processedFile, localName);
-            if (localName.getName().endsWith("natives.jar")) {
-                extractNatives(localName);
-            }
-        } catch (IOException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + localName.getName(), ex);
-        }
     }
 
     @Override

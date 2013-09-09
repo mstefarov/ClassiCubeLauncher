@@ -13,7 +13,8 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
     }
 
     public void setStatus(ClientUpdateStatus dl) {
-        LogUtil.getLogger().info("ClientUpdateScreen.setStatus");
+        System.out.println(String.format("setStatus(%d, \"%s\", \"%s\")", dl.progress, dl.fileName, dl.status));
+        //LogUtil.getLogger().info("ClientUpdateScreen.setStatus");
         progress.setValue(dl.progress);
         this.lFileName.setText(dl.fileName);
         this.lStats.setText(dl.status);

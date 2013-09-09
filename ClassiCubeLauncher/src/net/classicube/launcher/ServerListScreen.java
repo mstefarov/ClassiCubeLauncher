@@ -363,7 +363,8 @@ public class ServerListScreen extends javax.swing.JFrame {
     void joinSelectedServer() {
         final ServerInfo selectedServer = getSelectedServer();
 
-        LogUtil.getLogger().log(Level.INFO, "Fetching details for server: {0}", selectedServer.name);
+        LogUtil.getLogger().log(Level.INFO,
+                "Fetching details for server: {0}", selectedServer.name);
         getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(selectedServer);
         getServerDetailsTask.addPropertyChangeListener(
                 new PropertyChangeListener() {

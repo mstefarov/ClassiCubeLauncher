@@ -87,7 +87,8 @@ class MinecraftNetSession extends GameSession {
                 } else {
                     // If we're not supposed to reuse session, if old username is different,
                     // or if there is no play session cookie set - relog
-                    LogUtil.getLogger().log(Level.INFO, "Switching accounts from {0} to {1}",
+                    LogUtil.getLogger().log(Level.INFO,
+                            "Switching accounts from {0} to {1}",
                             new Object[]{actualPlayerName, account.PlayerName});
                     HttpUtil.downloadString(LogoutUri);
                     clearCookies();
@@ -187,7 +188,7 @@ class MinecraftNetSession extends GameSession {
                         // server has higher uptime (by 1 second) than the preceding one.
                         server.uptime = parseUptime(uptimeString) + servers.size();
                     } catch (IllegalArgumentException ex) {
-                        String logMsg = String.format("Error parsing server uptime (\"{0}\") for {1}",
+                        String logMsg = String.format("Error parsing server uptime (\"%s\") for %s",
                                 uptimeString, server.name);
                         LogUtil.getLogger().log(Level.WARNING, logMsg, ex);
                     }
