@@ -12,6 +12,7 @@ class SessionManager {
     public static void selectService(GameServiceType serviceType) {
         activeServiceType = serviceType;
         accountManager = new AccountManager(serviceType.name());
+        accountManager.Load();
         prefs.put(SelectedServiceKeyName, serviceType.name());
     }
 

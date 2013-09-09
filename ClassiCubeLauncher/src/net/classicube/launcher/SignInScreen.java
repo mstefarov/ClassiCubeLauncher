@@ -3,8 +3,10 @@ package net.classicube.launcher;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
 import javax.swing.JToggleButton;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
@@ -19,9 +21,12 @@ import javax.swing.text.JTextComponent;
 final class SignInScreen extends javax.swing.JFrame {
 
     static final long serialVersionUID = 1L;
+    final Preferences prefs;
 
     public SignInScreen() {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen");
+        prefs = Preferences.userNodeForPackage(this.getClass());
+
         // add our fancy custom background
         bgPanel = new ImagePanel(null, true);
         this.setContentPane(bgPanel);
@@ -29,6 +34,7 @@ final class SignInScreen extends javax.swing.JFrame {
 
         // create the rest of components
         initComponents();
+        xRememberMe.setSelected(prefs.getBoolean("rememberMe", false));
 
         // some UI tweaks
         hookUpListeners();
@@ -101,6 +107,11 @@ final class SignInScreen extends javax.swing.JFrame {
         getContentPane().add(bMinecraftNet, gridBagConstraints);
 
         cUsername.setEditable(true);
+        cUsername.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cUsernameItemStateChanged(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -121,6 +132,11 @@ final class SignInScreen extends javax.swing.JFrame {
 
         xRememberMe.setForeground(new java.awt.Color(255, 255, 255));
         xRememberMe.setText("Remember me");
+        xRememberMe.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xRememberMeActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
@@ -208,11 +224,20 @@ final class SignInScreen extends javax.swing.JFrame {
     void onAfterServiceChanged() {
         final String curUsername = (String) cUsername.getSelectedItem();
         this.cUsername.removeAllItems();
-        final UserAccount[] accounts = SessionManager.getAccountManager().GetAccountsBySignInDate();
-        for (UserAccount account : accounts) {
-            this.cUsername.addItem(account.SignInUsername);
+        if (xRememberMe.isSelected()) {
+            final UserAccount[] accounts = SessionManager.getAccountManager().GetAccountsBySignInDate();
+            for (UserAccount account : accounts) {
+                this.cUsername.addItem(account.SignInUsername);
+            }
+            if (curUsername != null && !curUsername.isEmpty()) {
+                cUsername.setSelectedItem(curUsername);
+            } else if (cUsername.getItemCount() > 0) {
+                cUsername.setSelectedIndex(0);
+            }
+        }else{
+            cUsername.setSelectedItem("");
+            tPassword.setText("");
         }
-        cUsername.setSelectedItem(curUsername);
         this.repaint();
         this.cUsername.requestFocus();
     }
@@ -225,11 +250,11 @@ final class SignInScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.INFO, "[Sign In]");
         final String username = (String) cUsername.getSelectedItem();
         final String password = new String(tPassword.getPassword());
-        final UserAccount newAcct = new UserAccount(username, password);
+        final UserAccount account = SessionManager.getAccountManager().onSignInBegin(username, password);
         boolean remember = this.xRememberMe.isSelected();
 
         // Create an async task for signing in
-        final GameSession session = SessionManager.createSession(newAcct);
+        final GameSession session = SessionManager.createSession(account);
         signInTask = session.signInAsync(remember);
 
         // Get ready to handle the task completion
@@ -252,6 +277,25 @@ final class SignInScreen extends javax.swing.JFrame {
         signInTask.execute();
     }//GEN-LAST:event_bSignInActionPerformed
 
+    private void cUsernameItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cUsernameItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED && xRememberMe.isSelected()) {
+            String newName = (String) evt.getItem();
+            UserAccount curAccount = SessionManager.getAccountManager().findAccount(newName);
+            if (curAccount != null) {
+                tPassword.setText(curAccount.Password);
+            }
+        }
+    }//GEN-LAST:event_cUsernameItemStateChanged
+
+    private void xRememberMeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xRememberMeActionPerformed
+        prefs.putBoolean("rememberMe", xRememberMe.isSelected());
+        if(!xRememberMe.isSelected()){
+            AccountManager am = SessionManager.getAccountManager();
+            am.Clear();
+            am.Store();
+        }
+    }//GEN-LAST:event_xRememberMeActionPerformed
+
     // Called when signInAsync finishes.
     // If we signed in, advance to the server list screen.
     // Otherwise, inform the user that something went wrong.
@@ -260,6 +304,10 @@ final class SignInScreen extends javax.swing.JFrame {
         try {
             final SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {
+                if (this.xRememberMe.isSelected()) {
+                    SessionManager.getSession().account.SignInDate = new Date();
+                    SessionManager.getAccountManager().Store();
+                }
                 EntryPoint.ShowServerListScreen();
             } else {
                 // TODO: make this less ugly

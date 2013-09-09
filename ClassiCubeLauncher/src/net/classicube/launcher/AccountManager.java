@@ -22,12 +22,12 @@ class AccountManager {
 
     // Loads 
     public void Load() {
-        LogUtil.getLogger().log(Level.FINE, "AccountManager.Load");
         try {
             for (String accountName : store.childrenNames()) {
                 final UserAccount acct = new UserAccount(store.node(accountName));
                 accounts.put(acct.SignInUsername.toLowerCase(), acct);
             }
+            LogUtil.getLogger().log(Level.FINE, "Loaded {0} accounts", accounts.size());
         } catch (BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading accounts", ex);
         }
@@ -50,7 +50,7 @@ class AccountManager {
     }
 
     // Tries to find stored UserAccount data for given sign-in name
-    public UserAccount FindAccount(String signInName) {
+    public UserAccount findAccount(String signInName) {
         if (signInName == null) {
             throw new NullPointerException("signInName");
         }
@@ -76,4 +76,18 @@ class AccountManager {
     }
     private Preferences store;
     private HashMap<String, UserAccount> accounts = new HashMap<>();
+
+    public UserAccount onSignInBegin(String username, String password) {
+        UserAccount existingAccount = findAccount(username);
+        if (existingAccount == null) {
+            // new account!
+            UserAccount newAccount = new UserAccount(username, password);
+            accounts.put(newAccount.SignInUsername.toLowerCase(), newAccount);
+            return newAccount;
+        } else {
+            existingAccount.SignInUsername = username;
+            existingAccount.Password = password;
+            return existingAccount;
+        }
+    }
 }
