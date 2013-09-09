@@ -68,7 +68,7 @@ class MinecraftNetSession extends GameSession {
 
             // download the login page
             String loginPage = HttpUtil.downloadString(LoginSecureUri);
-            if(loginPage == null){
+            if (loginPage == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
 
@@ -130,10 +130,10 @@ class MinecraftNetSession extends GameSession {
             // POST our data to the login handler
             this.publish("Signing in...");
             String loginResponse = HttpUtil.uploadString(LoginSecureUri, requestStr.toString());
-            if(loginResponse == null){
+            if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
-            
+
             // Check for common failure scenarios
             if (loginResponse.contains(WrongUsernameOrPasswordMessage)) {
                 return SignInResult.WRONG_USER_OR_PASS;
@@ -308,6 +308,5 @@ class MinecraftNetSession extends GameSession {
                 throw new IllegalArgumentException("Invalid date/time parameter.");
         }
     }
-
     private URI siteUri;
 }

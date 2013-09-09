@@ -41,7 +41,7 @@ public class ClientLauncher {
                 server.address.getHostAddress(),
                 Integer.toString(server.port),
                 SessionManager.getSession().account.PlayerName,
-                server.hash,
+                server.pass,
                 SessionManager.getSession().getSkinUrl());
         processBuilder.directory(PathUtil.getClientDir());
         processBuilder.inheritIO();
