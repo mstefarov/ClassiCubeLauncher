@@ -214,8 +214,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bConnect, gridBagConstraints);
 
-        serverTableContainer.setMinimumSize(new java.awt.Dimension(302, 152));
-        serverTableContainer.setPreferredSize(new java.awt.Dimension(520, 400));
+        serverTableContainer.setMinimumSize(new java.awt.Dimension(300, 150));
+        serverTableContainer.setPreferredSize(new java.awt.Dimension(550, 400));
 
         serverTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {

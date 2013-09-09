@@ -102,10 +102,10 @@
     <Container class="javax.swing.JScrollPane" name="serverTableContainer">
       <Properties>
         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[302, 152]"/>
+          <Dimension value="[300, 150]"/>
         </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[520, 400]"/>
+          <Dimension value="[550, 400]"/>
         </Property>
       </Properties>
       <AuxValues>
