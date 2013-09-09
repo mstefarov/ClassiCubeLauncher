@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.awt.Component;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -7,7 +8,9 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.EmptyBorder;
@@ -53,6 +56,8 @@ final class SignInScreen extends javax.swing.JFrame {
         } else {
             selectMinecraftNet();
         }
+
+        // Alright, we're good to go.
         enableGUI();
     }
 
@@ -112,11 +117,6 @@ final class SignInScreen extends javax.swing.JFrame {
         cUsername.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cUsernameItemStateChanged(evt);
-            }
-        });
-        cUsername.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                cUsernameFocusGained(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -233,6 +233,8 @@ final class SignInScreen extends javax.swing.JFrame {
         onAfterServiceChanged();
     }
 
+    // Called after either [Minecraft.net] or [ClassiCube] button is pressed.
+    // Loads accounts, changes the background/logo, switches focus back to username/password fields
     void onAfterServiceChanged() {
         accountManager = SessionManager.getAccountManager();
         final String curUsername = (String) cUsername.getSelectedItem();
@@ -320,13 +322,10 @@ final class SignInScreen extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_xRememberMeActionPerformed
 
+    // Select all text in password field, when focused
     private void tPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tPasswordFocusGained
         tPassword.selectAll();
     }//GEN-LAST:event_tPasswordFocusGained
-
-    private void cUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_cUsernameFocusGained
-        cUsername.getEditor().selectAll();
-    }//GEN-LAST:event_cUsernameFocusGained
 
     // Called when signInAsync finishes.
     // If we signed in, advance to the server list screen.
@@ -384,11 +383,29 @@ final class SignInScreen extends javax.swing.JFrame {
         cUsername.addActionListener(fieldChangeListener);
         tPassword.addActionListener(fieldChangeListener);
 
-        // allow hitting <Enter> in the password field
+        // Allow pressing <Enter> to sign in, while in the password textbox
         tPassword.addKeyListener(new PasswordEnterListener());
+
+        // Selects all text in the username field on-focus
+        usernameEditor.addFocusListener(new UsernameFocusListener());
     }
 
-    // Allows pressing "Enter" while focused on the password textbox to sign in
+    // Selects all text in the username field on-focus (you'd think this would be easier)
+    class UsernameFocusListener implements FocusListener {
+
+        @Override
+        public void focusGained(FocusEvent e) {
+            JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
+            editor.setCaretPosition(((String) cUsername.getSelectedItem()).length());
+            editor.moveCaretPosition(0);
+        }
+
+        @Override
+        public void focusLost(FocusEvent e) {
+        }
+    }
+
+    // Allows pressing <Enter> to sign in, while in the password textbox
     class PasswordEnterListener implements KeyListener {
 
         @Override
@@ -409,9 +426,9 @@ final class SignInScreen extends javax.swing.JFrame {
         }
     }
 
-    // Allows enabling/disabling [Sign In] button dynamically,
-    // depending on whether username/password fields are empty,
-    // while user is still focused on those fields.
+// Allows enabling/disabling [Sign In] button dynamically,
+// depending on whether username/password fields are empty,
+// while user is still focused on those fields.
     class UsernameOrPasswordChangedListener implements DocumentListener, ActionListener {
 
         public int realPasswordLength,
@@ -464,8 +481,8 @@ final class SignInScreen extends javax.swing.JFrame {
             checkIfSignInAllowed();
         }
     }
+// Enable/disable [Sign In] depending on whether username/password are given.
 
-    // Enable/disable [Sign In] depending on whether username/password are given.
     void checkIfSignInAllowed() {
         final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 0)
                 && (fieldChangeListener.realPasswordLength > 0);
