@@ -1,8 +1,8 @@
 package net.classicube.launcher;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.RowSorter;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -39,8 +42,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.setCellSelectionEnabled(false);
         serverTable.setRowSelectionAllowed(true);
 
-        // allow double-clicking servers on the list, to join them
-        serverTable.addMouseListener(new ServerDoubleClickListener());
+        // set table shortcuts
+        setTableHandlers();
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -61,6 +64,29 @@ public class ServerListScreen extends javax.swing.JFrame {
             }
         });
         getServerListTask.execute();
+
+    }
+
+    private void setTableHandlers() {
+        // allow double-clicking servers on the list, to join them
+        serverTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    joinSelectedServer();
+                }
+            }
+        });
+
+        // allow pressing <Enter> on the server table to join
+        serverTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+        serverTable.getActionMap().put("Enter", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                joinSelectedServer();
+            }
+        });
     }
 
     private void disableGui() {
@@ -70,16 +96,6 @@ public class ServerListScreen extends javax.swing.JFrame {
         this.serverTable.setEnabled(false);
         this.tServerURL.setEnabled(false);
         this.bConnect.setEnabled(false);
-    }
-
-    class ServerDoubleClickListener extends MouseAdapter {
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2) {
-                joinSelectedServer();
-            }
-        }
     }
 
     class UptimeCellRenderer extends DefaultTableCellRenderer {
@@ -325,23 +341,6 @@ public class ServerListScreen extends javax.swing.JFrame {
         EntryPoint.ShowSignInScreen();
     }//GEN-LAST:event_bChangeUserActionPerformed
 
-    private void onServerDetailsDone() {
-        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerDetailsDone");
-        try {
-            final boolean result = getServerDetailsTask.get();
-            if (result) {
-                SessionManager.serverDetails = getServerDetailsTask.getServerInfo();
-                EntryPoint.ShowClientUpdateScreen();
-            } else {
-                LogUtil.showError("Could not fetch server details.", "Error");
-            }
-        } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
-            LogUtil.showWarning(ex.toString(), "Problem loading server details");
-            tSearch.setText("Could not load server list.");
-        }
-    }
-
     private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
         joinSelectedServer();
     }//GEN-LAST:event_bConnectActionPerformed
@@ -380,6 +379,23 @@ public class ServerListScreen extends javax.swing.JFrame {
         progress.setVisible(true);
         disableGui();
         getServerDetailsTask.execute();
+    }
+
+    private void onServerDetailsDone() {
+        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerDetailsDone");
+        try {
+            final boolean result = getServerDetailsTask.get();
+            if (result) {
+                SessionManager.serverDetails = getServerDetailsTask.getServerInfo();
+                EntryPoint.ShowClientUpdateScreen();
+            } else {
+                LogUtil.showError("Could not fetch server details.", "Error");
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
+            LogUtil.showWarning(ex.toString(), "Problem loading server details");
+            tSearch.setText("Could not load server list.");
+        }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
