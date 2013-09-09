@@ -20,12 +20,11 @@ import javax.swing.text.JTextComponent;
 // Instantiated and first shown by EntryPoint.main
 final class SignInScreen extends javax.swing.JFrame {
 
-    static final long serialVersionUID = 1L;
-    final Preferences prefs;
+    private final static boolean RememberMeDefault = true;
+    private final static String RememberMeKeyName = "RememberMe";
 
     public SignInScreen() {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen");
-        prefs = Preferences.userNodeForPackage(this.getClass());
 
         // add our fancy custom background
         bgPanel = new ImagePanel(null, true);
@@ -34,7 +33,10 @@ final class SignInScreen extends javax.swing.JFrame {
 
         // create the rest of components
         initComponents();
-        xRememberMe.setSelected(prefs.getBoolean("rememberMe", false));
+
+        // grab initial "remember me" value from settings
+        prefs = Preferences.userNodeForPackage(this.getClass());
+        xRememberMe.setSelected(prefs.getBoolean(RememberMeKeyName, RememberMeDefault));
 
         // some UI tweaks
         hookUpListeners();
@@ -112,6 +114,11 @@ final class SignInScreen extends javax.swing.JFrame {
                 cUsernameItemStateChanged(evt);
             }
         });
+        cUsername.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                cUsernameFocusGained(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -122,6 +129,11 @@ final class SignInScreen extends javax.swing.JFrame {
 
         tPassword.setText("password");
         tPassword.setToolTipText("");
+        tPassword.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                tPasswordFocusGained(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
@@ -222,24 +234,33 @@ final class SignInScreen extends javax.swing.JFrame {
     }
 
     void onAfterServiceChanged() {
+        accountManager = SessionManager.getAccountManager();
         final String curUsername = (String) cUsername.getSelectedItem();
-        this.cUsername.removeAllItems();
+        cUsername.removeAllItems();
         if (xRememberMe.isSelected()) {
-            final UserAccount[] accounts = SessionManager.getAccountManager().GetAccountsBySignInDate();
+            // fill the account list
+            final UserAccount[] accounts = accountManager.GetAccountsBySignInDate();
             for (UserAccount account : accounts) {
-                this.cUsername.addItem(account.SignInUsername);
+                cUsername.addItem(account.SignInUsername);
             }
             if (curUsername != null && !curUsername.isEmpty()) {
                 cUsername.setSelectedItem(curUsername);
             } else if (cUsername.getItemCount() > 0) {
                 cUsername.setSelectedIndex(0);
             }
-        }else{
+        } else {
             cUsername.setSelectedItem("");
             tPassword.setText("");
         }
-        this.repaint();
-        this.cUsername.requestFocus();
+        repaint();
+
+        // focus on either username (if empty) or password field
+        if (cUsername.getSelectedItem() == null
+                || ((String) cUsername.getSelectedItem()).isEmpty()) {
+            cUsername.requestFocus();
+        } else {
+            tPassword.requestFocus();
+        }
     }
 
     // =============================================================================================
@@ -250,7 +271,7 @@ final class SignInScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.INFO, "[Sign In]");
         final String username = (String) cUsername.getSelectedItem();
         final String password = new String(tPassword.getPassword());
-        final UserAccount account = SessionManager.getAccountManager().onSignInBegin(username, password);
+        final UserAccount account = accountManager.onSignInBegin(username, password);
         boolean remember = this.xRememberMe.isSelected();
 
         // Create an async task for signing in
@@ -280,21 +301,32 @@ final class SignInScreen extends javax.swing.JFrame {
     private void cUsernameItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cUsernameItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED && xRememberMe.isSelected()) {
             String newName = (String) evt.getItem();
-            UserAccount curAccount = SessionManager.getAccountManager().findAccount(newName);
+            UserAccount curAccount = accountManager.findAccount(newName);
             if (curAccount != null) {
                 tPassword.setText(curAccount.Password);
             }
         }
     }//GEN-LAST:event_cUsernameItemStateChanged
 
+    // Called when "remember me" checkbox status changes.
     private void xRememberMeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xRememberMeActionPerformed
-        prefs.putBoolean("rememberMe", xRememberMe.isSelected());
-        if(!xRememberMe.isSelected()){
-            AccountManager am = SessionManager.getAccountManager();
-            am.Clear();
-            am.Store();
+        prefs.putBoolean(RememberMeKeyName, xRememberMe.isSelected());
+        if (!xRememberMe.isSelected()) {
+            // if it's been unchecked, forget EVERYTHING,
+            // except the currently-typed-in name/password, right away
+            accountManager.Clear();
+            accountManager.Store();
+            this.cUsername.removeAllItems();
         }
     }//GEN-LAST:event_xRememberMeActionPerformed
+
+    private void tPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tPasswordFocusGained
+        tPassword.selectAll();
+    }//GEN-LAST:event_tPasswordFocusGained
+
+    private void cUsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_cUsernameFocusGained
+        cUsername.getEditor().selectAll();
+    }//GEN-LAST:event_cUsernameFocusGained
 
     // Called when signInAsync finishes.
     // If we signed in, advance to the server list screen.
@@ -306,7 +338,7 @@ final class SignInScreen extends javax.swing.JFrame {
             if (result == SignInResult.SUCCESS) {
                 if (this.xRememberMe.isSelected()) {
                     SessionManager.getSession().account.SignInDate = new Date();
-                    SessionManager.getAccountManager().Store();
+                    accountManager.Store();
                 }
                 EntryPoint.ShowServerListScreen();
             } else {
@@ -456,8 +488,10 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            APPLICATION FIELDS
     // =============================================================================================
-    private ImagePanel bgPanel;
+    private AccountManager accountManager;
+    private final ImagePanel bgPanel;
     private JToggleButton buttonToDisableOnSignIn;
     private UsernameOrPasswordChangedListener fieldChangeListener;
+    private final Preferences prefs;
     private GameSession.SignInTask signInTask;
 }
