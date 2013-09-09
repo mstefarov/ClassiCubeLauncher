@@ -1,7 +1,12 @@
 package net.classicube.launcher;
 
-import java.awt.Component;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
@@ -10,7 +15,6 @@ import java.util.logging.Level;
 import java.util.prefs.Preferences;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.EmptyBorder;
@@ -237,7 +241,6 @@ final class SignInScreen extends javax.swing.JFrame {
     // Loads accounts, changes the background/logo, switches focus back to username/password fields
     void onAfterServiceChanged() {
         accountManager = SessionManager.getAccountManager();
-        final String curUsername = (String) cUsername.getSelectedItem();
         cUsername.removeAllItems();
         if (xRememberMe.isSelected()) {
             // fill the account list
@@ -245,9 +248,7 @@ final class SignInScreen extends javax.swing.JFrame {
             for (UserAccount account : accounts) {
                 cUsername.addItem(account.SignInUsername);
             }
-            if (curUsername != null && !curUsername.isEmpty()) {
-                cUsername.setSelectedItem(curUsername);
-            } else if (cUsername.getItemCount() > 0) {
+            if (cUsername.getItemCount() > 0) {
                 cUsername.setSelectedIndex(0);
             }
         } else {
@@ -257,8 +258,8 @@ final class SignInScreen extends javax.swing.JFrame {
         repaint();
 
         // focus on either username (if empty) or password field
-        if (cUsername.getSelectedItem() == null
-                || ((String) cUsername.getSelectedItem()).isEmpty()) {
+        String username = (String) cUsername.getSelectedItem();
+        if (username == null || username.isEmpty()) {
             cUsername.requestFocus();
         } else {
             tPassword.requestFocus();
@@ -429,9 +430,9 @@ final class SignInScreen extends javax.swing.JFrame {
         }
     }
 
-// Allows enabling/disabling [Sign In] button dynamically,
-// depending on whether username/password fields are empty,
-// while user is still focused on those fields.
+    // Allows enabling/disabling [Sign In] button dynamically,
+    // depending on whether username/password fields are empty,
+    // while user is still focused on those fields.
     class UsernameOrPasswordChangedListener implements DocumentListener, ActionListener {
 
         public int realPasswordLength,
@@ -484,8 +485,8 @@ final class SignInScreen extends javax.swing.JFrame {
             checkIfSignInAllowed();
         }
     }
-// Enable/disable [Sign In] depending on whether username/password are given.
 
+    // Enable/disable [Sign In] depending on whether username/password are given.
     void checkIfSignInAllowed() {
         final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 1)
                 && (fieldChangeListener.realPasswordLength > 0);

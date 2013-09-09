@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
@@ -7,11 +8,12 @@ import java.util.prefs.Preferences;
 // Stores metadata about a user account.
 // Handled by AccountManager.
 class UserAccount {
-    public UserAccount(String username, String password){
-        if(username == null){
+
+    public UserAccount(String username, String password) {
+        if (username == null) {
             throw new NullPointerException("username");
         }
-        if(password == null){
+        if (password == null) {
             throw new NullPointerException("password");
         }
         SignInUsername = username;
@@ -19,7 +21,7 @@ class UserAccount {
         Password = password;
         SignInDate = new Date(0);
     }
-    
+
     // Loads all information from a given Preferences node
     public UserAccount(Preferences prefs) {
         if (prefs == null) {
@@ -50,4 +52,22 @@ class UserAccount {
     public String PlayerName;
     public String Password;
     public Date SignInDate;
+
+    
+    private static class UserAccountDateComparator implements Comparator<UserAccount> {
+
+        private UserAccountDateComparator() {
+        }
+
+        @Override
+        public int compare(UserAccount o1, UserAccount o2) {
+            final Long delta = o2.SignInDate.getTime() - o1.SignInDate.getTime();
+            return delta.intValue();
+        }
+    }
+    private static final UserAccountDateComparator comparatorInstance = new UserAccountDateComparator();
+
+    public static Comparator<UserAccount> getComparator() {
+        return comparatorInstance;
+    }
 }

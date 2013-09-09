@@ -6,10 +6,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.*;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 
 /*
@@ -27,7 +33,7 @@ import javax.swing.table.*;
  *  or more of the other columns must decrease. Because of this the resize mode
  *  of RESIZE_ALL_COLUMNS will work the best.
  */
-public class TableColumnAdjuster implements PropertyChangeListener, TableModelListener {
+public final class TableColumnAdjuster implements PropertyChangeListener, TableModelListener {
 
     private JTable table;
     private int spacing;
@@ -35,7 +41,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
     private boolean isColumnDataIncluded;
     private boolean isOnlyAdjustLarger;
     private boolean isDynamicAdjustment;
-    private Map<TableColumn, Integer> columnSizes = new HashMap<TableColumn, Integer>();
+    private Map<TableColumn, Integer> columnSizes = new HashMap<>();
 
     /*
      *  Specify the table and use default spacing
@@ -299,7 +305,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
      */
     private void installColumnAction(
             boolean isSelectedColumn, boolean isAdjust, String key, String keyStroke) {
-        Action action = new ColumnAction(isSelectedColumn, isAdjust);
+        Action action = (Action) new ColumnAction(isSelectedColumn, isAdjust);
         KeyStroke ks = KeyStroke.getKeyStroke(keyStroke);
         table.getInputMap().put(ks, key);
         table.getActionMap().put(key, action);
@@ -310,7 +316,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
      */
     private void installToggleAction(
             boolean isToggleDynamic, boolean isToggleLarger, String key, String keyStroke) {
-        Action action = new ToggleAction(isToggleDynamic, isToggleLarger);
+        Action action = (Action) new ToggleAction(isToggleDynamic, isToggleLarger);
         KeyStroke ks = KeyStroke.getKeyStroke(keyStroke);
         table.getInputMap().put(ks, key);
         table.getActionMap().put(key, action);

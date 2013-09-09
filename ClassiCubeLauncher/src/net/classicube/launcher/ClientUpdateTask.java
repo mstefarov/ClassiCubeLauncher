@@ -1,15 +1,19 @@
 package net.classicube.launcher;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -400,7 +404,7 @@ public class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateStatus> {
                     }
 
                     try (InputStream in = jarFile.getInputStream(entry)) {
-                        try (OutputStream out = new FileOutputStream(outFile)) {
+                        try (FileOutputStream out = new FileOutputStream(outFile)) {
                             byte[] buffer = new byte[65536];
                             int bufferSize;
                             while ((bufferSize = in.read(buffer, 0, buffer.length)) != -1) {

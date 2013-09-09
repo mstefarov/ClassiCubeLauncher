@@ -64,7 +64,6 @@ public class ServerListScreen extends javax.swing.JFrame {
             }
         });
         getServerListTask.execute();
-
     }
 
     private void setTableHandlers() {

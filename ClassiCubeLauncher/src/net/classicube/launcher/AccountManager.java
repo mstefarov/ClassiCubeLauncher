@@ -60,7 +60,7 @@ class AccountManager {
     // Gets a list of all accounts, ordered by sign-in date, most recent first
     public UserAccount[] GetAccountsBySignInDate() {
         final UserAccount[] accountArray = accounts.values().toArray(new UserAccount[0]);
-        Arrays.sort(accountArray, UserAccountDateComparator.instance);
+        Arrays.sort(accountArray, UserAccount.getComparator());
         return accountArray;
     }
 
