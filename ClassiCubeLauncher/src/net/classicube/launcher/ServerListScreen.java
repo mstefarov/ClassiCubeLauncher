@@ -1,6 +1,8 @@
 package net.classicube.launcher;
 
 import java.awt.Component;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -18,6 +20,13 @@ public class ServerListScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen");
         initComponents();
 
+        // set window title
+        if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
+            setTitle("ClassiCube.net servers");
+        } else {
+            setTitle("Minecraft.net servers");
+        }
+
         // prepare to auto-adjust table columns (when the data arrives)
         serverTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tableColumnAdjuster = new TableColumnAdjuster(serverTable);
@@ -26,7 +35,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.setAutoCreateRowSorter(true);
         serverTable.setCellSelectionEnabled(false);
         serverTable.setRowSelectionAllowed(true);
-        
+
         // allow double-clicking servers on the list, to join them
         serverTable.addMouseListener(new ServerDoubleClickListener());
 
@@ -34,7 +43,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         setLocationRelativeTo(null);
 
         // start fetching the server list
-        tSearch.setText("Loading server list...");
+        tSearch.setPlaceholder("Loading server list...");
         tSearch.setEnabled(false);
         getServerListTask = SessionManager.getSession().getServerListAsync();
         getServerListTask.addPropertyChangeListener(
@@ -65,7 +74,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         @Override
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
-                bConnectActionPerformed(null);
+                joinSelectedServer();
             }
         }
     }
@@ -90,17 +99,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerListDone");
         try {
             serverList = getServerListTask.get();
-            final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
-            for (ServerInfo server : serverList) {
-                model.addRow(new Object[]{
-                    server.name,
-                    server.players,
-                    server.maxPlayers,
-                    server.uptime,
-                    ServerInfo.toCountryName(server.flag)
-                });
-            }
-            tSearch.setText("Search...");
+            fillServerTable();
+            tSearch.setPlaceholder("Search servers...");
             tSearch.setEnabled(true);
             tSearch.selectAll();
             tSearch.requestFocus();
@@ -113,6 +113,24 @@ public class ServerListScreen extends javax.swing.JFrame {
             LogUtil.showWarning(ex.toString(), "Problem loading server list");
             tSearch.setText("Could not load server list.");
         }
+    }
+
+    private void fillServerTable() {
+        final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
+        model.setRowCount(0);
+        String searchTerm = tSearch.getText().toLowerCase();
+        for (ServerInfo server : serverList) {
+            if (server.name.toLowerCase().contains(searchTerm)) {
+                model.addRow(new Object[]{
+                    server.name,
+                    server.players,
+                    server.maxPlayers,
+                    server.uptime,
+                    ServerInfo.toCountryName(server.flag)
+                });
+            }
+        }
+        serverTable.setRowSelectionInterval(0, 0);
     }
 
     private ServerInfo getSelectedServer() {
@@ -134,7 +152,6 @@ public class ServerListScreen extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         bChangeUser = new javax.swing.JButton();
-        tSearch = new javax.swing.JTextField();
         javax.swing.JSeparator separator1 = new javax.swing.JSeparator();
         javax.swing.JSeparator separator2 = new javax.swing.JSeparator();
         bPreferences = new javax.swing.JButton();
@@ -143,6 +160,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTableContainer = new javax.swing.JScrollPane();
         serverTable = new javax.swing.JTable();
         progress = new javax.swing.JProgressBar();
+        tSearch = new net.classicube.launcher.PlaceholderTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
@@ -162,15 +180,6 @@ public class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         getContentPane().add(bChangeUser, gridBagConstraints);
-
-        tSearch.setText("Search");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_END;
-        getContentPane().add(tSearch, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -267,6 +276,28 @@ public class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(progress, gridBagConstraints);
 
+        tSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tSearchActionPerformed(evt);
+            }
+        });
+        tSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                tSearchFocusGained(evt);
+            }
+        });
+        tSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tSearchKeyReleased(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(tSearch, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -293,6 +324,25 @@ public class ServerListScreen extends javax.swing.JFrame {
     }
 
     private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
+        joinSelectedServer();
+    }//GEN-LAST:event_bConnectActionPerformed
+
+    private void tSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tSearchKeyReleased
+        fillServerTable();
+    }//GEN-LAST:event_tSearchKeyReleased
+
+    private void tSearchFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tSearchFocusGained
+        tSearch.selectAll();
+    }//GEN-LAST:event_tSearchFocusGained
+
+    private void tSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tSearchActionPerformed
+        if(serverTable.getSelectedRows().length == 1){
+            joinSelectedServer();
+        }
+    }//GEN-LAST:event_tSearchActionPerformed
+
+    
+    void joinSelectedServer(){
         final ServerInfo selectedServer = getSelectedServer();
 
         getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(selectedServer);
@@ -310,7 +360,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         progress.setVisible(true);
         disableGui();
         getServerDetailsTask.execute();
-    }//GEN-LAST:event_bConnectActionPerformed
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;
@@ -318,7 +369,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     private javax.swing.JProgressBar progress;
     private javax.swing.JTable serverTable;
     private javax.swing.JScrollPane serverTableContainer;
-    private javax.swing.JTextField tSearch;
+    private net.classicube.launcher.PlaceholderTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
     private GameSession.GetServerListTask getServerListTask;
