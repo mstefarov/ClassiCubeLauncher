@@ -27,10 +27,11 @@ public class ServerListScreen extends javax.swing.JFrame {
         initComponents();
 
         // set window title
+        String playerName = SessionManager.getSession().account.PlayerName;
         if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
-            setTitle("ClassiCube.net servers");
+            setTitle(playerName + " @ ClassiCube.net - servers");
         } else {
-            setTitle("Minecraft.net servers");
+            setTitle(playerName + " @ Minecraft.net - servers");
         }
 
         // prepare to auto-adjust table columns (when the data arrives)
