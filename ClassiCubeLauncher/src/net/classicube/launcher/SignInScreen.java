@@ -396,8 +396,11 @@ final class SignInScreen extends javax.swing.JFrame {
         @Override
         public void focusGained(FocusEvent e) {
             JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
-            editor.setCaretPosition(((String) cUsername.getSelectedItem()).length());
-            editor.moveCaretPosition(0);
+            String selectedUsername = (String) cUsername.getSelectedItem();
+            if (selectedUsername != null) {
+                editor.setCaretPosition(selectedUsername.length());
+                editor.moveCaretPosition(0);
+            }
         }
 
         @Override
@@ -484,7 +487,7 @@ final class SignInScreen extends javax.swing.JFrame {
 // Enable/disable [Sign In] depending on whether username/password are given.
 
     void checkIfSignInAllowed() {
-        final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 0)
+        final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 1)
                 && (fieldChangeListener.realPasswordLength > 0);
         bSignIn.setEnabled(enableSignIn);
     }
