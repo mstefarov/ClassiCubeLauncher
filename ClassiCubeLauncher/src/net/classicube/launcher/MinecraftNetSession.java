@@ -182,7 +182,10 @@ class MinecraftNetSession extends GameSession {
                     server.maxPlayers = Integer.parseInt(otherServerDataMatch.group(2));
                     final String uptimeString = otherServerDataMatch.group(3);
                     try {
-                        server.uptime = parseUptime(uptimeString);
+                        // "servers.size" is added to preserve ordering for servers
+                        // that have otherwise-identical uptime. It makes sure that every
+                        // server has higher uptime (by 1 second) than the preceding one.
+                        server.uptime = parseUptime(uptimeString) + servers.size();
                     } catch (IllegalArgumentException ex) {
                         String logMsg = String.format("Error parsing server uptime (\"{0}\") for {1}",
                                 uptimeString, server.name);
