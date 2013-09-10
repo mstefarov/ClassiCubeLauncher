@@ -50,6 +50,8 @@ abstract class GameSession {
     // Gets base skin URL (to pass to the client).
     public abstract String getSkinUrl();
 
+    public abstract String getPlayUrl(String hash);
+    
     // Clears all stored cookies
     protected void clearCookies() {
         cookieJar.removeAll();

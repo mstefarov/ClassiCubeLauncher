@@ -2,6 +2,8 @@ package net.classicube.launcher;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -17,6 +19,8 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.RowSorter;
 import javax.swing.SwingWorker.StateValue;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -25,9 +29,12 @@ public class ServerListScreen extends javax.swing.JFrame {
     public ServerListScreen() {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen");
         initComponents();
+        session = SessionManager.getSession();
+
+        this.tServerURL.setEditable(false);//TODO: make serverURL accept server links
 
         // set window title
-        String playerName = SessionManager.getSession().account.PlayerName;
+        String playerName = session.account.PlayerName;
         if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
             setTitle(playerName + " @ ClassiCube.net - servers");
         } else {
@@ -52,7 +59,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         // start fetching the server list
         tSearch.setPlaceholder("Loading server list...");
         tSearch.setEnabled(false);
-        getServerListTask = SessionManager.getSession().getServerListAsync();
+
+        getServerListTask = session.getServerListAsync();
         getServerListTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
             @Override
@@ -85,6 +93,30 @@ public class ServerListScreen extends javax.swing.JFrame {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 joinSelectedServer();
+            }
+        });
+
+        serverTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent lse) {
+                if (!lse.getValueIsAdjusting()) {
+                    selectedServer = getSelectedServer();
+                    if (selectedServer != null) {
+                        final String playUrl = session.getPlayUrl(selectedServer.hash);
+                        tServerURL.setText(playUrl);
+                    }
+                }
+            }
+        });
+
+        this.tServerURL.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                tServerURL.selectAll();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
             }
         });
     }
@@ -170,8 +202,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         int[] rowIndex = serverTable.getSelectedRows();
         if (rowIndex.length == 1) {
             int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
-            System.out.println("row=" + rowIndex[0] + "  true=" + trueIndex);
-            System.out.println("displayedServerList[" + trueIndex + "] = " + displayedServerList.get(trueIndex).name);
+            //System.out.println("row=" + rowIndex[0] + "  true=" + trueIndex);
+            //System.out.println("displayedServerList[" + trueIndex + "] = " + displayedServerList.get(trueIndex).name);
             return displayedServerList.get(trueIndex);
         }
         return null;
@@ -346,7 +378,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_bConnectActionPerformed
 
     private void tSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tSearchKeyReleased
-        System.out.println(tSearch.getText());
+        //System.out.println(tSearch.getText());
         fillServerTable();
     }//GEN-LAST:event_tSearchKeyReleased
 
@@ -361,11 +393,9 @@ public class ServerListScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_tSearchActionPerformed
 
     void joinSelectedServer() {
-        final ServerInfo selectedServer = getSelectedServer();
-
         LogUtil.getLogger().log(Level.INFO,
                 "Fetching details for server: {0}", selectedServer.name);
-        getServerDetailsTask = SessionManager.getSession().getServerDetailsAsync(selectedServer);
+        getServerDetailsTask = session.getServerDetailsAsync(selectedServer);
         getServerDetailsTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
             @Override
@@ -408,9 +438,11 @@ public class ServerListScreen extends javax.swing.JFrame {
     private net.classicube.launcher.PlaceholderTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
-    private List<ServerInfo> displayedServerList = new ArrayList<>();
-    private GameSession.GetServerListTask getServerListTask;
+    private final List<ServerInfo> displayedServerList = new ArrayList<>();
+    private final GameSession.GetServerListTask getServerListTask;
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private ServerInfo[] serverList;
-    private TableColumnAdjuster tableColumnAdjuster;
+    private final TableColumnAdjuster tableColumnAdjuster;
+    private final GameSession session;
+    private ServerInfo selectedServer;
 }

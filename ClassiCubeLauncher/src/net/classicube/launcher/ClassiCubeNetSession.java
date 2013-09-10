@@ -225,6 +225,11 @@ class ClassiCubeNetSession extends GameSession {
     public URI getSiteUri() {
         return siteUri;
     }
+    
+    @Override
+    public String getPlayUrl(String hash) {
+        return "http://www.classicube.net/server/play/" + hash;
+    }
 
     //have not checked loadSessionCookie, presume it works fine (It remembers me)
     // Tries to restore previous session (if possible)

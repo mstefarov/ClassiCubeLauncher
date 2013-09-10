@@ -260,6 +260,11 @@ class MinecraftNetSession extends GameSession {
         return siteUri;
     }
 
+    @Override
+    public String getPlayUrl(String hash) {
+        return "http://minecraft.net/classic/play/" + hash;
+    }
+
     // Tries to restore previous session (if possible)
     private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
         LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
