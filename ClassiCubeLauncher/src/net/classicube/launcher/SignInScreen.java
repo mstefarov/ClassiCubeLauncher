@@ -28,7 +28,7 @@ import javax.swing.text.JTextComponent;
 final class SignInScreen extends javax.swing.JFrame {
 
     private final static boolean RememberMeDefault = true;
-    private final static String RememberMeKeyName = "RememberMe";
+    private final static String RememberMeKeyName = "RememberPassword";
 
     public SignInScreen() {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen");
@@ -43,13 +43,11 @@ final class SignInScreen extends javax.swing.JFrame {
 
         // grab initial "remember me" value from settings
         prefs = Preferences.userNodeForPackage(getClass());
-        xRememberMe.setSelected(prefs.getBoolean(RememberMeKeyName, RememberMeDefault));
+        xRememberPassword.setSelected(prefs.getBoolean(RememberMeKeyName, RememberMeDefault));
 
         // some UI tweaks
         hookUpListeners();
         getRootPane().setDefaultButton(bSignIn);
-        progressFiller.setSize(progress.getHeight(), progress.getWidth());
-        progress.setVisible(false);
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -80,11 +78,12 @@ final class SignInScreen extends javax.swing.JFrame {
         bMinecraftNet = new javax.swing.JToggleButton();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
-        xRememberMe = new javax.swing.JCheckBox();
-        bSignIn = new javax.swing.JButton();
         ipLogo = new net.classicube.launcher.ImagePanel();
         progress = new javax.swing.JProgressBar();
-        progressFiller = new javax.swing.Box.Filler(new java.awt.Dimension(0, 14), new java.awt.Dimension(0, 14), new java.awt.Dimension(32767, 14));
+        bSignIn = new javax.swing.JButton();
+        bResume = new javax.swing.JButton();
+        bDirect = new javax.swing.JButton();
+        xRememberPassword = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClassiCube Launcher");
@@ -102,6 +101,7 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bClassiCubeNet, gridBagConstraints);
 
@@ -115,6 +115,7 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 0.1;
         getContentPane().add(bMinecraftNet, gridBagConstraints);
 
         cUsername.setEditable(true);
@@ -125,7 +126,7 @@ final class SignInScreen extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -140,26 +141,28 @@ final class SignInScreen extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(tPassword, gridBagConstraints);
 
-        xRememberMe.setForeground(new java.awt.Color(255, 255, 255));
-        xRememberMe.setText("Remember me");
-        xRememberMe.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                xRememberMeActionPerformed(evt);
-            }
-        });
+        ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_LEADING;
-        getContentPane().add(xRememberMe, gridBagConstraints);
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        getContentPane().add(ipLogo, gridBagConstraints);
 
-        bSignIn.setText("Sign In");
+        progress.setIndeterminate(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(progress, gridBagConstraints);
+
+        bSignIn.setText("Sign In >");
         bSignIn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bSignInActionPerformed(evt);
@@ -167,30 +170,34 @@ final class SignInScreen extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
         getContentPane().add(bSignIn, gridBagConstraints);
 
-        ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
+        bResume.setText("Resume");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 3;
-        getContentPane().add(ipLogo, gridBagConstraints);
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
+        getContentPane().add(bResume, gridBagConstraints);
 
-        progress.setIndeterminate(true);
+        bDirect.setText("Direct...");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(progress, gridBagConstraints);
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
+        getContentPane().add(bDirect, gridBagConstraints);
+
+        xRememberPassword.setForeground(new java.awt.Color(255, 255, 255));
+        xRememberPassword.setText("Remember password");
+        xRememberPassword.setActionCommand("Remember");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        getContentPane().add(progressFiller, gridBagConstraints);
+        gridBagConstraints.ipady = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(xRememberPassword, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -242,18 +249,13 @@ final class SignInScreen extends javax.swing.JFrame {
     void onAfterServiceChanged() {
         accountManager = SessionManager.getAccountManager();
         cUsername.removeAllItems();
-        if (xRememberMe.isSelected()) {
-            // fill the account list
-            final UserAccount[] accounts = accountManager.GetAccountsBySignInDate();
-            for (UserAccount account : accounts) {
-                cUsername.addItem(account.SignInUsername);
-            }
-            if (cUsername.getItemCount() > 0) {
-                cUsername.setSelectedIndex(0);
-            }
-        } else {
-            cUsername.setSelectedItem("");
-            tPassword.setText("");
+        // fill the account list
+        final UserAccount[] accounts = accountManager.GetAccountsBySignInDate();
+        for (UserAccount account : accounts) {
+            cUsername.addItem(account.SignInUsername);
+        }
+        if (cUsername.getItemCount() > 0) {
+            cUsername.setSelectedIndex(0);
         }
         repaint();
 
@@ -275,7 +277,7 @@ final class SignInScreen extends javax.swing.JFrame {
         final String username = (String) cUsername.getSelectedItem();
         final String password = new String(tPassword.getPassword());
         final UserAccount account = accountManager.onSignInBegin(username, password);
-        final boolean remember = xRememberMe.isSelected();
+        final boolean remember = xRememberPassword.isSelected();
 
         // Create an async task for signing in
         final GameSession session = SessionManager.createSession(account);
@@ -301,8 +303,13 @@ final class SignInScreen extends javax.swing.JFrame {
         signInTask.execute();
     }//GEN-LAST:event_bSignInActionPerformed
 
+    // Select all text in password field, when focused
+    private void tPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tPasswordFocusGained
+        tPassword.selectAll();
+    }//GEN-LAST:event_tPasswordFocusGained
+
     private void cUsernameItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cUsernameItemStateChanged
-        if (evt.getStateChange() == ItemEvent.SELECTED && xRememberMe.isSelected()) {
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
             final String newName = (String) evt.getItem();
             final UserAccount curAccount = accountManager.findAccount(newName);
             if (curAccount != null) {
@@ -310,23 +317,6 @@ final class SignInScreen extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_cUsernameItemStateChanged
-
-    // Called when "remember me" checkbox status changes.
-    private void xRememberMeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xRememberMeActionPerformed
-        prefs.putBoolean(RememberMeKeyName, xRememberMe.isSelected());
-        if (!xRememberMe.isSelected()) {
-            // if it's been unchecked, forget EVERYTHING,
-            // except the currently-typed-in name/password, right away
-            accountManager.Clear();
-            accountManager.Store();
-            cUsername.removeAllItems();
-        }
-    }//GEN-LAST:event_xRememberMeActionPerformed
-
-    // Select all text in password field, when focused
-    private void tPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tPasswordFocusGained
-        tPassword.selectAll();
-    }//GEN-LAST:event_tPasswordFocusGained
 
     // Called when signInAsync finishes.
     // If we signed in, advance to the server list screen.
@@ -336,40 +326,65 @@ final class SignInScreen extends javax.swing.JFrame {
         try {
             final SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {
-                if (xRememberMe.isSelected()) {
-                    SessionManager.getSession().getAccount().SignInDate = new Date();
-                    accountManager.Store();
+                UserAccount acct = SessionManager.getSession().getAccount();
+                acct.SignInDate = new Date();
+                if (!xRememberPassword.isSelected()) {
+                    acct.Password = "";
                 }
+                accountManager.Store();
                 EntryPoint.ShowServerListScreen();
             } else {
-                // TODO: make this less ugly
-                LogUtil.showWarning(result.name(), "Sign in result.");
+                String errorMsg;
+                switch (result) {
+                    case WRONG_USER_OR_PASS:
+                        errorMsg = "Wrong username or password.";
+                        break;
+                    case MIGRATED_ACCOUNT:
+                        errorMsg = "Your account has been migrated. "
+                                + "Use your Mojang account (email) to sign in.";
+                        break;
+                    case CONNECTION_ERROR:
+                        errorMsg = "Connection problem. The website may be down.";
+                        break;
+                    default:
+                        errorMsg = result.name();
+                        break;
+                }
+                LogUtil.showWarning(errorMsg, "Could not sign in.");
             }
         } catch (InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
-            LogUtil.showError(ex.toString(), "Error signing in");
+            LogUtil.showError(ex.toString(), "Could not sign in.");
         }
         enableGUI();
     }
 
     // Grays out the UI, and shows a progress bar
     private void disableGUI() {
+        cUsername.setEnabled(false);
+        tPassword.setEnabled(false);
+        xRememberPassword.setEnabled(false);
+        bDirect.setEnabled(false);
+        bResume.setEnabled(false);
         bSignIn.setEnabled(false);
-        cUsername.setEditable(false);
-        tPassword.setEditable(false);
         buttonToDisableOnSignIn.setEnabled(false);
-        xRememberMe.setEnabled(false);
+
         progress.setVisible(true);
+        pack();
     }
 
     // Re-enabled the UI, and hides the progress bar
     private void enableGUI() {
+        cUsername.setEnabled(true);
+        tPassword.setEnabled(true);
+        xRememberPassword.setEnabled(true);
+        bDirect.setEnabled(true);
+        bResume.setEnabled(true);
         checkIfSignInAllowed();
-        cUsername.setEditable(true);
-        tPassword.setEditable(true);
         buttonToDisableOnSignIn.setEnabled(true);
-        xRememberMe.setEnabled(true);
+
         progress.setVisible(false);
+        pack();
     }
 
     // =============================================================================================
@@ -497,14 +512,15 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton bClassiCubeNet;
+    private javax.swing.JButton bDirect;
     private javax.swing.JToggleButton bMinecraftNet;
+    private javax.swing.JButton bResume;
     private javax.swing.JButton bSignIn;
     private javax.swing.JComboBox<String> cUsername;
     private net.classicube.launcher.ImagePanel ipLogo;
     private javax.swing.JProgressBar progress;
-    private javax.swing.Box.Filler progressFiller;
     private javax.swing.JPasswordField tPassword;
-    private javax.swing.JCheckBox xRememberMe;
+    private javax.swing.JCheckBox xRememberPassword;
     // End of variables declaration//GEN-END:variables
     // =============================================================================================
     //                                                                            APPLICATION FIELDS
