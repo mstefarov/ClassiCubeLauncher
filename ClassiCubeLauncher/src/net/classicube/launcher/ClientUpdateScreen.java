@@ -12,12 +12,12 @@ public class ClientUpdateScreen extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }
 
-    public void setStatus(ClientUpdateStatus dl) {
+    public void setStatus(ClientUpdateTask.ProgressUpdate dl) {
         System.out.println(String.format("setStatus(%d, \"%s\", \"%s\")", dl.progress, dl.fileName, dl.status));
         //LogUtil.getLogger().info("ClientUpdateScreen.setStatus");
         progress.setValue(dl.progress);
-        this.lFileName.setText(dl.fileName);
-        this.lStats.setText(dl.status);
+        lFileName.setText(dl.fileName);
+        lStats.setText(dl.status);
     }
 
     public void onUpdateDone() {

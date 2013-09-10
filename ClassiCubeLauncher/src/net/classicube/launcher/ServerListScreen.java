@@ -31,10 +31,8 @@ public class ServerListScreen extends javax.swing.JFrame {
         initComponents();
         session = SessionManager.getSession();
 
-        this.tServerURL.setEditable(false);//TODO: make serverURL accept server links
-
         // set window title
-        String playerName = session.account.PlayerName;
+        final String playerName = session.getAccount().PlayerName;
         if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
             setTitle(playerName + " @ ClassiCube.net - servers");
         } else {
@@ -51,7 +49,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         serverTable.setRowSelectionAllowed(true);
 
         // set table shortcuts
-        setTableHandlers();
+        setHandlers();
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -75,7 +73,9 @@ public class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.execute();
     }
 
-    private void setTableHandlers() {
+    private void setHandlers() {
+        tServerURL.setEditable(false);//TODO: make serverURL accept server links
+
         // allow double-clicking servers on the list, to join them
         serverTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -109,7 +109,7 @@ public class ServerListScreen extends javax.swing.JFrame {
             }
         });
 
-        this.tServerURL.addFocusListener(new FocusListener() {
+        tServerURL.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
                 tServerURL.selectAll();
@@ -122,15 +122,15 @@ public class ServerListScreen extends javax.swing.JFrame {
     }
 
     private void disableGui() {
-        this.bChangeUser.setEnabled(false);
-        this.bPreferences.setEnabled(false);
-        this.tSearch.setEnabled(false);
-        this.serverTable.setEnabled(false);
-        this.tServerURL.setEnabled(false);
-        this.bConnect.setEnabled(false);
+        bChangeUser.setEnabled(false);
+        bPreferences.setEnabled(false);
+        tSearch.setEnabled(false);
+        serverTable.setEnabled(false);
+        tServerURL.setEnabled(false);
+        bConnect.setEnabled(false);
     }
 
-    class UptimeCellRenderer extends DefaultTableCellRenderer {
+    private class UptimeCellRenderer extends DefaultTableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -140,7 +140,6 @@ public class ServerListScreen extends javax.swing.JFrame {
                 this.setText(ServerInfo.formatUptime(ticks));
             } else {
                 this.setText("");
-
             }
             return this;
         }
@@ -170,15 +169,15 @@ public class ServerListScreen extends javax.swing.JFrame {
         final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
 
         // reset sort order
-        RowSorter rs = serverTable.getRowSorter();
-        rs.setSortKeys(null);
+        final RowSorter rowSorter = serverTable.getRowSorter();
+        rowSorter.setSortKeys(null);
 
         // remove all rows
         model.setNumRows(0);
         displayedServerList.clear();
 
         // add new rows
-        String searchTerm = tSearch.getText().toLowerCase();
+        final String searchTerm = tSearch.getText().toLowerCase();
         for (ServerInfo server : serverList) {
             if (server.name.toLowerCase().contains(searchTerm)) {
                 displayedServerList.add(server);
@@ -199,9 +198,9 @@ public class ServerListScreen extends javax.swing.JFrame {
     }
 
     private ServerInfo getSelectedServer() {
-        int[] rowIndex = serverTable.getSelectedRows();
+        final int[] rowIndex = serverTable.getSelectedRows();
         if (rowIndex.length == 1) {
-            int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
+            final int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
             //System.out.println("row=" + rowIndex[0] + "  true=" + trueIndex);
             //System.out.println("displayedServerList[" + trueIndex + "] = " + displayedServerList.get(trueIndex).name);
             return displayedServerList.get(trueIndex);
@@ -417,7 +416,7 @@ public class ServerListScreen extends javax.swing.JFrame {
         try {
             final boolean result = getServerDetailsTask.get();
             if (result) {
-                SessionManager.serverDetails = getServerDetailsTask.getServerInfo();
+                SessionManager.setServerInfo(getServerDetailsTask.getServerInfo());
                 EntryPoint.ShowClientUpdateScreen();
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");
@@ -442,7 +441,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     private final GameSession.GetServerListTask getServerListTask;
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private ServerInfo[] serverList;
-    private final TableColumnAdjuster tableColumnAdjuster;
     private final GameSession session;
     private ServerInfo selectedServer;
+    private final TableColumnAdjuster tableColumnAdjuster;
 }

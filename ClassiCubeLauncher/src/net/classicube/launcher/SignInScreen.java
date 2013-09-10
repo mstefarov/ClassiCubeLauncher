@@ -35,19 +35,19 @@ final class SignInScreen extends javax.swing.JFrame {
 
         // add our fancy custom background
         bgPanel = new ImagePanel(null, true);
-        this.setContentPane(bgPanel);
+        setContentPane(bgPanel);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         // create the rest of components
         initComponents();
 
         // grab initial "remember me" value from settings
-        prefs = Preferences.userNodeForPackage(this.getClass());
+        prefs = Preferences.userNodeForPackage(getClass());
         xRememberMe.setSelected(prefs.getBoolean(RememberMeKeyName, RememberMeDefault));
 
         // some UI tweaks
         hookUpListeners();
-        this.getRootPane().setDefaultButton(bSignIn);
+        getRootPane().setDefaultButton(bSignIn);
         progressFiller.setSize(progress.getHeight(), progress.getWidth());
         progress.setVisible(false);
 
@@ -258,7 +258,7 @@ final class SignInScreen extends javax.swing.JFrame {
         repaint();
 
         // focus on either username (if empty) or password field
-        String username = (String) cUsername.getSelectedItem();
+        final String username = (String) cUsername.getSelectedItem();
         if (username == null || username.isEmpty()) {
             cUsername.requestFocus();
         } else {
@@ -275,7 +275,7 @@ final class SignInScreen extends javax.swing.JFrame {
         final String username = (String) cUsername.getSelectedItem();
         final String password = new String(tPassword.getPassword());
         final UserAccount account = accountManager.onSignInBegin(username, password);
-        boolean remember = this.xRememberMe.isSelected();
+        final boolean remember = xRememberMe.isSelected();
 
         // Create an async task for signing in
         final GameSession session = SessionManager.createSession(account);
@@ -303,8 +303,8 @@ final class SignInScreen extends javax.swing.JFrame {
 
     private void cUsernameItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cUsernameItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED && xRememberMe.isSelected()) {
-            String newName = (String) evt.getItem();
-            UserAccount curAccount = accountManager.findAccount(newName);
+            final String newName = (String) evt.getItem();
+            final UserAccount curAccount = accountManager.findAccount(newName);
             if (curAccount != null) {
                 tPassword.setText(curAccount.Password);
             }
@@ -319,7 +319,7 @@ final class SignInScreen extends javax.swing.JFrame {
             // except the currently-typed-in name/password, right away
             accountManager.Clear();
             accountManager.Store();
-            this.cUsername.removeAllItems();
+            cUsername.removeAllItems();
         }
     }//GEN-LAST:event_xRememberMeActionPerformed
 
@@ -336,8 +336,8 @@ final class SignInScreen extends javax.swing.JFrame {
         try {
             final SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {
-                if (this.xRememberMe.isSelected()) {
-                    SessionManager.getSession().account.SignInDate = new Date();
+                if (xRememberMe.isSelected()) {
+                    SessionManager.getSession().getAccount().SignInDate = new Date();
                     accountManager.Store();
                 }
                 EntryPoint.ShowServerListScreen();
@@ -396,8 +396,8 @@ final class SignInScreen extends javax.swing.JFrame {
 
         @Override
         public void focusGained(FocusEvent e) {
-            JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
-            String selectedUsername = (String) cUsername.getSelectedItem();
+            final JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
+            final String selectedUsername = (String) cUsername.getSelectedItem();
             if (selectedUsername != null) {
                 editor.setCaretPosition(selectedUsername.length());
                 editor.moveCaretPosition(0);

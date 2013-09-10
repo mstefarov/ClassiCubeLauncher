@@ -25,9 +25,8 @@ class ClassiCubeNetSession extends GameSession {
             authTokenPattern = "<input id=\"csrf_token\" name=\"csrf_token\" type=\"hidden\" value=\"(.+?)\">",
             loggedInAsPattern = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})",
             CookieName = "session";
-    private static final Pattern authTokenRegex = Pattern
-            .compile(authTokenPattern), loggedInAsRegex = Pattern
-            .compile(loggedInAsPattern);
+    private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
+            loggedInAsRegex = Pattern.compile(loggedInAsPattern);
 
     public ClassiCubeNetSession(UserAccount account) {
         super("ClassiCubeNetSession", account);
@@ -63,7 +62,7 @@ class ClassiCubeNetSession extends GameSession {
 
             // "this.publish" can be used to send text status updates to the GUI
             // (not hooked up)
-            this.publish("Connecting to ClassiCube.net");
+            publish("Connecting to ClassiCube.net");
 
             // download the login page
             String loginPage = HttpUtil.downloadString(LoginSecureUri);
@@ -74,11 +73,10 @@ class ClassiCubeNetSession extends GameSession {
             // See if we're already logged in
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
-                String actualPlayerName = loginMatch.group(1);
+                final String actualPlayerName = loginMatch.group(1);
                 if (remember
                         && hasCookie(CookieName)
-                        && actualPlayerName
-                        .equalsIgnoreCase(account.PlayerName)) {
+                        && actualPlayerName.equalsIgnoreCase(account.PlayerName)) {
                     // If player is already logged in with the right account:
                     // reuse a previous session
                     account.PlayerName = actualPlayerName;
@@ -91,11 +89,9 @@ class ClassiCubeNetSession extends GameSession {
                     // If we're not supposed to reuse session, if old username
                     // is different,
                     // or if there is no play session cookie set - relog
-                    LogUtil.getLogger()
-                            .log(Level.INFO,
+                    LogUtil.getLogger().log(Level.INFO,
                             "Switching accounts from {0} to {1}",
-                            new Object[]{actualPlayerName,
-                        account.PlayerName});
+                            new Object[]{actualPlayerName, account.PlayerName});
                     HttpUtil.downloadString(LogoutUri);
                     clearCookies();
                     loginPage = HttpUtil.downloadString(LoginSecureUri);
@@ -109,8 +105,7 @@ class ClassiCubeNetSession extends GameSession {
                     // restoring session failed; log out and retry
                     HttpUtil.downloadString(LogoutUri);
                     clearCookies();
-                    LogUtil.getLogger()
-                            .log(Level.WARNING,
+                    LogUtil.getLogger().log(Level.WARNING,
                             "Unrecognized login form served by ClassiCube.net; retrying.");
 
                 } else {
@@ -137,9 +132,8 @@ class ClassiCubeNetSession extends GameSession {
             requestStr.append(urlEncode(HomepageUri));
 
             // POST our data to the login handler
-            this.publish("Signing in...");
-            String loginResponse = HttpUtil.uploadString(LoginSecureUri,
-                    requestStr.toString());
+            publish("Signing in...");
+            final String loginResponse = HttpUtil.uploadString(LoginSecureUri, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -150,8 +144,7 @@ class ClassiCubeNetSession extends GameSession {
             }
 
             // Confirm that we are now logged in
-            final Matcher responseMatch = loggedInAsRegex
-                    .matcher(loginResponse);
+            final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
                 account.PlayerName = responseMatch.group(1);
                 return SignInResult.SUCCESS;
@@ -172,18 +165,17 @@ class ClassiCubeNetSession extends GameSession {
 
         @Override
         protected ServerInfo[] doInBackground() throws Exception {
-            LogUtil.getLogger().log(Level.FINE,
-                    "ClassiCubeNetGetServerListWorker");
-            String serverListString = HttpUtil.downloadString(ServerListUri);
+            LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetGetServerListWorker");
+            final String serverListString = HttpUtil.downloadString(ServerListUri);
 
             final ArrayList<ServerInfo> servers = new ArrayList<>();
 
-            JsonArray array = JsonParser.array().from(serverListString);
+            final JsonArray array = JsonParser.array().from(serverListString);
 
             for (Object rawRow : array) { //iterate through and add servers to the list
-                JsonObject row = (JsonObject)rawRow;
-                ServerInfo info = new ServerInfo();
-                
+                final JsonObject row = (JsonObject) rawRow;
+                final ServerInfo info = new ServerInfo();
+
                 info.address = InetAddress.getByName(row.getString("ip"));
                 info.flag = "";
                 info.hash = row.getString("hash");
@@ -212,7 +204,7 @@ class ClassiCubeNetSession extends GameSession {
 
         @Override
         protected Boolean doInBackground() throws Exception {
-            return true; // just return true, .info is all set
+            return true; // TODO: actual fetching
         }
     }
 
@@ -225,7 +217,7 @@ class ClassiCubeNetSession extends GameSession {
     public URI getSiteUri() {
         return siteUri;
     }
-    
+
     @Override
     public String getPlayUrl(String hash) {
         return "http://www.classicube.net/server/play/" + hash;
@@ -244,8 +236,7 @@ class ClassiCubeNetSession extends GameSession {
                 final String userToken = "username%3A" + account.SignInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
                     LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}",
-                            account.SignInUsername);
+                            "Loaded saved session for {0}", account.SignInUsername);
                     return true;
                 } else {
                     LogUtil.getLogger().log(Level.FINE,

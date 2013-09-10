@@ -63,8 +63,8 @@ class MinecraftNetSession extends GameSession {
                 LogUtil.getLogger().log(Level.WARNING, "Error restoring session", ex);
             }
 
-            // "this.publish" can be used to send text status updates to the GUI (not hooked up)
-            this.publish("Connecting to Minecraft.net");
+            // "publish" can be used to send text status updates to the GUI (not hooked up)
+            publish("Connecting to Minecraft.net");
 
             // download the login page
             String loginPage = HttpUtil.downloadString(LoginSecureUri);
@@ -75,7 +75,7 @@ class MinecraftNetSession extends GameSession {
             // See if we're already logged in
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
-                String actualPlayerName = loginMatch.group(1);
+                final String actualPlayerName = loginMatch.group(1);
                 if (remember && hasCookie(CookieName)
                         && actualPlayerName.equalsIgnoreCase(account.PlayerName)) {
                     // If player is already logged in with the right account: reuse a previous session
@@ -129,8 +129,8 @@ class MinecraftNetSession extends GameSession {
             requestStr.append(urlEncode(HomepageUri));
 
             // POST our data to the login handler
-            this.publish("Signing in...");
-            String loginResponse = HttpUtil.uploadString(LoginSecureUri, requestStr.toString());
+            publish("Signing in...");
+            final String loginResponse = HttpUtil.uploadString(LoginSecureUri, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -164,7 +164,7 @@ class MinecraftNetSession extends GameSession {
         @Override
         protected ServerInfo[] doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "MinecraftNetGetServerListWorker");
-            String serverListString = HttpUtil.downloadString(ServerListUri);
+            final String serverListString = HttpUtil.downloadString(ServerListUri);
             final Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             final Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
             final ArrayList<ServerInfo> servers = new ArrayList<>();
@@ -188,7 +188,8 @@ class MinecraftNetSession extends GameSession {
                         // server has higher uptime (by 1 second) than the preceding one.
                         server.uptime = parseUptime(uptimeString) + servers.size();
                     } catch (IllegalArgumentException ex) {
-                        String logMsg = String.format("Error parsing server uptime (\"%s\") for %s",
+                        final String logMsg = String.format(
+                                "Error parsing server uptime (\"%s\") for %s",
                                 uptimeString, server.name);
                         LogUtil.getLogger().log(Level.WARNING, logMsg, ex);
                     }
@@ -218,19 +219,19 @@ class MinecraftNetSession extends GameSession {
         @Override
         protected Boolean doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "GetServerPassWorker");
-            String serverLink = PlayUri + serverInfo.hash;
+            final String serverLink = PlayUri + serverInfo.hash;
 
-            String playPage = HttpUtil.downloadString(serverLink);
+            final String playPage = HttpUtil.downloadString(serverLink);
             if (playPage == null) {
                 LogUtil.getLogger().log(Level.SEVERE,
                         "Error downloading play page for \"{0}\"", serverInfo.name);
                 return false;
             }
 
-            Matcher appletParamMatch = appletParamRegex.matcher(playPage);
+            final Matcher appletParamMatch = appletParamRegex.matcher(playPage);
             while (appletParamMatch.find()) {
-                String name = appletParamMatch.group(1);
-                String value = appletParamMatch.group(2);
+                final String name = appletParamMatch.group(1);
+                final String value = appletParamMatch.group(2);
                 switch (name) {
                     case "username":
                         account.PlayerName = value;

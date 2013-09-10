@@ -39,7 +39,7 @@ public class PathUtil {
 
             switch (os) {
                 case Windows:
-                    String appData = System.getenv("APPDATA");
+                    final String appData = System.getenv("APPDATA");
                     if (appData != null) {
                         appDataPath = new File(appData);
                     } else {
@@ -77,8 +77,14 @@ public class PathUtil {
     }
 
     // Safely replace contents of destFile with sourceFile
-    static void replaceFile(File sourceFile, File destFile)
+    public static void replaceFile(File sourceFile, File destFile)
             throws IOException {
+        if (sourceFile == null) {
+            throw new NullPointerException("sourceFile");
+        }
+        if (destFile == null) {
+            throw new NullPointerException("destFile");
+        }
         Path sourcePath = Paths.get(sourceFile.getAbsolutePath());
         Path destPath = Paths.get(destFile.getAbsolutePath());
         Files.move(sourcePath, destPath, FileReplaceOptions);
@@ -90,10 +96,13 @@ public class PathUtil {
 
     // Deletes a directory and all of its children
     public boolean deleteDir(File dir) {
+        if (dir == null) {
+            throw new NullPointerException("dir");
+        }
         if (dir.isDirectory()) {
-            String[] children = dir.list();
+            final String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
+                final boolean success = deleteDir(new File(dir, children[i]));
                 if (!success) {
                     return false;
                 }
@@ -115,10 +124,10 @@ public class PathUtil {
             if (!destDir.exists()) {
                 destDir.mkdir();
             }
-            String files[] = sourceDir.list();
+            final String files[] = sourceDir.list();
             for (String file : files) {
-                File srcFile = new File(sourceDir, file);
-                File destFile = new File(destDir, file);
+                final File srcFile = new File(sourceDir, file);
+                final File destFile = new File(destDir, file);
                 copyDir(srcFile, destFile);
             }
         } else {
@@ -145,15 +154,8 @@ public class PathUtil {
             }
         }
     }
-    
-    
-    public static File removeExtension(File fileName) {
-        final String oldName = fileName.getPath();
-        final String newName = oldName.substring(0, oldName.lastIndexOf('.'));
-        return new File(newName);
-    }
-    private static File clientJar,
-            clientPath,
+
+    private static File clientPath,
             launcherPath,
             logFilePath,
             appDataPath;

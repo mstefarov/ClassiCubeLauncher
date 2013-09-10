@@ -50,7 +50,7 @@ public class PlaceholderTextField extends JTextField {
     protected void paintComponent(final Graphics pG) {
         super.paintComponent(pG);
 
-        if (placeholder.length() == 0 || getText().length() > 0) {
+        if (placeholder == null || placeholder.length() == 0 || getText().length() > 0) {
             return;
         }
 
@@ -64,7 +64,7 @@ public class PlaceholderTextField extends JTextField {
                 pG.getFontMetrics().getMaxAscent() + getInsets().top);
     }
 
-    public void setPlaceholder(final String s) {
-        placeholder = s;
+    public void setPlaceholder(final String placeholderText) {
+        placeholder = placeholderText;
     }
 }

@@ -47,9 +47,14 @@ class SessionManager {
                 GameServiceType.ClassiCubeNetService.name());
         activeServiceType = GameServiceType.valueOf(serviceName);
     }
+
+    public static void setServerInfo(ServerInfo server) {
+        serverDetails = server;
+    }
+
+    public static ServerInfo getServerInfo() {
+        return serverDetails;
+    }
+    private static ServerInfo serverDetails;
     private static Preferences prefs;
-    
-    
-    
-    public static ServerInfo serverDetails;
 }

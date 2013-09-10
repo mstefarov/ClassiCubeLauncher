@@ -26,7 +26,7 @@ abstract class GameSession {
         if (account == null) {
             throw new NullPointerException("account");
         }
-        store = Preferences.userNodeForPackage(this.getClass())
+        store = Preferences.userNodeForPackage(getClass())
                 .node("GameServices")
                 .node(serviceName);
         this.account = account;
@@ -51,7 +51,7 @@ abstract class GameSession {
     public abstract String getSkinUrl();
 
     public abstract String getPlayUrl(String hash);
-    
+
     // Clears all stored cookies
     protected void clearCookies() {
         cookieJar.removeAll();
@@ -128,9 +128,6 @@ abstract class GameSession {
         cookieJar = cm.getCookieStore();
         CookieManager.setDefault(cm);
     }
-    private static CookieStore cookieJar;
-    protected UserAccount account;
-    protected Preferences store;
 
     public static abstract class SignInTask extends SwingWorker<SignInResult, String> {
 
@@ -146,7 +143,7 @@ abstract class GameSession {
     public static abstract class GetServerDetailsTask extends SwingWorker<Boolean, Boolean> {
 
         public GetServerDetailsTask(ServerInfo serverInfo) {
-            if(serverInfo == null){
+            if (serverInfo == null) {
                 throw new NullPointerException("serverInfo");
             }
             this.serverInfo = serverInfo;
@@ -157,4 +154,11 @@ abstract class GameSession {
         }
         protected ServerInfo serverInfo;
     }
+
+    public UserAccount getAccount() {
+        return account;
+    }
+    private static CookieStore cookieJar;
+    protected UserAccount account;
+    protected Preferences store;
 }

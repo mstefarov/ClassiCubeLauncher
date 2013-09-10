@@ -19,7 +19,7 @@ class ServerInfo {
     public String pass;
     public InetAddress address;
     public int port;
-    
+
     public static String formatUptime(int seconds) {
         if (seconds < 60) {
             return seconds + "s";
@@ -31,9 +31,12 @@ class ServerInfo {
             return (seconds / (60 * 60 * 24)) + "d";
         }
     }
-    
-    public static String toCountryName(String s) {
-        Locale l = new Locale("EN", s);
+
+    public static String toCountryName(String countryCode) {
+        if (countryCode == null) {
+            throw new NullPointerException("s");
+        }
+        final Locale l = new Locale("EN", countryCode);
         return l.getDisplayCountry();
     }
 }

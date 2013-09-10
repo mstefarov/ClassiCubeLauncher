@@ -16,8 +16,8 @@ class AccountManager {
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
         }
-        final Preferences baseNode = Preferences.userNodeForPackage(this.getClass());
-        this.store = baseNode.node("Accounts").node(serviceName);
+        final Preferences baseNode = Preferences.userNodeForPackage(getClass());
+        store = baseNode.node("Accounts").node(serviceName);
     }
 
     // Loads 
@@ -74,14 +74,18 @@ class AccountManager {
             LogUtil.getLogger().log(Level.SEVERE, "Error clearing accounts", ex);
         }
     }
-    private Preferences store;
-    private HashMap<String, UserAccount> accounts = new HashMap<>();
 
     public UserAccount onSignInBegin(String username, String password) {
-        UserAccount existingAccount = findAccount(username);
+        if (username == null) {
+            throw new NullPointerException("username");
+        }
+        if (password == null) {
+            throw new NullPointerException("password");
+        }
+        final UserAccount existingAccount = findAccount(username);
         if (existingAccount == null) {
             // new account!
-            UserAccount newAccount = new UserAccount(username, password);
+            final UserAccount newAccount = new UserAccount(username, password);
             accounts.put(newAccount.SignInUsername.toLowerCase(), newAccount);
             return newAccount;
         } else {
@@ -90,4 +94,6 @@ class AccountManager {
             return existingAccount;
         }
     }
+    private final Preferences store;
+    private final HashMap<String, UserAccount> accounts = new HashMap<>();
 }

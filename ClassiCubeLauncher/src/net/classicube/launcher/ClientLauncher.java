@@ -19,11 +19,10 @@ public class ClientLauncher {
 
     public static void launchClient() {
         LogUtil.getLogger().info("launchClient");
-        ServerInfo server = SessionManager.serverDetails;
+        final ServerInfo server = SessionManager.getServerInfo();
         final File java = getJavaPath();
-        final ProcessBuilder processBuilder;
 
-        String nativePath;
+        final String nativePath;
         try {
             nativePath = new File(PathUtil.getClientDir(), "natives").getCanonicalPath();
         } catch (IOException ex) {
@@ -31,7 +30,7 @@ public class ClientLauncher {
             return;
         }
 
-        processBuilder = new ProcessBuilder(
+        final ProcessBuilder processBuilder = new ProcessBuilder(
                 java.getAbsolutePath(),
                 "-cp",
                 ClassPath,
@@ -40,7 +39,7 @@ public class ClientLauncher {
                 ClientClassPath,
                 server.address.getHostAddress(),
                 Integer.toString(server.port),
-                SessionManager.getSession().account.PlayerName,
+                SessionManager.getSession().getAccount().PlayerName,
                 server.pass,
                 SessionManager.getSession().getSkinUrl());
         processBuilder.directory(PathUtil.getClientDir());
@@ -48,7 +47,7 @@ public class ClientLauncher {
 
         try {
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
-            Process p = processBuilder.start();
+            final Process p = processBuilder.start();
             p.waitFor(); // temporary: don't wait for client to exit once we go into production
             System.exit(0);
         } catch (IOException | InterruptedException ex) {
@@ -56,8 +55,8 @@ public class ClientLauncher {
         }
     }
 
-    public static String concatStringsWSep(List<String> strings, String separator) {
-        StringBuilder sb = new StringBuilder();
+    private static String concatStringsWSep(List<String> strings, String separator) {
+        final StringBuilder sb = new StringBuilder();
         String sep = "";
         for (String s : strings) {
             sb.append(sep).append(s);
