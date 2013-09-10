@@ -41,7 +41,11 @@ abstract class GameSession {
     // Asynchronously fetches the server list.
     public abstract GetServerListTask getServerListAsync();
 
-    // Gets mppass for given server
+    // Attempts to extract as much information as possible about a server by URL.
+    // Could be a play-link with a hash, or ip/port, or a direct-connect URL.
+    public abstract ServerInfo getDetailsFromUrl(String url);
+
+    // Asynchronously gets mppass for given server
     public abstract GetServerDetailsTask getServerDetailsAsync(ServerInfo server);
 
     // Gets service site's root URL (for cookie filtering).
@@ -51,7 +55,7 @@ abstract class GameSession {
     public abstract String getSkinUrl();
 
     public abstract String getPlayUrl(String hash);
-
+    
     // Clears all stored cookies
     protected void clearCookies() {
         cookieJar.removeAll();

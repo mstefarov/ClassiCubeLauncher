@@ -206,6 +206,11 @@ class MinecraftNetSession extends GameSession {
     }
 
     @Override
+    public ServerInfo getDetailsFromUrl(String url){
+        return null;
+    }
+    
+    @Override
     public GetServerDetailsTask getServerDetailsAsync(ServerInfo server) {
         return new GetServerDetailsWorker(server);
     }
