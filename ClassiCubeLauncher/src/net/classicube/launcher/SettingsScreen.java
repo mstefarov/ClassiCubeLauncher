@@ -1,9 +1,14 @@
 package net.classicube.launcher;
 
+import javax.swing.border.EmptyBorder;
+
 public class SettingsScreen extends javax.swing.JFrame {
 
     public SettingsScreen() {
+        this.getRootPane().setBorder(new EmptyBorder(8, 8, 8, 8));
+        this.setTitle("Preferences");
         initComponents();
+        getRootPane().setDefaultButton(bSave);
     }
 
     /**
@@ -13,23 +18,317 @@ public class SettingsScreen extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
+
+        rgWindowSize = new javax.swing.ButtonGroup();
+        rgUpdateMode = new javax.swing.ButtonGroup();
+        rUpdateDisable = new javax.swing.JRadioButton();
+        rUpdateNotify = new javax.swing.JRadioButton();
+        rUpdateAuto = new javax.swing.JRadioButton();
+        jLabel1 = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jCheckBox2 = new javax.swing.JCheckBox();
+        jCheckBox3 = new javax.swing.JCheckBox();
+        bClearUsernames = new javax.swing.JButton();
+        bClearPasswords = new javax.swing.JButton();
+        bClearResume = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
+        jLabel2 = new javax.swing.JLabel();
+        tJava = new javax.swing.JTextField();
+        lJavaMemory = new javax.swing.JLabel();
+        nMemory = new javax.swing.JSpinner();
+        jLabel4 = new javax.swing.JLabel();
+        tJavaParams = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jRadioButton4 = new javax.swing.JRadioButton();
+        jRadioButton5 = new javax.swing.JRadioButton();
+        jRadioButton6 = new javax.swing.JRadioButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        jLabel3 = new javax.swing.JLabel();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
+        jSeparator3 = new javax.swing.JSeparator();
+        bCancel = new javax.swing.JButton();
+        bSave = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        rgUpdateMode.add(rUpdateDisable);
+        rUpdateDisable.setText("Disable");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(rUpdateDisable, gridBagConstraints);
+
+        rgUpdateMode.add(rUpdateNotify);
+        rUpdateNotify.setText("Enable (notify me)");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(rUpdateNotify, gridBagConstraints);
+
+        rgUpdateMode.add(rUpdateAuto);
+        rUpdateAuto.setSelected(true);
+        rUpdateAuto.setText("Enable (automatic)");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(rUpdateAuto, gridBagConstraints);
+
+        jLabel1.setText("Install game updates...");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jLabel1, gridBagConstraints);
+
+        jCheckBox1.setText("Remember usernames");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jCheckBox1, gridBagConstraints);
+
+        jCheckBox2.setText("Remember passwords");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jCheckBox2, gridBagConstraints);
+
+        jCheckBox3.setText("Remember last-joined server");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jCheckBox3, gridBagConstraints);
+
+        bClearUsernames.setText("Clear users");
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, bClearPasswords, org.jdesktop.beansbinding.ELProperty.create("${preferredSize}"), bClearUsernames, org.jdesktop.beansbinding.BeanProperty.create("preferredSize"));
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(bClearUsernames, gridBagConstraints);
+
+        bClearPasswords.setText("Clear passwords");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(bClearPasswords, gridBagConstraints);
+
+        bClearResume.setText("Clear \"Resume\"");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, bClearPasswords, org.jdesktop.beansbinding.ELProperty.create("${preferredSize}"), bClearResume, org.jdesktop.beansbinding.BeanProperty.create("preferredSize"));
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(bClearResume, gridBagConstraints);
+
+        jSeparator1.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(jSeparator1, gridBagConstraints);
+
+        jSeparator2.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(jSeparator2, gridBagConstraints);
+
+        jLabel2.setText("Java");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        getContentPane().add(jLabel2, gridBagConstraints);
+
+        tJava.setText("jTextField1");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(tJava, gridBagConstraints);
+
+        lJavaMemory.setText("Memory");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        getContentPane().add(lJavaMemory, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.1;
+        getContentPane().add(nMemory, gridBagConstraints);
+
+        jLabel4.setText("Parameters");
+        jLabel4.setToolTipText("");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        getContentPane().add(jLabel4, gridBagConstraints);
+
+        tJavaParams.setText("jTextField2");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(tJavaParams, gridBagConstraints);
+
+        jLabel5.setText("Game window size:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jLabel5, gridBagConstraints);
+
+        rgWindowSize.add(jRadioButton4);
+        jRadioButton4.setText("Normal");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jRadioButton4, gridBagConstraints);
+
+        rgWindowSize.add(jRadioButton5);
+        jRadioButton5.setText("Maximized");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jRadioButton5, gridBagConstraints);
+
+        rgWindowSize.add(jRadioButton6);
+        jRadioButton6.setText("Fullscreen");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(jRadioButton6, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.weightx = 0.1;
+        getContentPane().add(filler1, gridBagConstraints);
+
+        jLabel3.setText("MB");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 11;
+        getContentPane().add(jLabel3, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        getContentPane().add(filler2, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        getContentPane().add(filler3, gridBagConstraints);
+
+        jSeparator3.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(jSeparator3, gridBagConstraints);
+
+        bCancel.setText("Cancel");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        getContentPane().add(bCancel, gridBagConstraints);
+
+        bSave.setText("Save");
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, bCancel, org.jdesktop.beansbinding.ELProperty.create("${preferredSize}"), bSave, org.jdesktop.beansbinding.BeanProperty.create("preferredSize"));
+        bindingGroup.addBinding(binding);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        getContentPane().add(bSave, gridBagConstraints);
+
+        bindingGroup.bind();
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bCancel;
+    private javax.swing.JButton bClearPasswords;
+    private javax.swing.JButton bClearResume;
+    private javax.swing.JButton bClearUsernames;
+    private javax.swing.JButton bSave;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
+    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox2;
+    private javax.swing.JCheckBox jCheckBox3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JRadioButton jRadioButton4;
+    private javax.swing.JRadioButton jRadioButton5;
+    private javax.swing.JRadioButton jRadioButton6;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JLabel lJavaMemory;
+    private javax.swing.JSpinner nMemory;
+    private javax.swing.JRadioButton rUpdateAuto;
+    private javax.swing.JRadioButton rUpdateDisable;
+    private javax.swing.JRadioButton rUpdateNotify;
+    private javax.swing.ButtonGroup rgUpdateMode;
+    private javax.swing.ButtonGroup rgWindowSize;
+    private javax.swing.JTextField tJava;
+    private javax.swing.JTextField tJavaParams;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

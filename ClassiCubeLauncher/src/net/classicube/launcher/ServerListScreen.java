@@ -19,6 +19,7 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.RowSorter;
 import javax.swing.SwingWorker.StateValue;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -28,15 +29,24 @@ public class ServerListScreen extends javax.swing.JFrame {
 
     public ServerListScreen() {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen");
+        
+        // Make a pretty background
+        ImagePanel bgPanel = new ImagePanel(null, true);
+        setContentPane(bgPanel);
+        bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        
+        // init components and stuff
         initComponents();
-        session = SessionManager.getSession();
 
         // set window title
+        session = SessionManager.getSession();
         final String playerName = session.getAccount().PlayerName;
         if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
             setTitle(playerName + " @ ClassiCube.net - servers");
+            bgPanel.setImage(Resources.getClassiCubeBackground());
         } else {
             setTitle(playerName + " @ Minecraft.net - servers");
+            bgPanel.setImage(Resources.getMinecraftNetBackground());
         }
 
         // prepare to auto-adjust table columns (when the data arrives)
@@ -260,6 +270,11 @@ public class ServerListScreen extends javax.swing.JFrame {
         getContentPane().add(separator2, gridBagConstraints);
 
         bPreferences.setText("Preferences");
+        bPreferences.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bPreferencesActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
@@ -390,6 +405,10 @@ public class ServerListScreen extends javax.swing.JFrame {
             joinSelectedServer();
         }
     }//GEN-LAST:event_tSearchActionPerformed
+
+    private void bPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPreferencesActionPerformed
+        new SettingsScreen().setVisible(true);
+    }//GEN-LAST:event_bPreferencesActionPerformed
 
     void joinSelectedServer() {
         LogUtil.getLogger().log(Level.INFO,
