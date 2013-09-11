@@ -1,6 +1,5 @@
 package net.classicube.launcher;
 
-import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
@@ -14,6 +13,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
         root.setDefaultButton(bSave);
+        pack();
         loadPreferences();
         setLocationRelativeTo(parent);
     }
@@ -108,7 +108,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         rgWindowSize = new javax.swing.ButtonGroup();
         rgUpdateMode = new javax.swing.ButtonGroup();
@@ -233,10 +232,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(xRememberUsers, gridBagConstraints);
 
         bForgetUsers.setText("Forget all users");
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, bForgetPasswords, org.jdesktop.beansbinding.ELProperty.create("${preferredSize}"), bForgetUsers, org.jdesktop.beansbinding.BeanProperty.create("preferredSize"));
-        bindingGroup.addBinding(binding);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 5;
@@ -266,13 +261,10 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 8);
         getContentPane().add(xRememberServer, gridBagConstraints);
 
         bForgetServer.setText("Forget last server");
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, bForgetPasswords, org.jdesktop.beansbinding.ELProperty.create("${preferredSize}"), bForgetServer, org.jdesktop.beansbinding.BeanProperty.create("preferredSize"));
-        bindingGroup.addBinding(binding);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 7;
@@ -294,6 +286,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(lParameters, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -308,6 +301,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(lMemory, gridBagConstraints);
 
         nMemory.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(64), Integer.valueOf(64), null, Integer.valueOf(16)));
@@ -347,10 +341,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(bDefaults, gridBagConstraints);
 
         bSave.setText("Save");
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, bCancel, org.jdesktop.beansbinding.ELProperty.create("${preferredSize}"), bSave, org.jdesktop.beansbinding.BeanProperty.create("preferredSize"));
-        bindingGroup.addBinding(binding);
-
         bSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bSaveActionPerformed(evt);
@@ -388,8 +378,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.gridy = 1;
         getContentPane().add(filler3, gridBagConstraints);
 
-        bindingGroup.bind();
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -425,6 +413,5 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private javax.swing.JCheckBox xRememberPasswords;
     private javax.swing.JCheckBox xRememberServer;
     private javax.swing.JCheckBox xRememberUsers;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }
