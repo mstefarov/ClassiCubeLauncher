@@ -1,23 +1,27 @@
 package net.classicube.launcher;
 
 import java.util.prefs.Preferences;
+import javax.swing.JFrame;
 import javax.swing.JRadioButton;
+import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 
-public class PreferencesScreen extends javax.swing.JFrame {
+public class PreferencesScreen extends javax.swing.JDialog {
 
-    public PreferencesScreen() {
-        this.getRootPane().setBorder(new EmptyBorder(8, 8, 8, 8));
-        this.setTitle("Preferences");
+    public PreferencesScreen(JFrame parent) {
+        super(parent, "Preferences", true);
+        JRootPane root = getRootPane();
+        root.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
-        getRootPane().setDefaultButton(bSave);
+        root.setDefaultButton(bSave);
         loadPreferences();
+        setLocationRelativeTo(parent);
     }
 
-    private static Preferences getPrefs(){
+    private static Preferences getPrefs() {
         return Preferences.userNodeForPackage(PreferencesScreen.class);
     }
-    
+
     public static void preparePrefs() {
         final Preferences prefs = getPrefs();
         prefs.put("WindowSize", prefs.get("WindowSize", "Normal"));
@@ -154,7 +158,7 @@ public class PreferencesScreen extends javax.swing.JFrame {
         javax.swing.Box.Filler filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
         javax.swing.Box.Filler filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 0), new java.awt.Dimension(20, 32767));
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         lWindowSize.setText("Game window size:");
