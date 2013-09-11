@@ -19,6 +19,7 @@ public class EntryPoint {
         LogUtil.Init();
         GameSession.Init();
         SessionManager.Init();
+        PreferencesScreen.preparePrefs();
 
         // begin the update process
         //ClientUpdateTask.getInstance().execute(); // TEMP: testing updates
