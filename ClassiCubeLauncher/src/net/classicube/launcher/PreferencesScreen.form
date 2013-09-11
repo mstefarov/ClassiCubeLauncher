@@ -96,7 +96,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JRadioButton" name="rUpdateDisable">
+    <Component class="javax.swing.JRadioButton" name="rUpdateDisabled">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="rgUpdateMode"/>
@@ -122,7 +122,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JRadioButton" name="rUpdateAuto">
+    <Component class="javax.swing.JRadioButton" name="rUpdateAutomatic">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="rgUpdateMode"/>
@@ -147,7 +147,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JCheckBox" name="xRememberUsernames">
+    <Component class="javax.swing.JCheckBox" name="xRememberUsers">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remember usernames"/>
       </Properties>
@@ -190,7 +190,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JCheckBox" name="xRememberServers">
+    <Component class="javax.swing.JCheckBox" name="xRememberServer">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remember last-joined server"/>
       </Properties>

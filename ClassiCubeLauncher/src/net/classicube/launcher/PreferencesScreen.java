@@ -18,58 +18,42 @@ final class PreferencesScreen extends javax.swing.JDialog {
         setLocationRelativeTo(parent);
     }
 
-    private static Preferences getPrefs() {
-        return Preferences.userNodeForPackage(PreferencesScreen.class);
-    }
-
-    public static void preparePrefs() {
-        final Preferences prefs = getPrefs();
-        prefs.put("WindowSize", prefs.get("WindowSize", "Normal"));
-        prefs.put("UpdateMode", prefs.get("UpdateMode", "Notify"));
-        prefs.putBoolean("RememberUsernames", prefs.getBoolean("RememberUsernames", true));
-        prefs.putBoolean("RememberPasswords", prefs.getBoolean("RememberPasswords", true));
-        prefs.putBoolean("RememberServers", prefs.getBoolean("RememberServers", true));
-        prefs.put("JavaArgs", prefs.get("JavaArgs", ClientLauncher.getDefaultJavaArgs()));
-        prefs.putInt("Memory", prefs.getInt("Memory", 800));
-    }
-
     private void loadPreferences() {
-        final Preferences prefs = getPrefs();
-        loadWindowSize(prefs.get("WindowSize", "Normal"));
-        loadUpdateMode(prefs.get("UpdateMode", "Notify"));
-        xRememberUsernames.setSelected(prefs.getBoolean("RememberUsernames", true));
-        xRememberPasswords.setSelected(prefs.getBoolean("RememberPasswords", true));
-        xRememberServers.setSelected(prefs.getBoolean("RememberServers", true));
-        tJavaArgs.setText(prefs.get("JavaArgs", ClientLauncher.getDefaultJavaArgs()));
-        nMemory.setValue(prefs.getInt("Memory", 800));
+        loadWindowSize(Prefs.getWindowSize());
+        loadUpdateMode(Prefs.getUpdateMode());
+        xRememberUsers.setSelected(Prefs.getRememberUsers());
+        xRememberPasswords.setSelected(Prefs.getRememberPasswords());
+        xRememberServer.setSelected(Prefs.getRememberServer());
+        tJavaArgs.setText(Prefs.getJavaArgs());
+        nMemory.setValue(Prefs.getMaxMemory());
     }
 
-    private void loadWindowSize(String val) {
+    private void loadWindowSize(WindowSize val) {
         JRadioButton btn;
         switch (val) {
-            case "Maximized":
+            case MAXIMIZED:
                 btn = rWindowMaximized;
                 break;
-            case "Fullscreen":
+            case FULLSCREEN:
                 btn = rWindowFullscreen;
                 break;
-            default: // "Normal":
+            default: // NORMAL:
                 btn = rWindowNormal;
                 break;
         }
         rgWindowSize.setSelected(btn.getModel(), true);
     }
 
-    private void loadUpdateMode(String val) {
+    private void loadUpdateMode(UpdateMode val) {
         JRadioButton btn;
         switch (val) {
-            case "Disable":
-                btn = rUpdateDisable;
+            case DISABLED:
+                btn = rUpdateDisabled;
                 break;
-            case "Auto":
-                btn = rUpdateAuto;
+            case AUTOMATIC:
+                btn = rUpdateAutomatic;
                 break;
-            default: // "Notify":
+            default: // NOTIFY
                 btn = rUpdateNotify;
                 break;
         }
@@ -77,48 +61,47 @@ final class PreferencesScreen extends javax.swing.JDialog {
     }
 
     private void storePreferences() {
-        Preferences prefs = getPrefs();
-        prefs.put("WindowSize", storeWindowSize());
-        prefs.put("UpdateMode", storeUpdateMode());
-        prefs.putBoolean("RememberUsernames", xRememberUsernames.isSelected());
-        prefs.putBoolean("RememberPasswords", xRememberPasswords.isSelected());
-        prefs.putBoolean("RememberServers", xRememberServers.isSelected());
-        prefs.put("JavaArgs", tJavaArgs.getText());
-        prefs.putInt("Memory", (int) nMemory.getValue());
+        Prefs.setWindowSize(storeWindowSize());
+        Prefs.setUpdateMode(storeUpdateMode());
+        Prefs.setRememberUsers(xRememberUsers.isSelected());
+        Prefs.setRememberPasswords(xRememberPasswords.isSelected());
+        Prefs.setRememberServer(xRememberServer.isSelected());
+        Prefs.setJavaArgs(tJavaArgs.getText());
+        Prefs.setMaxMemory((int) nMemory.getValue());
     }
 
-    private String storeWindowSize() {
-        String val;
+    private WindowSize storeWindowSize() {
+        WindowSize val;
         if (rWindowMaximized.isSelected()) {
-            val = "Maximized";
+            val = WindowSize.MAXIMIZED;
         } else if (rWindowFullscreen.isSelected()) {
-            val = "Fullscreen";
+            val = WindowSize.FULLSCREEN;
         } else {
-            val = "Normal";
+            val = WindowSize.NORMAL;
         }
         return val;
     }
 
-    private String storeUpdateMode() {
-        String val;
-        if (rUpdateDisable.isSelected()) {
-            val = "Disable";
-        } else if (rUpdateAuto.isSelected()) {
-            val = "Auto";
+    private UpdateMode storeUpdateMode() {
+        UpdateMode val;
+        if (rUpdateDisabled.isSelected()) {
+            val = UpdateMode.DISABLED;
+        } else if (rUpdateAutomatic.isSelected()) {
+            val = UpdateMode.AUTOMATIC;
         } else {
-            val = "Notify";
+            val = UpdateMode.NOTIFY;
         }
         return val;
     }
 
     private void loadDefaults() {
-        loadWindowSize("Normal");
-        loadUpdateMode("Notify");
-        xRememberUsernames.setSelected(true);
-        xRememberPasswords.setSelected(true);
-        xRememberServers.setSelected(true);
-        tJavaArgs.setText(ClientLauncher.getDefaultJavaArgs());
-        nMemory.setValue(800);
+        loadWindowSize(Prefs.WindowSizeDefault);
+        loadUpdateMode(Prefs.UpdateModeDefault);
+        xRememberUsers.setSelected(Prefs.RememberUsersDefault);
+        xRememberPasswords.setSelected(Prefs.RememberPasswordsDefault);
+        xRememberServer.setSelected(Prefs.RememberServerDefault);
+        tJavaArgs.setText(Prefs.JavaArgsDefault);
+        nMemory.setValue(Prefs.MaxMemoryDefault);
     }
 
     @SuppressWarnings("unchecked")
@@ -134,15 +117,15 @@ final class PreferencesScreen extends javax.swing.JDialog {
         rWindowMaximized = new javax.swing.JRadioButton();
         rWindowFullscreen = new javax.swing.JRadioButton();
         javax.swing.JLabel lUpdateMode = new javax.swing.JLabel();
-        rUpdateDisable = new javax.swing.JRadioButton();
+        rUpdateDisabled = new javax.swing.JRadioButton();
         rUpdateNotify = new javax.swing.JRadioButton();
-        rUpdateAuto = new javax.swing.JRadioButton();
+        rUpdateAutomatic = new javax.swing.JRadioButton();
         javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
-        xRememberUsernames = new javax.swing.JCheckBox();
+        xRememberUsers = new javax.swing.JCheckBox();
         bForgetUsers = new javax.swing.JButton();
         xRememberPasswords = new javax.swing.JCheckBox();
         bForgetPasswords = new javax.swing.JButton();
-        xRememberServers = new javax.swing.JCheckBox();
+        xRememberServer = new javax.swing.JCheckBox();
         bForgetServer = new javax.swing.JButton();
         javax.swing.JSeparator jSeparator2 = new javax.swing.JSeparator();
         javax.swing.JLabel lParameters = new javax.swing.JLabel();
@@ -206,14 +189,14 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(lUpdateMode, gridBagConstraints);
 
-        rgUpdateMode.add(rUpdateDisable);
-        rUpdateDisable.setText("Disable");
+        rgUpdateMode.add(rUpdateDisabled);
+        rUpdateDisabled.setText("Disable");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(rUpdateDisable, gridBagConstraints);
+        getContentPane().add(rUpdateDisabled, gridBagConstraints);
 
         rgUpdateMode.add(rUpdateNotify);
         rUpdateNotify.setText("Enable (notify me)");
@@ -224,15 +207,15 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(rUpdateNotify, gridBagConstraints);
 
-        rgUpdateMode.add(rUpdateAuto);
-        rUpdateAuto.setSelected(true);
-        rUpdateAuto.setText("Enable (automatic)");
+        rgUpdateMode.add(rUpdateAutomatic);
+        rUpdateAutomatic.setSelected(true);
+        rUpdateAutomatic.setText("Enable (automatic)");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(rUpdateAuto, gridBagConstraints);
+        getContentPane().add(rUpdateAutomatic, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -241,13 +224,13 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
         getContentPane().add(jSeparator1, gridBagConstraints);
 
-        xRememberUsernames.setText("Remember usernames");
+        xRememberUsers.setText("Remember usernames");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(xRememberUsernames, gridBagConstraints);
+        getContentPane().add(xRememberUsers, gridBagConstraints);
 
         bForgetUsers.setText("Forget all users");
 
@@ -277,13 +260,13 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bForgetPasswords, gridBagConstraints);
 
-        xRememberServers.setText("Remember last-joined server");
+        xRememberServer.setText("Remember last-joined server");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(xRememberServers, gridBagConstraints);
+        getContentPane().add(xRememberServer, gridBagConstraints);
 
         bForgetServer.setText("Forget last server");
 
@@ -430,8 +413,8 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private javax.swing.JButton bForgetUsers;
     private javax.swing.JButton bSave;
     private javax.swing.JSpinner nMemory;
-    private javax.swing.JRadioButton rUpdateAuto;
-    private javax.swing.JRadioButton rUpdateDisable;
+    private javax.swing.JRadioButton rUpdateAutomatic;
+    private javax.swing.JRadioButton rUpdateDisabled;
     private javax.swing.JRadioButton rUpdateNotify;
     private javax.swing.JRadioButton rWindowFullscreen;
     private javax.swing.JRadioButton rWindowMaximized;
@@ -440,8 +423,8 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private javax.swing.ButtonGroup rgWindowSize;
     private javax.swing.JTextField tJavaArgs;
     private javax.swing.JCheckBox xRememberPasswords;
-    private javax.swing.JCheckBox xRememberServers;
-    private javax.swing.JCheckBox xRememberUsernames;
+    private javax.swing.JCheckBox xRememberServer;
+    private javax.swing.JCheckBox xRememberUsers;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

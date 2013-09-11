@@ -8,18 +8,8 @@ import java.util.logging.Level;
 final public class ClientLauncher {
 
     private static final String ClassPath = "client.jar;libs/*",
-            ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone",
-            DefaultJavaArgs = "-Dorg.lwjgl.util.Debug=true "
-            + "-Dsun.java2d.noddraw=true "
-            + "-Dsun.awt.noerasebackground=true "
-            + "-Dsun.java2d.d3d=false "
-            + "-Dsun.java2d.opengl=false "
-            + "-Dsun.java2d.pmoffscreen=false";
+            ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
 
-    public static String getDefaultJavaArgs(){
-        return DefaultJavaArgs;
-    }
-    
     public static void launchClient() {
         LogUtil.getLogger().info("launchClient");
         final ServerInfo server = SessionManager.getServerInfo();
@@ -37,8 +27,9 @@ final public class ClientLauncher {
                 java.getAbsolutePath(),
                 "-cp",
                 ClassPath,
-                DefaultJavaArgs,
                 "-Djava.library.path=" + nativePath,
+                Prefs.getJavaArgs(),
+                "-Xmx" + Prefs.getMaxMemory() + "m",
                 ClientClassPath,
                 server.address.getHostAddress(),
                 Integer.toString(server.port),
