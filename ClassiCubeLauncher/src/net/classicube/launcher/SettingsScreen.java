@@ -90,6 +90,7 @@ public class SettingsScreen extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(jLabel1, gridBagConstraints);
 
         jCheckBox1.setText("Remember usernames");
@@ -147,21 +148,19 @@ public class SettingsScreen extends javax.swing.JFrame {
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bClearResume, gridBagConstraints);
-
-        jSeparator1.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
         getContentPane().add(jSeparator1, gridBagConstraints);
-
-        jSeparator2.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
         getContentPane().add(jSeparator2, gridBagConstraints);
 
         jLabel2.setText("Java");
@@ -218,6 +217,7 @@ public class SettingsScreen extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(jLabel5, gridBagConstraints);
 
         rgWindowSize.add(jRadioButton4);
@@ -272,6 +272,7 @@ public class SettingsScreen extends javax.swing.JFrame {
         gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
         getContentPane().add(jSeparator3, gridBagConstraints);
 
         bCancel.setText("Cancel");
