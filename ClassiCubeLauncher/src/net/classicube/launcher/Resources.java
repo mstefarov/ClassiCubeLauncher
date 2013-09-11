@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 // Static class that keeps track of loading (lazily) our resource files.
 // Currently just handles the 4 texture images for SignInScreen.
-class Resources {
+final class Resources {
 
     private static Image classiCubeBackground = null,
             minecraftNetBackground = null,

@@ -7,7 +7,7 @@ import java.util.prefs.Preferences;
 
 // Stores metadata about a user account.
 // Handled by AccountManager.
-class UserAccount {
+final class UserAccount {
 
     public UserAccount(String username, String password) {
         if (username == null) {

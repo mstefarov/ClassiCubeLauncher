@@ -25,7 +25,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-public class ServerListScreen extends javax.swing.JFrame {
+public final class ServerListScreen extends javax.swing.JFrame {
 
     public ServerListScreen() {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen");

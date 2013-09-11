@@ -2,7 +2,7 @@ package net.classicube.launcher;
 
 import java.util.prefs.Preferences;
 
-class SessionManager {
+final class SessionManager {
 
     private static GameServiceType activeServiceType;
     private static GameSession activeSession;

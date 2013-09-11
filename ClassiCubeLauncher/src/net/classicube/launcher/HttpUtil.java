@@ -11,7 +11,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 
-public class HttpUtil {
+final class HttpUtil {
 
     private static final String UserAgent = "ClassiCube Launcher";
 

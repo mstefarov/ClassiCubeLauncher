@@ -14,7 +14,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class ClassiCubeNetSession extends GameSession {
+final class ClassiCubeNetSession extends GameSession {
 
     private static final String LoginSecureUri = "http://www.classicube.net/acc/login",
             LogoutUri = "http://www.classicube.net/acc/logout",

@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager;
 
-public class EntryPoint {
+public final class EntryPoint {
     // This is also called by ClassiCubeSelfUpdater
 
     public static void main(String[] args) {

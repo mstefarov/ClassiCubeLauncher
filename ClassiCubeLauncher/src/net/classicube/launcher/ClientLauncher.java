@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 
-public class ClientLauncher {
+final public class ClientLauncher {
 
     private static final String ClassPath = "client.jar;libs/*",
             ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone",

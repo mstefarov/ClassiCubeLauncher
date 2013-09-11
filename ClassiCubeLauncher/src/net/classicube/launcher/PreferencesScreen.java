@@ -6,7 +6,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 
-public class PreferencesScreen extends javax.swing.JDialog {
+final class PreferencesScreen extends javax.swing.JDialog {
 
     public PreferencesScreen(JFrame parent) {
         super(parent, "Preferences", true);

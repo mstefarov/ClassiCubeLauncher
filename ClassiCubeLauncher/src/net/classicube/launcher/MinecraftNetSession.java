@@ -10,7 +10,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class MinecraftNetSession extends GameSession {
+final class MinecraftNetSession extends GameSession {
 
     private static final String LoginSecureUri = "https://minecraft.net/login",
             LogoutUri = "http://minecraft.net/logout",

@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-public class PathUtil {
+final class PathUtil {
 
     private static final String MacSuffix = "/Library/Application Support";
     public static final String ClientDirName = "net.classicube.client",

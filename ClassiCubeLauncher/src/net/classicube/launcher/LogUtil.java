@@ -9,7 +9,7 @@ import java.util.logging.SimpleFormatter;
 import javax.swing.JOptionPane;
 
 // Global logging class (to make life easier)
-class LogUtil {
+final class LogUtil {
 
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 

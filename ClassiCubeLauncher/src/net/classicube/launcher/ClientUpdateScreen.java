@@ -3,7 +3,7 @@ package net.classicube.launcher;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
-public class ClientUpdateScreen extends javax.swing.JFrame {
+final class ClientUpdateScreen extends javax.swing.JFrame {
 
     public ClientUpdateScreen() {
         initComponents();

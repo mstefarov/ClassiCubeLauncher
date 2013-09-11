@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.text.Document;
 
-public class PlaceholderTextField extends JTextField {
+public final class PlaceholderTextField extends JTextField {
 
     public static void main(final String[] args) {
         final PlaceholderTextField tf = new PlaceholderTextField("");

@@ -8,7 +8,7 @@ import java.util.prefs.Preferences;
 
 // This class handles persistence/"remembering" for user accounts.
 // SignInScreen keeps separate copies of AccountManagers for each GameServiceType.
-class AccountManager {
+final class AccountManager {
 
     // Creates a new account manager for specified service name
     // serviceName is used to separate storage of data from different services

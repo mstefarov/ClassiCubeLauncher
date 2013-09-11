@@ -5,7 +5,7 @@ import java.awt.Image;
 import javax.swing.JComponent;
 
 // A little custom panel that has a tiled background texture
-public class ImagePanel extends JComponent {
+public final class ImagePanel extends JComponent {
 
     public ImagePanel() {
     }

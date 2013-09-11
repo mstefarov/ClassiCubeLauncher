@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.util.Locale;
 
 // Stores all metadata about a game server
-class ServerInfo {
+final class ServerInfo {
     // Basic info
     public String name;
     public String hash;
