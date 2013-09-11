@@ -2,9 +2,9 @@ package net.classicube.launcher;
 
 import javax.swing.border.EmptyBorder;
 
-public class SettingsScreen extends javax.swing.JFrame {
+public class PreferencesScreen extends javax.swing.JFrame {
 
-    public SettingsScreen() {
+    public PreferencesScreen() {
         this.getRootPane().setBorder(new EmptyBorder(8, 8, 8, 8));
         this.setTitle("Preferences");
         initComponents();

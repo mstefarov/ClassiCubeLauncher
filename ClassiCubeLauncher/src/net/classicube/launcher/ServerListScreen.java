@@ -407,7 +407,7 @@ public class ServerListScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_tSearchActionPerformed
 
     private void bPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPreferencesActionPerformed
-        new SettingsScreen().setVisible(true);
+        new PreferencesScreen().setVisible(true);
     }//GEN-LAST:event_bPreferencesActionPerformed
 
     void joinSelectedServer() {
