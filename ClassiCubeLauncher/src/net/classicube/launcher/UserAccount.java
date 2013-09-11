@@ -53,7 +53,6 @@ final class UserAccount {
     public String Password;
     public Date SignInDate;
 
-    
     private static class UserAccountDateComparator implements Comparator<UserAccount> {
 
         private UserAccountDateComparator() {

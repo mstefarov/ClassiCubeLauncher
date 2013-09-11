@@ -13,6 +13,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
         root.setDefaultButton(bSave);
+        bSave.setPreferredSize(bCancel.getSize());
         pack();
         loadPreferences();
         setLocationRelativeTo(parent);

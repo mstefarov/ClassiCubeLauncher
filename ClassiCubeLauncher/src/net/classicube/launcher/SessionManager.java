@@ -4,16 +4,16 @@ import java.util.prefs.Preferences;
 
 final class SessionManager {
 
+    private static ServerInfo serverDetails;
     private static GameServiceType activeServiceType;
     private static GameSession activeSession;
     private static AccountManager accountManager;
-    public static final String SelectedServiceKeyName = "SelectedGameService";
 
     public static void selectService(GameServiceType serviceType) {
         activeServiceType = serviceType;
         accountManager = new AccountManager(serviceType.name());
         accountManager.Load();
-        prefs.put(SelectedServiceKeyName, serviceType.name());
+        Prefs.setSelectedGameService(serviceType);
     }
 
     public static GameServiceType getServiceType() {
@@ -41,11 +41,7 @@ final class SessionManager {
     }
 
     public static void Init() {
-        // preferred service
-        prefs = Preferences.userNodeForPackage(EntryPoint.class);
-        final String serviceName = prefs.get(SelectedServiceKeyName,
-                GameServiceType.ClassiCubeNetService.name());
-        activeServiceType = GameServiceType.valueOf(serviceName);
+        activeServiceType = Prefs.getSelectedGameService();
     }
 
     public static void setServerInfo(ServerInfo server) {
@@ -55,6 +51,4 @@ final class SessionManager {
     public static ServerInfo getServerInfo() {
         return serverDetails;
     }
-    private static ServerInfo serverDetails;
-    private static Preferences prefs;
 }

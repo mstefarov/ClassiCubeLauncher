@@ -11,7 +11,8 @@ final class Prefs {
             keyRememberPasswords = "RememberPasswords",
             keyRememberServer = "RememberServer",
             keyJavaArgs = "JavaArgs",
-            keyMaxMemory = "MaxMemory";
+            keyMaxMemory = "MaxMemory",
+            keySelectedGameService = "SelectedGameService";
     // Defaults
     public static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
     public static WindowSize WindowSizeDefault = WindowSize.NORMAL;
@@ -25,6 +26,7 @@ final class Prefs {
             + "-Dsun.java2d.opengl=false "
             + "-Dsun.java2d.pmoffscreen=false";
     public static int MaxMemoryDefault = 800;
+    public static GameServiceType SelectedGameServiceDefault = GameServiceType.ClassiCubeNetService;
 
     // Getters
     public static UpdateMode getUpdateMode() {
@@ -63,6 +65,15 @@ final class Prefs {
         return getPrefs().getInt(keyMaxMemory, MaxMemoryDefault);
     }
 
+    public static GameServiceType getSelectedGameService() {
+        try {
+            String val = getPrefs().get(keySelectedGameService, SelectedGameServiceDefault.name());
+            return GameServiceType.valueOf(val);
+        } catch (IllegalArgumentException ex) {
+            return SelectedGameServiceDefault;
+        }
+    }
+
     // Setters
     public static void setUpdateMode(UpdateMode val) {
         getPrefs().put(keyUpdateMode, val.name());
@@ -90,6 +101,10 @@ final class Prefs {
 
     public static void setMaxMemory(int val) {
         getPrefs().putInt(keyMaxMemory, val);
+    }
+
+    public static void setSelectedGameService(GameServiceType val) {
+        getPrefs().put(keySelectedGameService, val.name());
     }
 
     // Etc

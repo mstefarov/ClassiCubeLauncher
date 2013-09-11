@@ -76,14 +76,14 @@ final class SignInScreen extends javax.swing.JFrame {
 
         bClassiCubeNet = new javax.swing.JToggleButton();
         bMinecraftNet = new javax.swing.JToggleButton();
+        ipLogo = new net.classicube.launcher.ImagePanel();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
-        ipLogo = new net.classicube.launcher.ImagePanel();
-        progress = new javax.swing.JProgressBar();
-        bSignIn = new javax.swing.JButton();
-        bResume = new javax.swing.JButton();
-        bDirect = new javax.swing.JButton();
         xRememberPassword = new javax.swing.JCheckBox();
+        bDirect = new javax.swing.JButton();
+        bResume = new javax.swing.JButton();
+        bSignIn = new javax.swing.JButton();
+        progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClassiCube Launcher");
@@ -118,6 +118,13 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.weightx = 0.1;
         getContentPane().add(bMinecraftNet, gridBagConstraints);
 
+        ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        getContentPane().add(ipLogo, gridBagConstraints);
+
         cUsername.setEditable(true);
         cUsername.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -147,20 +154,30 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(tPassword, gridBagConstraints);
 
-        ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
+        xRememberPassword.setForeground(new java.awt.Color(255, 255, 255));
+        xRememberPassword.setText("Remember password");
+        xRememberPassword.setActionCommand("Remember");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 3;
-        getContentPane().add(ipLogo, gridBagConstraints);
+        gridBagConstraints.ipady = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(xRememberPassword, gridBagConstraints);
 
-        progress.setIndeterminate(true);
+        bDirect.setText("Direct...");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(progress, gridBagConstraints);
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
+        getContentPane().add(bDirect, gridBagConstraints);
+
+        bResume.setText("Resume");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
+        getContentPane().add(bResume, gridBagConstraints);
 
         bSignIn.setText("Sign In >");
         bSignIn.addActionListener(new java.awt.event.ActionListener() {
@@ -174,30 +191,13 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
         getContentPane().add(bSignIn, gridBagConstraints);
 
-        bResume.setText("Resume");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
-        getContentPane().add(bResume, gridBagConstraints);
-
-        bDirect.setText("Direct...");
+        progress.setIndeterminate(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
-        getContentPane().add(bDirect, gridBagConstraints);
-
-        xRememberPassword.setForeground(new java.awt.Color(255, 255, 255));
-        xRememberPassword.setText("Remember password");
-        xRememberPassword.setActionCommand("Remember");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.ipady = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(xRememberPassword, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(progress, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

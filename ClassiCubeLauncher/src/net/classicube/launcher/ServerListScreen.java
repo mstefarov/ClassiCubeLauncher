@@ -29,12 +29,12 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
     public ServerListScreen() {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen");
-        
+
         // Make a pretty background
         ImagePanel bgPanel = new ImagePanel(null, true);
         setContentPane(bgPanel);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
-        
+
         // init components and stuff
         initComponents();
 
@@ -228,15 +228,15 @@ public final class ServerListScreen extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         bChangeUser = new javax.swing.JButton();
-        javax.swing.JSeparator separator1 = new javax.swing.JSeparator();
-        javax.swing.JSeparator separator2 = new javax.swing.JSeparator();
         bPreferences = new javax.swing.JButton();
-        tServerURL = new javax.swing.JTextField();
-        bConnect = new javax.swing.JButton();
+        javax.swing.JSeparator separator1 = new javax.swing.JSeparator();
+        tSearch = new net.classicube.launcher.PlaceholderTextField();
         serverTableContainer = new javax.swing.JScrollPane();
         serverTable = new javax.swing.JTable();
+        javax.swing.JSeparator separator2 = new javax.swing.JSeparator();
+        tServerURL = new javax.swing.JTextField();
+        bConnect = new javax.swing.JButton();
         progress = new javax.swing.JProgressBar();
-        tSearch = new net.classicube.launcher.PlaceholderTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
@@ -256,18 +256,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         getContentPane().add(bChangeUser, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(separator1, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(separator2, gridBagConstraints);
 
         bPreferences.setText("Preferences");
         bPreferences.addActionListener(new java.awt.event.ActionListener() {
@@ -281,28 +269,34 @@ public final class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_END;
         getContentPane().add(bPreferences, gridBagConstraints);
-
-        tServerURL.setText("Server URL");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 0.1;
-        getContentPane().add(tServerURL, gridBagConstraints);
+        getContentPane().add(separator1, gridBagConstraints);
 
-        bConnect.setText("Connect >");
-        bConnect.addActionListener(new java.awt.event.ActionListener() {
+        tSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bConnectActionPerformed(evt);
+                tSearchActionPerformed(evt);
+            }
+        });
+        tSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                tSearchFocusGained(evt);
+            }
+        });
+        tSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tSearchKeyReleased(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
-        getContentPane().add(bConnect, gridBagConstraints);
+        getContentPane().add(tSearch, gridBagConstraints);
 
         serverTableContainer.setMinimumSize(new java.awt.Dimension(300, 150));
         serverTableContainer.setPreferredSize(new java.awt.Dimension(550, 400));
@@ -348,6 +342,34 @@ public final class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.weightx = 0.1;
         gridBagConstraints.weighty = 0.1;
         getContentPane().add(serverTableContainer, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(separator2, gridBagConstraints);
+
+        tServerURL.setText("Server URL");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.1;
+        getContentPane().add(tServerURL, gridBagConstraints);
+
+        bConnect.setText("Connect >");
+        bConnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bConnectActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        getContentPane().add(bConnect, gridBagConstraints);
 
         progress.setIndeterminate(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -356,28 +378,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(progress, gridBagConstraints);
-
-        tSearch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tSearchActionPerformed(evt);
-            }
-        });
-        tSearch.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                tSearchFocusGained(evt);
-            }
-        });
-        tSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                tSearchKeyReleased(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(tSearch, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
