@@ -209,6 +209,11 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(xRememberServer, gridBagConstraints);
 
         bForgetServer.setText("Forget last server");
+        bForgetServer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bForgetServerActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 9;
@@ -357,6 +362,18 @@ final class PreferencesScreen extends javax.swing.JDialog {
                     "All stored passwords erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_bForgetPasswordsActionPerformed
+
+    private void bForgetServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServerActionPerformed
+        if (JOptionPane.showConfirmDialog(this,
+                "Really erase last-joined server?", "Warning",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+            SessionManager.getSession().clearResumeInfo();
+            JOptionPane.showMessageDialog(this,
+                    "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_bForgetServerActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bDefaults;
