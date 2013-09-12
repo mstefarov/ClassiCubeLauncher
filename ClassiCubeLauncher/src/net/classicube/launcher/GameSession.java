@@ -39,10 +39,10 @@ abstract class GameSession {
 
     // Attempts to extract as much information as possible about a server by URL.
     // Could be a play-link with a hash, or ip/port, or a direct-connect URL.
-    public abstract PlayUrlDetails getDetailsFromUrl(String url);
+    public abstract ServerJoinInfo getDetailsFromUrl(String url);
 
     // Asynchronously gets mppass for given server
-    public abstract GetServerDetailsTask getServerDetailsAsync(ServerInfo server);
+    public abstract GetServerDetailsTask getServerDetailsAsync(String url);
 
     // Gets service site's root URL (for cookie filtering).
     public abstract URI getSiteUri();
@@ -137,22 +137,24 @@ abstract class GameSession {
         protected boolean remember;
     }
 
-    public static abstract class GetServerListTask extends SwingWorker<ServerInfo[], ServerInfo> {
+    public static abstract class GetServerListTask extends SwingWorker<ServerListEntry[], ServerListEntry> {
     }
 
     public static abstract class GetServerDetailsTask extends SwingWorker<Boolean, Boolean> {
 
-        public GetServerDetailsTask(ServerInfo serverInfo) {
-            if (serverInfo == null) {
-                throw new NullPointerException("serverInfo");
+        public GetServerDetailsTask(String url) {
+            if (url == null) {
+                throw new NullPointerException("url");
             }
-            this.serverInfo = serverInfo;
+            this.url = url;
+            joinInfo = new ServerJoinInfo();
         }
 
-        public ServerInfo getServerInfo() {
-            return serverInfo;
+        public ServerJoinInfo getJoinInfo() {
+            return joinInfo;
         }
-        protected ServerInfo serverInfo;
+        protected ServerJoinInfo joinInfo;
+        protected String url;
     }
 
     public UserAccount getAccount() {

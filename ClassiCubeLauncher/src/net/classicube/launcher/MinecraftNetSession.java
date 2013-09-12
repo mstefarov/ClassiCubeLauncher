@@ -165,16 +165,16 @@ final class MinecraftNetSession extends GameSession {
     private class GetServerListWorker extends GetServerListTask {
 
         @Override
-        protected ServerInfo[] doInBackground() throws Exception {
+        protected ServerListEntry[] doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "MinecraftNetGetServerListWorker");
             final String serverListString = HttpUtil.downloadString(ServerListUri);
             final Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             final Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
-            final ArrayList<ServerInfo> servers = new ArrayList<>();
+            final ArrayList<ServerListEntry> servers = new ArrayList<>();
             // Go through server table, one at a time!
             while (serverListMatch.find()) {
                 // Fetch server's basic info
-                final ServerInfo server = new ServerInfo();
+                final ServerListEntry server = new ServerListEntry();
                 server.hash = serverListMatch.group(1);
                 server.name = htmlDecode(serverListMatch.group(2));
                 final int rowStart = serverListMatch.end();
@@ -204,7 +204,7 @@ final class MinecraftNetSession extends GameSession {
                 servers.add(server);
             }
             // This list is heading off to ServerListScreen (not implemented yet)
-            return servers.toArray(new ServerInfo[0]);
+            return servers.toArray(new ServerListEntry[0]);
         }
     }
     private static final String playHashUrlPattern = "^https?://" // scheme
@@ -225,9 +225,9 @@ final class MinecraftNetSession extends GameSession {
             ipPortUrlRegex = Pattern.compile(ipPortUrlPattern);
 
     @Override
-    public PlayUrlDetails getDetailsFromUrl(String url) {
+    public ServerJoinInfo getDetailsFromUrl(String url) {
         Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
-        PlayUrlDetails result = new PlayUrlDetails();
+        ServerJoinInfo result = new ServerJoinInfo();
         if (playHashUrlMatch.matches()) {
             result.signInNeeded = true;
             result.hash = playHashUrlMatch.group(2);
@@ -251,11 +251,15 @@ final class MinecraftNetSession extends GameSession {
                 } catch (NumberFormatException ex) {
                     return null;
                 }
+            } else {
+                result.port = 25565;
             }
             result.playerName = directUrlMatch.group(7);
             String mppass = directUrlMatch.group(9);
-            if (mppass != null && mppass.length() > 0) {
+            if (mppass != null) {
                 result.mppass = mppass;
+            } else {
+                result.mppass = "";
             }
             return result;
         }
@@ -282,25 +286,23 @@ final class MinecraftNetSession extends GameSession {
     }
 
     @Override
-    public GetServerDetailsTask getServerDetailsAsync(ServerInfo server) {
-        return new GetServerDetailsWorker(server);
+    public GetServerDetailsTask getServerDetailsAsync(String url) {
+        return new GetServerDetailsWorker(url);
     }
 
     private class GetServerDetailsWorker extends GetServerDetailsTask {
 
-        public GetServerDetailsWorker(ServerInfo server) {
-            super(server);
+        public GetServerDetailsWorker(String url) {
+            super(url);
         }
 
         @Override
         protected Boolean doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "GetServerPassWorker");
-            final String serverLink = PlayUri + serverInfo.hash;
+            final String serverLink = PlayUri + joinInfo.hash;
 
             final String playPage = HttpUtil.downloadString(serverLink);
             if (playPage == null) {
-                LogUtil.getLogger().log(Level.SEVERE,
-                        "Error downloading play page for \"{0}\"", serverInfo.name);
                 return false;
             }
 
@@ -313,13 +315,13 @@ final class MinecraftNetSession extends GameSession {
                         account.PlayerName = value;
                         break;
                     case "server":
-                        serverInfo.address = InetAddress.getByName(value);
+                        joinInfo.address = InetAddress.getByName(value);
                         break;
                     case "port":
-                        serverInfo.port = Integer.parseInt(value);
+                        joinInfo.port = Integer.parseInt(value);
                         break;
                     case "mppass":
-                        serverInfo.pass = value;
+                        joinInfo.mppass = value;
                         break;
                 }
             }

@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.util.Locale;
 
 // Stores all metadata about a game server
-final class ServerInfo {
+final class ServerListEntry {
     // Basic info
     public String name;
     public String hash;
@@ -14,11 +14,6 @@ final class ServerInfo {
     public int maxPlayers;
     public String flag;
     public int uptime;
-    
-    // Info from the play page
-    public String pass;
-    public InetAddress address;
-    public int port;
 
     public static String formatUptime(int seconds) {
         if (seconds < 60) {

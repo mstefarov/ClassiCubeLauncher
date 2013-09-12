@@ -12,7 +12,7 @@ final public class ClientLauncher {
 
     public static void launchClient() {
         LogUtil.getLogger().info("launchClient");
-        final ServerInfo server = SessionManager.getServerInfo();
+        final ServerJoinInfo joinInfo = SessionManager.getJoinInfo();
         final File java = getJavaPath();
 
         final String nativePath;
@@ -31,10 +31,10 @@ final public class ClientLauncher {
                 Prefs.getJavaArgs(),
                 "-Xmx" + Prefs.getMaxMemory() + "m",
                 ClientClassPath,
-                server.address.getHostAddress(),
-                Integer.toString(server.port),
-                SessionManager.getSession().getAccount().PlayerName,
-                server.pass,
+                joinInfo.address.getHostAddress(),
+                Integer.toString(joinInfo.port),
+                joinInfo.playerName,
+                joinInfo.mppass,
                 SessionManager.getSession().getSkinUrl());
         processBuilder.directory(PathUtil.getClientDir());
 

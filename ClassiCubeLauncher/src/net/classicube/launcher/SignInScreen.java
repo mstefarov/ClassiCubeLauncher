@@ -328,13 +328,14 @@ final class SignInScreen extends javax.swing.JFrame {
         final String prompt = "mc://";
         String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
         if (input != null && !prompt.equals(input)) {
-            PlayUrlDetails details = SessionManager.getSession().getDetailsFromUrl(input);
-            if (details == null) {
+            ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(input);
+            if (joinInfo == null) {
                 LogUtil.showWarning("Cannot join server directly: Unrecognized link format.", "Unrecognized link");
-            } else if (details.signInNeeded) {
+            } else if (joinInfo.signInNeeded) {
                 LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
             } else {
-                LogUtil.showInfo("todo: join", "");
+                SessionManager.setJoinInfo(joinInfo);
+                EntryPoint.ShowClientUpdateScreen();
             }
         }
     }//GEN-LAST:event_bDirectActionPerformed

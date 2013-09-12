@@ -147,7 +147,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (column == 3) {
                 final int ticks = (int) value;
-                this.setText(ServerInfo.formatUptime(ticks));
+                this.setText(ServerListEntry.formatUptime(ticks));
             } else {
                 this.setText("");
             }
@@ -188,7 +188,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // add new rows
         final String searchTerm = tSearch.getText().toLowerCase();
-        for (ServerInfo server : serverList) {
+        for (ServerListEntry server : serverList) {
             if (server.name.toLowerCase().contains(searchTerm)) {
                 displayedServerList.add(server);
                 model.addRow(new Object[]{
@@ -196,7 +196,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
                     server.players,
                     server.maxPlayers,
                     server.uptime,
-                    ServerInfo.toCountryName(server.flag)
+                    ServerListEntry.toCountryName(server.flag)
                 });
             }
         }
@@ -207,12 +207,10 @@ public final class ServerListScreen extends javax.swing.JFrame {
         }
     }
 
-    private ServerInfo getSelectedServer() {
+    private ServerListEntry getSelectedServer() {
         final int[] rowIndex = serverTable.getSelectedRows();
         if (rowIndex.length == 1) {
             final int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
-            //System.out.println("row=" + rowIndex[0] + "  true=" + trueIndex);
-            //System.out.println("displayedServerList[" + trueIndex + "] = " + displayedServerList.get(trueIndex).name);
             return displayedServerList.get(trueIndex);
         }
         return null;
@@ -413,7 +411,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
     void joinSelectedServer() {
         LogUtil.getLogger().log(Level.INFO,
                 "Fetching details for server: {0}", selectedServer.name);
-        getServerDetailsTask = session.getServerDetailsAsync(selectedServer);
+        getServerDetailsTask = session.getServerDetailsAsync(this.tServerURL.getText());
         getServerDetailsTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
             @Override
@@ -435,7 +433,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         try {
             final boolean result = getServerDetailsTask.get();
             if (result) {
-                SessionManager.setServerInfo(getServerDetailsTask.getServerInfo());
+                SessionManager.setJoinInfo(getServerDetailsTask.getJoinInfo());
                 EntryPoint.ShowClientUpdateScreen();
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");
@@ -456,11 +454,11 @@ public final class ServerListScreen extends javax.swing.JFrame {
     private net.classicube.launcher.PlaceholderTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
-    private final List<ServerInfo> displayedServerList = new ArrayList<>();
+    private final List<ServerListEntry> displayedServerList = new ArrayList<>();
     private final GameSession.GetServerListTask getServerListTask;
     private GameSession.GetServerDetailsTask getServerDetailsTask;
-    private ServerInfo[] serverList;
+    private ServerListEntry[] serverList;
     private final GameSession session;
-    private ServerInfo selectedServer;
+    private ServerListEntry selectedServer;
     private final TableColumnAdjuster tableColumnAdjuster;
 }

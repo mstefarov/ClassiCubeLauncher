@@ -165,47 +165,44 @@ final class ClassiCubeNetSession extends GameSession {
     private class GetServerListWorker extends GetServerListTask {
 
         @Override
-        protected ServerInfo[] doInBackground() throws Exception {
+        protected ServerListEntry[] doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetGetServerListWorker");
             final String serverListString = HttpUtil.downloadString(ServerListUri);
 
-            final ArrayList<ServerInfo> servers = new ArrayList<>();
+            final ArrayList<ServerListEntry> servers = new ArrayList<>();
 
             final JsonArray array = JsonParser.array().from(serverListString);
 
             for (Object rawRow : array) { //iterate through and add servers to the list
                 final JsonObject row = (JsonObject) rawRow;
-                final ServerInfo info = new ServerInfo();
+                final ServerListEntry info = new ServerListEntry();
 
-                info.address = InetAddress.getByName(row.getString("ip"));
                 info.flag = "";
                 info.hash = row.getString("hash");
                 info.maxPlayers = row.getInt("maxplayers");
                 info.name = row.getString("name");
-                info.pass = row.getString("mppass");
                 info.players = row.getInt("players");
                 info.uptime = row.getInt("players");
-                info.port = row.getInt("port");
                 servers.add(info); //add it
             }
-            return servers.toArray(new ServerInfo[0]); //return
+            return servers.toArray(new ServerListEntry[0]); //return
         }
     }
 
     @Override
-    public PlayUrlDetails getDetailsFromUrl(String url) {
+    public ServerJoinInfo getDetailsFromUrl(String url) {
         return null;
     }
 
     @Override
-    public GetServerDetailsTask getServerDetailsAsync(ServerInfo server) {
-        return new GetServerDetailsWorker(server);
+    public GetServerDetailsTask getServerDetailsAsync(String url) {
+        return new GetServerDetailsWorker(url);
     }
 
     private class GetServerDetailsWorker extends GetServerDetailsTask {
 
-        public GetServerDetailsWorker(ServerInfo server) {
-            super(server);
+        public GetServerDetailsWorker(String url) {
+            super(url);
         }
 
         @Override

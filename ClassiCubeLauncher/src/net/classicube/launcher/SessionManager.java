@@ -2,7 +2,7 @@ package net.classicube.launcher;
 
 final class SessionManager {
 
-    private static ServerInfo serverDetails;
+    private static ServerJoinInfo joinInfo;
     private static GameServiceType activeServiceType;
     private static GameSession activeSession;
     private static AccountManager accountManager;
@@ -40,11 +40,11 @@ final class SessionManager {
         activeServiceType = Prefs.getSelectedGameService();
     }
 
-    public static void setServerInfo(ServerInfo server) {
-        serverDetails = server;
+    public static void setJoinInfo(ServerJoinInfo server) {
+        joinInfo = server;
     }
 
-    public static ServerInfo getServerInfo() {
-        return serverDetails;
+    public static ServerJoinInfo getJoinInfo() {
+        return joinInfo;
     }
 }

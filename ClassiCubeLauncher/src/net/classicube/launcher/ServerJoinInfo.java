@@ -2,15 +2,13 @@ package net.classicube.launcher;
 
 import java.net.InetAddress;
 
-public class PlayUrlDetails {
+public class ServerJoinInfo {
 
-    String url;
+    String playerName;
     String hash;
-    boolean override;
     InetAddress address;
     int port;
-    String playerName;
     String mppass;
-    
+    boolean override;
     boolean signInNeeded;
 }
