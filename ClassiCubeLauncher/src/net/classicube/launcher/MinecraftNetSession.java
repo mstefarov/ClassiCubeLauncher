@@ -313,64 +313,6 @@ final class MinecraftNetSession extends GameSession {
         return null;
     }
     // =============================================================================================
-    //                                                                                SERVER DETAILS
-    // =============================================================================================
-    private static final String appletParamPattern = "<param name=\"(\\w+)\" value=\"(.+)\">";
-    private static final Pattern appletParamRegex = Pattern.compile(appletParamPattern);
-
-    @Override
-    public GetServerDetailsTask getServerDetailsAsync(String url) {
-        return new GetServerDetailsWorker(url);
-    }
-
-    private class GetServerDetailsWorker extends GetServerDetailsTask {
-
-        public GetServerDetailsWorker(String url) {
-            super(url);
-        }
-
-        @Override
-        protected Boolean doInBackground() throws Exception {
-            LogUtil.getLogger().log(Level.FINE, "GetServerPassWorker");
-
-            // Fetch the play page
-            final String playPage = HttpUtil.downloadString(url);
-            if (playPage == null) {
-                return false;
-            }
-
-            // Parse information on the play page
-            final Matcher appletParamMatch = appletParamRegex.matcher(playPage);
-            while (appletParamMatch.find()) {
-                final String name = appletParamMatch.group(1);
-                final String value = appletParamMatch.group(2);
-                switch (name) {
-                    case "username":
-                        joinInfo.playerName = value;
-                        account.PlayerName = value;
-                        break;
-                    case "server":
-                        joinInfo.address = InetAddress.getByName(value);
-                        break;
-                    case "port":
-                        joinInfo.port = Integer.parseInt(value);
-                        break;
-                    case "mppass":
-                        joinInfo.mppass = value;
-                        break;
-                }
-            }
-
-            // Verify that we got everything
-            if (joinInfo.playerName == null || joinInfo.address == null
-                    || joinInfo.port == 0 || joinInfo.mppass == null) {
-                LogUtil.getLogger().log(Level.WARNING, "Incomplete information returned from Minecraft.net");
-                return false;
-            }
-            return true;
-        }
-    }
-    // =============================================================================================
     //                                                                                           ETC
     // =============================================================================================
     private static final String SkinUrl = "http://s3.amazonaws.com/MinecraftSkins/",

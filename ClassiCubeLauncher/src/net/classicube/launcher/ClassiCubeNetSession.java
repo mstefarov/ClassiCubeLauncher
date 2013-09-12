@@ -250,7 +250,8 @@ final class ClassiCubeNetSession extends GameSession {
             result = new ServerJoinInfo();
             result.signInNeeded = true;
             result.hash = playHashUrlMatch.group(1);
-            if ("1".equals(playHashUrlMatch.group(3)) || "true".equals(playHashUrlMatch.group(4))) {
+            String overrideString = playHashUrlMatch.group(3);
+            if ("1".equals(overrideString) || "true".equals(overrideString)) {
                 result.override = true;
             }
             return result;
@@ -276,26 +277,6 @@ final class ClassiCubeNetSession extends GameSession {
             return result;
         }
         return null;
-    }
-
-    // =============================================================================================
-    //                                                                               DETAILS-BY-HASH
-    // =============================================================================================
-    @Override
-    public GetServerDetailsTask getServerDetailsAsync(String url) {
-        return new GetServerDetailsWorker(url);
-    }
-
-    private class GetServerDetailsWorker extends GetServerDetailsTask {
-
-        public GetServerDetailsWorker(String url) {
-            super(url);
-        }
-
-        @Override
-        protected Boolean doInBackground() throws Exception {
-            return true; // TODO: actual fetching
-        }
     }
     // =============================================================================================
     //                                                                                           ETC
