@@ -5,8 +5,10 @@ import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import java.net.HttpCookie;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
@@ -15,10 +17,7 @@ import java.util.regex.Pattern;
 
 final class ClassiCubeNetSession extends GameSession {
 
-    private static final String HomepageUri = "http://classicube.net",
-            SkinUri = "http://www.classicube.net/skins/",
-            ServerListUri = "http://www.classicube.net/api/serverlist",
-            CookieName = "session";
+    private static final String HomepageUri = "http://classicube.net";
 
     public ClassiCubeNetSession() {
         super("ClassiCubeNetSession");
@@ -33,6 +32,7 @@ final class ClassiCubeNetSession extends GameSession {
     // =============================================================================================
     private static final String LoginSecureUri = "http://www.classicube.net/acc/login",
             LogoutUri = "http://www.classicube.net/acc/logout",
+            CookieName = "session",
             WrongUsernameOrPasswordMessage = "Login failed (Username or password may be incorrect)",
             authTokenPattern = "<input id=\"csrf_token\" name=\"csrf_token\" type=\"hidden\" value=\"(.+?)\">",
             loggedInAsPattern = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})";
@@ -158,9 +158,39 @@ final class ClassiCubeNetSession extends GameSession {
             }
         }
     }
+
+    //have not checked loadSessionCookie, presume it works fine (It remembers me)
+    // Tries to restore previous session (if possible)
+    private boolean loadSessionCookie(boolean remember)
+            throws BackingStoreException {
+        LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.loadSessionCookie");
+        clearCookies();
+        if (store.childrenNames().length > 0) {
+            if (remember) {
+                loadCookies();
+                final HttpCookie cookie = super.getCookie(CookieName);
+                final String userToken = "username%3A" + account.SignInUsername + "%00";
+                if (cookie != null && cookie.getValue().contains(userToken)) {
+                    LogUtil.getLogger().log(Level.FINE,
+                            "Loaded saved session for {0}", account.SignInUsername);
+                    return true;
+                } else {
+                    LogUtil.getLogger().log(Level.FINE,
+                            "Discarded saved session (username mismatch).");
+                }
+            } else {
+                LogUtil.getLogger().log(Level.FINE,
+                        "Discarded a saved session.");
+            }
+        } else {
+            LogUtil.getLogger().log(Level.FINE, "No session saved.");
+        }
+        return false;
+    }
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================
+    private static final String ServerListUri = "http://www.classicube.net/api/serverlist";
 
     @Override
     public GetServerListTask getServerListAsync() {
@@ -196,15 +226,61 @@ final class ClassiCubeNetSession extends GameSession {
     // =============================================================================================
     //                                                                              DETAILS-FROM-URL
     // =============================================================================================
+    // http://www.classicube.net/server/play/583c911d2f9f437af451a144b493d0cf
+    private static final String playHashUrlPattern = "^http://" // scheme
+            + "www.classicube.net/server/play/" // host+path
+            + "([0-9a-fA-F]{28,32})/?" + // hash
+            "(\\?override=(true|1))?$"; // override
+    private static final String ipPortUrlPattern = "^https?://" // scheme
+            + "www.classicube.net/server/play/?" // host+path
+            + "\\?ip=(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
+            + "&port=(\\d{1,5})$"; // port
+    private static final Pattern playHashUrlRegex = Pattern.compile(playHashUrlPattern),
+            ipPortUrlRegex = Pattern.compile(ipPortUrlPattern);
 
     @Override
     public ServerJoinInfo getDetailsFromUrl(String url) {
+        ServerJoinInfo result = super.getDetailsFromDirectUrl(url);
+        if (result != null) {
+            return result;
+        }
+
+        Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
+        if (playHashUrlMatch.matches()) {
+            result = new ServerJoinInfo();
+            result.signInNeeded = true;
+            result.hash = playHashUrlMatch.group(1);
+            if ("1".equals(playHashUrlMatch.group(3)) || "true".equals(playHashUrlMatch.group(4))) {
+                result.override = true;
+            }
+            return result;
+        }
+
+        Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
+        if (ipPortUrlMatch.matches()) {
+            result = new ServerJoinInfo();
+            result.signInNeeded = true;
+            try {
+                result.address = InetAddress.getByName(ipPortUrlMatch.group(1));
+            } catch (UnknownHostException ex) {
+                return null;
+            }
+            String portNum = ipPortUrlMatch.group(5);
+            if (portNum != null && portNum.length() > 0) {
+                try {
+                    result.port = Integer.parseInt(portNum);
+                } catch (NumberFormatException ex) {
+                    return null;
+                }
+            }
+            return result;
+        }
         return null;
     }
+
     // =============================================================================================
     //                                                                               DETAILS-BY-HASH
     // =============================================================================================
-
     @Override
     public GetServerDetailsTask getServerDetailsAsync(String url) {
         return new GetServerDetailsWorker(url);
@@ -221,13 +297,15 @@ final class ClassiCubeNetSession extends GameSession {
             return true; // TODO: actual fetching
         }
     }
-
     // =============================================================================================
     //                                                                                           ETC
     // =============================================================================================
+    private static final String SkinUrl = "http://www.classicube.net/skins/",
+            PlayUrl = "http://www.classicube.net/server/play/";
+
     @Override
     public String getSkinUrl() {
-        return SkinUri;
+        return SkinUrl;
     }
 
     @Override
@@ -237,36 +315,7 @@ final class ClassiCubeNetSession extends GameSession {
 
     @Override
     public String getPlayUrl(String hash) {
-        return "http://www.classicube.net/server/play/" + hash;
-    }
-
-    //have not checked loadSessionCookie, presume it works fine (It remembers me)
-    // Tries to restore previous session (if possible)
-    private boolean loadSessionCookie(boolean remember)
-            throws BackingStoreException {
-        LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.loadSessionCookie");
-        clearCookies();
-        if (store.childrenNames().length > 0) {
-            if (remember) {
-                loadCookies();
-                final HttpCookie cookie = super.getCookie(CookieName);
-                final String userToken = "username%3A" + account.SignInUsername + "%00";
-                if (cookie != null && cookie.getValue().contains(userToken)) {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}", account.SignInUsername);
-                    return true;
-                } else {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Discarded saved session (username mismatch).");
-                }
-            } else {
-                LogUtil.getLogger().log(Level.FINE,
-                        "Discarded a saved session.");
-            }
-        } else {
-            LogUtil.getLogger().log(Level.FINE, "No session saved.");
-        }
-        return false;
+        return PlayUrl + hash;
     }
     private URI siteUri;
 }

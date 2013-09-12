@@ -151,7 +151,8 @@ final class MinecraftNetSession extends GameSession {
     }
 
     // Tries to restore previous session (if possible)
-    private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
+    private boolean loadSessionCookie(boolean remember)
+            throws BackingStoreException {
         LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
         clearCookies();
         if (store.childrenNames().length > 0) {
@@ -265,24 +266,23 @@ final class MinecraftNetSession extends GameSession {
             + "(www\\.)?minecraft.net/classic/play/" // host+path
             + "([0-9a-fA-F]{28,32})/?" + // hash
             "(\\?override=(true|1))?$"; // override
-    private static final String directUrlPattern = "^mc://" // scheme 
-            + "(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
-            + "(:(\\d{1,5}))?/" // port
-            + "([^/]+)" // username
-            + "(/(.*))?$"; // mppass
     private static final String ipPortUrlPattern = "^https?://" // scheme
-            + "(www\\.)?minecraft.net/classic/play" // host+path
+            + "(www\\.)?minecraft.net/classic/play/?" // host+path
             + "\\?ip=(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
             + "&port=(\\d{1,5})$"; // port
     private static final Pattern playHashUrlRegex = Pattern.compile(playHashUrlPattern),
-            directUrlRegex = Pattern.compile(directUrlPattern),
             ipPortUrlRegex = Pattern.compile(ipPortUrlPattern);
 
     @Override
     public ServerJoinInfo getDetailsFromUrl(String url) {
+        ServerJoinInfo result = super.getDetailsFromDirectUrl(url);
+        if (result != null) {
+            return result;
+        }
+
         Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
-        ServerJoinInfo result = new ServerJoinInfo();
         if (playHashUrlMatch.matches()) {
+            result = new ServerJoinInfo();
             result.signInNeeded = true;
             result.hash = playHashUrlMatch.group(2);
             if ("1".equals(playHashUrlMatch.group(4)) || "true".equals(playHashUrlMatch.group(4))) {
@@ -291,42 +291,16 @@ final class MinecraftNetSession extends GameSession {
             return result;
         }
 
-        Matcher directUrlMatch = directUrlRegex.matcher(url);
-        if (directUrlMatch.matches()) {
-            try {
-                result.address = InetAddress.getByName(directUrlMatch.group(1));
-            } catch (UnknownHostException ex) {
-                return null;
-            }
-            String portNum = directUrlMatch.group(6);
-            if (portNum != null && portNum.length() > 0) {
-                try {
-                    result.port = Integer.parseInt(portNum);
-                } catch (NumberFormatException ex) {
-                    return null;
-                }
-            } else {
-                result.port = 25565;
-            }
-            result.playerName = directUrlMatch.group(7);
-            String mppass = directUrlMatch.group(9);
-            if (mppass != null) {
-                result.mppass = mppass;
-            } else {
-                result.mppass = "";
-            }
-            return result;
-        }
-
         Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
         if (ipPortUrlMatch.matches()) {
+            result = new ServerJoinInfo();
             result.signInNeeded = true;
             try {
                 result.address = InetAddress.getByName(ipPortUrlMatch.group(2));
             } catch (UnknownHostException ex) {
                 return null;
             }
-            String portNum = ipPortUrlMatch.group(5);
+            String portNum = ipPortUrlMatch.group(6);
             if (portNum != null && portNum.length() > 0) {
                 try {
                     result.port = Integer.parseInt(portNum);
@@ -358,7 +332,7 @@ final class MinecraftNetSession extends GameSession {
         @Override
         protected Boolean doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "GetServerPassWorker");
-            
+
             // Fetch the play page
             final String playPage = HttpUtil.downloadString(url);
             if (playPage == null) {
@@ -399,12 +373,12 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                                           ETC
     // =============================================================================================
-    private static final String SkinUri = "http://s3.amazonaws.com/MinecraftSkins/",
-            PlayUri = "http://minecraft.net/classic/play/";
+    private static final String SkinUrl = "http://s3.amazonaws.com/MinecraftSkins/",
+            PlayUrl = "http://minecraft.net/classic/play/";
 
     @Override
     public String getSkinUrl() {
-        return SkinUri;
+        return SkinUrl;
     }
 
     @Override
@@ -414,7 +388,7 @@ final class MinecraftNetSession extends GameSession {
 
     @Override
     public String getPlayUrl(String hash) {
-        return "http://minecraft.net/classic/play/" + hash;
+        return PlayUrl + hash;
     }
     private URI siteUri;
 }

@@ -38,9 +38,11 @@ final public class ClientLauncher {
                     joinInfo.mppass,
                     SessionManager.getSession().getSkinUrl());
             processBuilder.directory(PathUtil.getClientDir());
+            //processBuilder.inheritIO();
 
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
-            processBuilder.start();
+            Process p = processBuilder.start();
+            //p.waitFor();
         } catch (Exception ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error launching client", ex);
             LogUtil.die("Error launching client: " + ex);

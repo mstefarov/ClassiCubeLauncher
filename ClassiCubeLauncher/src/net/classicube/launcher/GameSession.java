@@ -4,13 +4,17 @@ import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
 import java.net.CookieStore;
 import java.net.HttpCookie;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.SwingWorker;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -40,6 +44,46 @@ abstract class GameSession {
     // Attempts to extract as much information as possible about a server by URL.
     // Could be a play-link with a hash, or ip/port, or a direct-connect URL.
     public abstract ServerJoinInfo getDetailsFromUrl(String url);
+    
+    
+
+    private static final String directUrlPattern = "^mc://" // scheme 
+            + "(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
+            + "(:(\\d{1,5}))?/" // port
+            + "([^/]+)" // username
+            + "(/(.*))?$"; // mppass
+    private static final Pattern directUrlRegex = Pattern.compile(directUrlPattern);
+
+    protected ServerJoinInfo getDetailsFromDirectUrl(String url) {
+        ServerJoinInfo result = new ServerJoinInfo();
+        Matcher directUrlMatch = directUrlRegex.matcher(url);
+        if (directUrlMatch.matches()) {
+            try {
+                result.address = InetAddress.getByName(directUrlMatch.group(1));
+            } catch (UnknownHostException ex) {
+                return null;
+            }
+            String portNum = directUrlMatch.group(6);
+            if (portNum != null && portNum.length() > 0) {
+                try {
+                    result.port = Integer.parseInt(portNum);
+                } catch (NumberFormatException ex) {
+                    return null;
+                }
+            } else {
+                result.port = 25565;
+            }
+            result.playerName = directUrlMatch.group(7);
+            String mppass = directUrlMatch.group(9);
+            if (mppass != null) {
+                result.mppass = mppass;
+            } else {
+                result.mppass = "";
+            }
+            return result;
+        }
+        return null;
+    }
 
     // Asynchronously gets mppass for given server
     public abstract GetServerDetailsTask getServerDetailsAsync(String url);
@@ -51,6 +95,9 @@ abstract class GameSession {
     public abstract String getSkinUrl();
 
     public abstract String getPlayUrl(String hash);
+
+    
+    
     
     // Clears all stored cookies
     protected void clearCookies() {
