@@ -4,8 +4,10 @@ import java.net.HttpCookie;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -204,12 +206,80 @@ final class MinecraftNetSession extends GameSession {
             return servers.toArray(new ServerInfo[0]);
         }
     }
+    private static final String playHashUrlPattern = "^https?://" // scheme
+            + "(www\\.)?minecraft.net/classic/play/" // host+path
+            + "([0-9a-fA-F]{28,32})/?" + // hash
+            "(\\?override=(true|1))?$"; // override
+    private static final String directUrlPattern = "^mc://" // scheme 
+            + "(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
+            + "(:(\\d{1,5}))?/" // port
+            + "([^/]+)" // username
+            + "(/(.*))?$"; // mppass
+    private static final String ipPortUrlPattern = "^https?://" // scheme
+            + "(www\\.)?minecraft.net/classic/play" // host+path
+            + "\\?ip=(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
+            + "&port=(\\d{1,5})$"; // port
+    private static final Pattern playHashUrlRegex = Pattern.compile(playHashUrlPattern),
+            directUrlRegex = Pattern.compile(directUrlPattern),
+            ipPortUrlRegex = Pattern.compile(ipPortUrlPattern);
 
     @Override
-    public ServerInfo getDetailsFromUrl(String url){
+    public PlayUrlDetails getDetailsFromUrl(String url) {
+        Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
+        PlayUrlDetails result = new PlayUrlDetails();
+        if (playHashUrlMatch.matches()) {
+            result.signInNeeded = true;
+            result.hash = playHashUrlMatch.group(2);
+            if ("1".equals(playHashUrlMatch.group(4)) || "true".equals(playHashUrlMatch.group(4))) {
+                result.override = true;
+            }
+            return result;
+        }
+
+        Matcher directUrlMatch = directUrlRegex.matcher(url);
+        if (directUrlMatch.matches()) {
+            try {
+                result.address = InetAddress.getByName(directUrlMatch.group(1));
+            } catch (UnknownHostException ex) {
+                return null;
+            }
+            String portNum = directUrlMatch.group(6);
+            if (portNum != null && portNum.length() > 0) {
+                try {
+                    result.port = Integer.parseInt(portNum);
+                } catch (NumberFormatException ex) {
+                    return null;
+                }
+            }
+            result.playerName = directUrlMatch.group(7);
+            String mppass = directUrlMatch.group(9);
+            if (mppass != null && mppass.length() > 0) {
+                result.mppass = mppass;
+            }
+            return result;
+        }
+
+        Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
+        if (ipPortUrlMatch.matches()) {
+            result.signInNeeded = true;
+            try {
+                result.address = InetAddress.getByName(ipPortUrlMatch.group(2));
+            } catch (UnknownHostException ex) {
+                return null;
+            }
+            String portNum = ipPortUrlMatch.group(5);
+            if (portNum != null && portNum.length() > 0) {
+                try {
+                    result.port = Integer.parseInt(portNum);
+                } catch (NumberFormatException ex) {
+                    return null;
+                }
+            }
+            return result;
+        }
         return null;
     }
-    
+
     @Override
     public GetServerDetailsTask getServerDetailsAsync(ServerInfo server) {
         return new GetServerDetailsWorker(server);

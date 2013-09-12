@@ -37,14 +37,11 @@ final public class ClientLauncher {
                 server.pass,
                 SessionManager.getSession().getSkinUrl());
         processBuilder.directory(PathUtil.getClientDir());
-        processBuilder.inheritIO();
 
         try {
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
-            final Process p = processBuilder.start();
-            p.waitFor(); // temporary: don't wait for client to exit once we go into production
-            System.exit(0);
-        } catch (IOException | InterruptedException ex) {
+            processBuilder.start();
+        } catch (IOException ex) {
             LogUtil.die("Error launching client: " + ex);
         }
     }

@@ -192,7 +192,7 @@ final class ClassiCubeNetSession extends GameSession {
     }
 
     @Override
-    public ServerInfo getDetailsFromUrl(String url) {
+    public PlayUrlDetails getDetailsFromUrl(String url) {
         return null;
     }
 

@@ -43,7 +43,7 @@ abstract class GameSession {
 
     // Attempts to extract as much information as possible about a server by URL.
     // Could be a play-link with a hash, or ip/port, or a direct-connect URL.
-    public abstract ServerInfo getDetailsFromUrl(String url);
+    public abstract PlayUrlDetails getDetailsFromUrl(String url);
 
     // Asynchronously gets mppass for given server
     public abstract GetServerDetailsTask getServerDetailsAsync(ServerInfo server);
