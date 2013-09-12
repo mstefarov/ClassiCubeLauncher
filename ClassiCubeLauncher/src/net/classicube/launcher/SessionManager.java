@@ -3,13 +3,8 @@ package net.classicube.launcher;
 final class SessionManager {
 
     private static ServerJoinInfo joinInfo;
-    private static GameServiceType activeServiceType;
     private static GameSession activeSession;
     private static AccountManager accountManager;
-
-    public static void init() {
-        activeServiceType = Prefs.getSelectedGameService();
-    }
 
     public static GameSession selectService(GameServiceType serviceType) {
         accountManager = new AccountManager(serviceType.name());
@@ -23,7 +18,7 @@ final class SessionManager {
     }
 
     public static GameSession createNewSession() {
-        if (activeServiceType == GameServiceType.ClassiCubeNetService) {
+        if (Prefs.getSelectedGameService() == GameServiceType.ClassiCubeNetService) {
             activeSession = new ClassiCubeNetSession();
         } else {
             activeSession = new MinecraftNetSession();

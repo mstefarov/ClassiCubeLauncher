@@ -18,11 +18,9 @@ public final class EntryPoint {
         // initialize shared code
         LogUtil.Init();
         GameSession.init();
-        SessionManager.init();
-        ClientUpdateTask.getInstance().execute();
-
+        
         // begin the update process
-        //ClientUpdateTask.getInstance().execute(); // TEMP: testing updates
+        ClientUpdateTask.getInstance().execute();
 
         // set look-and-feel to Numbus
         try {
