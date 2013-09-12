@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
-import sun.awt.Mutex;
 
 final class ClientUpdateTask
         extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
@@ -413,7 +412,6 @@ final class ClientUpdateTask
     // =============================================================================================
     private volatile ClientUpdateScreen updateScreen;
     private int activeFile;
-    private Mutex lock = new Mutex();
 
     @Override
     protected void process(List<ProgressUpdate> chunks) {
@@ -472,31 +470,21 @@ final class ClientUpdateTask
     }
 
     @Override
-    protected void done() {
-        try {
-            lock.lock();
-            if (updateScreen != null) {
-                signalDone();
-                updateScreen.onUpdateDone(updatesApplied);
-            }
-        } finally {
-            lock.unlock();
+    protected synchronized void done() {
+        if (updateScreen != null) {
+            signalDone();
+            updateScreen.onUpdateDone(updatesApplied);
         }
     }
 
-    public void registerUpdateScreen(ClientUpdateScreen updateScreen) {
-        try {
-            lock.lock();
-            if (updateScreen == null) {
-                throw new NullPointerException("updateScreen");
-            }
-            this.updateScreen = updateScreen;
-            if (this.isDone()) {
-                signalDone();
-                updateScreen.onUpdateDone(updatesApplied);
-            }
-        } finally {
-            lock.unlock();
+    public synchronized void registerUpdateScreen(ClientUpdateScreen updateScreen) {
+        if (updateScreen == null) {
+            throw new NullPointerException("updateScreen");
+        }
+        this.updateScreen = updateScreen;
+        if (this.isDone()) {
+            signalDone();
+            updateScreen.onUpdateDone(updatesApplied);
         }
     }
 
