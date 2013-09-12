@@ -411,21 +411,30 @@ public final class ServerListScreen extends javax.swing.JFrame {
     void joinSelectedServer() {
         LogUtil.getLogger().log(Level.INFO,
                 "Fetching details for server: {0}", selectedServer.name);
-        getServerDetailsTask = session.getServerDetailsAsync(this.tServerURL.getText());
-        getServerDetailsTask.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if ("state".equals(evt.getPropertyName())) {
-                    if (evt.getNewValue().equals(StateValue.DONE)) {
-                        onServerDetailsDone();
+        String url = tServerURL.getText();
+        ServerJoinInfo joinInfo = session.getDetailsFromUrl(url);
+        if (joinInfo == null) {
+            LogUtil.showWarning("Unrecognized server URL.", "Cannot connect to server");
+        } else if (joinInfo.signInNeeded) {
+            getServerDetailsTask = session.getServerDetailsAsync(url);
+            getServerDetailsTask.addPropertyChangeListener(
+                    new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if ("state".equals(evt.getPropertyName())) {
+                        if (evt.getNewValue().equals(StateValue.DONE)) {
+                            onServerDetailsDone();
+                        }
                     }
                 }
-            }
-        });
-        progress.setVisible(true);
-        disableGui();
-        getServerDetailsTask.execute();
+            });
+            progress.setVisible(true);
+            disableGui();
+            getServerDetailsTask.execute();
+        } else {
+            SessionManager.setJoinInfo(joinInfo);
+            EntryPoint.ShowClientUpdateScreen();
+        }
     }
 
     private void onServerDetailsDone() {
@@ -433,7 +442,9 @@ public final class ServerListScreen extends javax.swing.JFrame {
         try {
             final boolean result = getServerDetailsTask.get();
             if (result) {
-                SessionManager.setJoinInfo(getServerDetailsTask.getJoinInfo());
+                ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
+                joinInfo.playerName = session.getAccount().PlayerName;
+                SessionManager.setJoinInfo(joinInfo);
                 EntryPoint.ShowClientUpdateScreen();
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");

@@ -15,17 +15,10 @@ import java.util.regex.Pattern;
 
 final class ClassiCubeNetSession extends GameSession {
 
-    private static final String LoginSecureUri = "http://www.classicube.net/acc/login",
-            LogoutUri = "http://www.classicube.net/acc/logout",
-            HomepageUri = "http://classicube.net",
+    private static final String HomepageUri = "http://classicube.net",
             SkinUri = "http://www.classicube.net/skins/",
             ServerListUri = "http://www.classicube.net/api/serverlist",
-            WrongUsernameOrPasswordMessage = "Login failed (Username or password may be incorrect)",
-            authTokenPattern = "<input id=\"csrf_token\" name=\"csrf_token\" type=\"hidden\" value=\"(.+?)\">",
-            loggedInAsPattern = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})",
             CookieName = "session";
-    private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
-            loggedInAsRegex = Pattern.compile(loggedInAsPattern);
 
     public ClassiCubeNetSession() {
         super("ClassiCubeNetSession");
@@ -35,6 +28,16 @@ final class ClassiCubeNetSession extends GameSession {
             LogUtil.die("Cannot set siteUri", ex);
         }
     }
+    // =============================================================================================
+    //                                                                                       SIGN-IN
+    // =============================================================================================
+    private static final String LoginSecureUri = "http://www.classicube.net/acc/login",
+            LogoutUri = "http://www.classicube.net/acc/logout",
+            WrongUsernameOrPasswordMessage = "Login failed (Username or password may be incorrect)",
+            authTokenPattern = "<input id=\"csrf_token\" name=\"csrf_token\" type=\"hidden\" value=\"(.+?)\">",
+            loggedInAsPattern = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})";
+    private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
+            loggedInAsRegex = Pattern.compile(loggedInAsPattern);
 
     @Override
     public SignInTask signInAsync(UserAccount account, boolean remember) {
@@ -155,6 +158,9 @@ final class ClassiCubeNetSession extends GameSession {
             }
         }
     }
+    // =============================================================================================
+    //                                                                                   SERVER LIST
+    // =============================================================================================
 
     @Override
     public GetServerListTask getServerListAsync() {
@@ -187,11 +193,17 @@ final class ClassiCubeNetSession extends GameSession {
             return servers.toArray(new ServerListEntry[0]); //return
         }
     }
+    // =============================================================================================
+    //                                                                              DETAILS-FROM-URL
+    // =============================================================================================
 
     @Override
     public ServerJoinInfo getDetailsFromUrl(String url) {
         return null;
     }
+    // =============================================================================================
+    //                                                                               DETAILS-BY-HASH
+    // =============================================================================================
 
     @Override
     public GetServerDetailsTask getServerDetailsAsync(String url) {
@@ -210,6 +222,9 @@ final class ClassiCubeNetSession extends GameSession {
         }
     }
 
+    // =============================================================================================
+    //                                                                                           ETC
+    // =============================================================================================
     @Override
     public String getSkinUrl() {
         return SkinUri;

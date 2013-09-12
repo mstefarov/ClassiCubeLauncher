@@ -23,25 +23,26 @@ final public class ClientLauncher {
             return;
         }
 
-        final ProcessBuilder processBuilder = new ProcessBuilder(
-                java.getAbsolutePath(),
-                "-cp",
-                ClassPath,
-                "-Djava.library.path=" + nativePath,
-                Prefs.getJavaArgs(),
-                "-Xmx" + Prefs.getMaxMemory() + "m",
-                ClientClassPath,
-                joinInfo.address.getHostAddress(),
-                Integer.toString(joinInfo.port),
-                joinInfo.playerName,
-                joinInfo.mppass,
-                SessionManager.getSession().getSkinUrl());
-        processBuilder.directory(PathUtil.getClientDir());
-
         try {
+            final ProcessBuilder processBuilder = new ProcessBuilder(
+                    java.getAbsolutePath(),
+                    "-cp",
+                    ClassPath,
+                    "-Djava.library.path=" + nativePath,
+                    Prefs.getJavaArgs(),
+                    "-Xmx" + Prefs.getMaxMemory() + "m",
+                    ClientClassPath,
+                    joinInfo.address.getHostAddress(),
+                    Integer.toString(joinInfo.port),
+                    joinInfo.playerName,
+                    joinInfo.mppass,
+                    SessionManager.getSession().getSkinUrl());
+            processBuilder.directory(PathUtil.getClientDir());
+
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
             processBuilder.start();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error launching client", ex);
             LogUtil.die("Error launching client: " + ex);
         }
     }

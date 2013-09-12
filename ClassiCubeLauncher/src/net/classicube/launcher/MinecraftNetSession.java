@@ -358,19 +358,21 @@ final class MinecraftNetSession extends GameSession {
         @Override
         protected Boolean doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "GetServerPassWorker");
-            final String serverLink = PlayUri + joinInfo.hash;
-
-            final String playPage = HttpUtil.downloadString(serverLink);
+            
+            // Fetch the play page
+            final String playPage = HttpUtil.downloadString(url);
             if (playPage == null) {
                 return false;
             }
 
+            // Parse information on the play page
             final Matcher appletParamMatch = appletParamRegex.matcher(playPage);
             while (appletParamMatch.find()) {
                 final String name = appletParamMatch.group(1);
                 final String value = appletParamMatch.group(2);
                 switch (name) {
                     case "username":
+                        joinInfo.playerName = value;
                         account.PlayerName = value;
                         break;
                     case "server":
@@ -383,6 +385,13 @@ final class MinecraftNetSession extends GameSession {
                         joinInfo.mppass = value;
                         break;
                 }
+            }
+
+            // Verify that we got everything
+            if (joinInfo.playerName == null || joinInfo.address == null
+                    || joinInfo.port == 0 || joinInfo.mppass == null) {
+                LogUtil.getLogger().log(Level.WARNING, "Incomplete information returned from Minecraft.net");
+                return false;
             }
             return true;
         }
