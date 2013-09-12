@@ -21,7 +21,7 @@ final class AccountManager {
     }
 
     // Loads 
-    public void Load() {
+    public void load() {
         try {
             for (String accountName : store.childrenNames()) {
                 final UserAccount acct = new UserAccount(store.node(accountName));
@@ -34,19 +34,27 @@ final class AccountManager {
     }
 
     // Stores all 
-    public void Store() {
-        LogUtil.getLogger().log(Level.FINE, "AccountManager.Store");
-        ClearStore();
+    public void store() {
+        LogUtil.getLogger().log(Level.FINE, "store");
+        clearStore();
         for (UserAccount acct : accounts.values()) {
             acct.Store(store.node(acct.SignInUsername.toLowerCase()));
         }
     }
 
     // Removes all stored accounts
-    public void Clear() {
-        LogUtil.getLogger().log(Level.FINE, "AccountManager.Clear");
+    public void clear() {
+        LogUtil.getLogger().log(Level.FINE, "clear");
         accounts.clear();
-        ClearStore();
+        clearStore();
+    }
+
+    public void clearPasswords() {
+        LogUtil.getLogger().log(Level.FINE, "clearPasswords");
+        for (UserAccount account : accounts.values()) {
+            account.Password = "";
+        }
+        store();
     }
 
     // Tries to find stored UserAccount data for given sign-in name
@@ -58,13 +66,13 @@ final class AccountManager {
     }
 
     // Gets a list of all accounts, ordered by sign-in date, most recent first
-    public UserAccount[] GetAccountsBySignInDate() {
+    public UserAccount[] getAccountsBySignInDate() {
         final UserAccount[] accountArray = accounts.values().toArray(new UserAccount[0]);
         Arrays.sort(accountArray, UserAccount.getComparator());
         return accountArray;
     }
 
-    private void ClearStore() {
+    private void clearStore() {
         LogUtil.getLogger().log(Level.FINE, "AccountManager.ClearStore");
         try {
             for (String accountName : store.childrenNames()) {

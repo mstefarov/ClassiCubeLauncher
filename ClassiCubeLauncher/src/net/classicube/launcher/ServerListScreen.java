@@ -382,7 +382,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
     private void bChangeUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeUserActionPerformed
         LogUtil.getLogger().log(Level.INFO, "[Change User]");
-        EntryPoint.ShowSignInScreen();
+        new SignInScreen().setVisible(true);
+        dispose();
     }//GEN-LAST:event_bChangeUserActionPerformed
 
     private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
@@ -433,7 +434,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
             getServerDetailsTask.execute();
         } else {
             SessionManager.setJoinInfo(joinInfo);
-            EntryPoint.ShowClientUpdateScreen();
+            new ClientUpdateScreen().setVisible(true);
+            dispose();
         }
     }
 
@@ -445,7 +447,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
                 joinInfo.playerName = session.getAccount().PlayerName;
                 SessionManager.setJoinInfo(joinInfo);
-                EntryPoint.ShowClientUpdateScreen();
+                new ClientUpdateScreen().setVisible(true);
+                dispose();
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");
             }

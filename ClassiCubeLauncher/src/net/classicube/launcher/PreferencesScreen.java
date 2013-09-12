@@ -1,6 +1,7 @@
 package net.classicube.launcher;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
@@ -87,23 +88,23 @@ final class PreferencesScreen extends javax.swing.JDialog {
         rUpdateDisabled = new javax.swing.JRadioButton();
         rUpdateNotify = new javax.swing.JRadioButton();
         rUpdateAutomatic = new javax.swing.JRadioButton();
-        jSeparator1 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
         xRememberUsers = new javax.swing.JCheckBox();
         bForgetUsers = new javax.swing.JButton();
         xRememberPasswords = new javax.swing.JCheckBox();
         bForgetPasswords = new javax.swing.JButton();
         xRememberServer = new javax.swing.JCheckBox();
         bForgetServer = new javax.swing.JButton();
-        jSeparator2 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator2 = new javax.swing.JSeparator();
         javax.swing.JLabel lParameters = new javax.swing.JLabel();
         tJavaArgs = new javax.swing.JTextField();
         javax.swing.JLabel lMemory = new javax.swing.JLabel();
         nMemory = new javax.swing.JSpinner();
-        jSeparator3 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator3 = new javax.swing.JSeparator();
         bDefaults = new javax.swing.JButton();
         bSave = new javax.swing.JButton();
         bCancel = new javax.swing.JButton();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         xFullscreen = new javax.swing.JCheckBox();
         jSeparator4 = new javax.swing.JSeparator();
 
@@ -165,6 +166,11 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(xRememberUsers, gridBagConstraints);
 
         bForgetUsers.setText("Forget all users");
+        bForgetUsers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bForgetUsersActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 7;
@@ -181,6 +187,11 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(xRememberPasswords, gridBagConstraints);
 
         bForgetPasswords.setText("Forget all passwords");
+        bForgetPasswords.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bForgetPasswordsActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 8;
@@ -324,6 +335,28 @@ final class PreferencesScreen extends javax.swing.JDialog {
         storePreferences();
         dispose();
     }//GEN-LAST:event_bSaveActionPerformed
+
+    private void bForgetUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetUsersActionPerformed
+        if (JOptionPane.showConfirmDialog(this,
+                "Really erase all stored user information?", "Warning",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+            SessionManager.getAccountManager().clear();
+            JOptionPane.showMessageDialog(this,
+                    "All stored user information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_bForgetUsersActionPerformed
+
+    private void bForgetPasswordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetPasswordsActionPerformed
+        if (JOptionPane.showConfirmDialog(this,
+                "Really erase all stored passwords?", "Warning",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+            SessionManager.getAccountManager().clearPasswords();
+            JOptionPane.showMessageDialog(this,
+                    "All stored passwords erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_bForgetPasswordsActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bDefaults;
@@ -331,10 +364,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private javax.swing.JButton bForgetServer;
     private javax.swing.JButton bForgetUsers;
     private javax.swing.JButton bSave;
-    private javax.swing.Box.Filler filler1;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSpinner nMemory;
     private javax.swing.JRadioButton rUpdateAutomatic;

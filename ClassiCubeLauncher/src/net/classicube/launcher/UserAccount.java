@@ -8,6 +8,10 @@ import java.util.prefs.Preferences;
 // Stores metadata about a user account.
 // Handled by AccountManager.
 final class UserAccount {
+    public String SignInUsername;
+    public String PlayerName;
+    public String Password;
+    public Date SignInDate;
 
     public UserAccount(String username, String password) {
         if (username == null) {
@@ -29,7 +33,7 @@ final class UserAccount {
         }
         SignInUsername = prefs.get("SignInUsername", null);
         PlayerName = prefs.get("PlayerName", null);
-        Password = prefs.get("Password", null);
+        Password = prefs.get("Password", "");
         final long dateTicks = prefs.getLong("SignInDate", 0);
         SignInDate = new Date(dateTicks);
         if (SignInUsername == null || PlayerName == null || Password == null) {
@@ -48,10 +52,6 @@ final class UserAccount {
         prefs.put("Password", Password);
         prefs.putLong("SignInDate", SignInDate.getTime());
     }
-    public String SignInUsername;
-    public String PlayerName;
-    public String Password;
-    public Date SignInDate;
 
     private static class UserAccountDateComparator implements Comparator<UserAccount> {
 

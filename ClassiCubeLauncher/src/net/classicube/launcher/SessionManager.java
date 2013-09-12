@@ -10,7 +10,7 @@ final class SessionManager {
     public static GameSession selectService(GameServiceType serviceType) {
         activeServiceType = serviceType;
         accountManager = new AccountManager(serviceType.name());
-        accountManager.Load();
+        accountManager.load();
         Prefs.setSelectedGameService(serviceType);
         return createNewSession();
     }

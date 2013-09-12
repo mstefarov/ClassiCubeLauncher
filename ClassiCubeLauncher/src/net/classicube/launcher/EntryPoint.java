@@ -39,55 +39,6 @@ public final class EntryPoint {
         }
 
         // display the form
-        ShowSignInScreen();
+        new SignInScreen().setVisible(true);
     }
-
-    // Shows sign-in screen (hides any other screens)
-    static void ShowSignInScreen() {
-        if (serverListScreen != null) {
-            serverListScreen.dispose();
-            serverListScreen = null;
-        }
-        if (clientUpdateScreen != null && clientUpdateScreen.isVisible()) {
-            clientUpdateScreen.setVisible(false);
-        }
-        if (signInScreen == null) {
-            signInScreen = new SignInScreen();
-        }
-        signInScreen.setVisible(true);
-    }
-
-    // Shows server-list screen (hides any other screens)
-    static void ShowServerListScreen() {
-        if (signInScreen != null && signInScreen.isVisible()) {
-            signInScreen.setVisible(false);
-        }
-        if (clientUpdateScreen != null && clientUpdateScreen.isVisible()) {
-            clientUpdateScreen.setVisible(false);
-        }
-        if (serverListScreen == null) {
-            serverListScreen = new ServerListScreen();
-        }
-        serverListScreen.setVisible(true);
-    }
-
-    // Shows client-download screen (hides any other screens)
-    static void ShowClientUpdateScreen() {
-        if (serverListScreen != null) {
-            serverListScreen.dispose();
-            serverListScreen = null;
-        }
-        if (signInScreen != null && signInScreen.isVisible()) {
-            signInScreen.setVisible(false);
-        }
-        if (clientUpdateScreen == null) {
-            clientUpdateScreen = new ClientUpdateScreen();
-            ClientUpdateTask.getInstance().execute();
-            clientUpdateScreen.registerWithUpdateTask();
-        }
-        clientUpdateScreen.setVisible(true);
-    }
-    private static SignInScreen signInScreen;
-    private static ServerListScreen serverListScreen;
-    private static ClientUpdateScreen clientUpdateScreen;
 }

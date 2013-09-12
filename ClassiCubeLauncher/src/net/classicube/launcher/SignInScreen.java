@@ -140,7 +140,6 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(cUsername, gridBagConstraints);
 
-        tPassword.setText("password");
         tPassword.setToolTipText("");
         tPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -256,7 +255,7 @@ final class SignInScreen extends javax.swing.JFrame {
         accountManager = SessionManager.getAccountManager();
         cUsername.removeAllItems();
         // fill the account list
-        final UserAccount[] accounts = accountManager.GetAccountsBySignInDate();
+        final UserAccount[] accounts = accountManager.getAccountsBySignInDate();
         for (UserAccount account : accounts) {
             cUsername.addItem(account.SignInUsername);
         }
@@ -335,7 +334,8 @@ final class SignInScreen extends javax.swing.JFrame {
                 LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
             } else {
                 SessionManager.setJoinInfo(joinInfo);
-                EntryPoint.ShowClientUpdateScreen();
+                new ClientUpdateScreen().setVisible(true);
+                dispose();
             }
         }
     }//GEN-LAST:event_bDirectActionPerformed
@@ -353,8 +353,9 @@ final class SignInScreen extends javax.swing.JFrame {
                 if (!xRememberPassword.isSelected()) {
                     acct.Password = "";
                 }
-                accountManager.Store();
-                EntryPoint.ShowServerListScreen();
+                accountManager.store();
+                new ServerListScreen().setVisible(true);
+                dispose();
             } else {
                 String errorMsg;
                 switch (result) {

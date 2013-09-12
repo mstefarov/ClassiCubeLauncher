@@ -92,7 +92,6 @@
     </Component>
     <Component class="javax.swing.JPasswordField" name="tPassword">
       <Properties>
-        <Property name="text" type="java.lang.String" value="password"/>
         <Property name="toolTipText" type="java.lang.String" value=""/>
       </Properties>
       <Events>
