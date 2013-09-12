@@ -7,32 +7,13 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 final class MinecraftNetSession extends GameSession {
 
-    private static final String LoginSecureUri = "https://minecraft.net/login",
-            LogoutUri = "http://minecraft.net/logout",
-            HomepageUri = "http://minecraft.net",
-            SkinUri = "http://s3.amazonaws.com/MinecraftSkins/",
-            ServerListUri = "http://minecraft.net/classic/list",
-            PlayUri = "http://minecraft.net/classic/play/",
-            MigratedAccountMessage = "Your account has been migrated",
-            WrongUsernameOrPasswordMessage = "Oops, unknown username or password.",
-            authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
-            loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
-            serverNamePattern = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
-            otherServerDataPattern = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)",
-            appletParamPattern = "<param name=\"(\\w+)\" value=\"(.+)\">",
-            CookieName = "PLAY_SESSION";
-    private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
-            loggedInAsRegex = Pattern.compile(loggedInAsPattern),
-            serverNameRegex = Pattern.compile(serverNamePattern),
-            otherServerDataRegex = Pattern.compile(otherServerDataPattern),
-            appletParamRegex = Pattern.compile(appletParamPattern);
+    private static final String HomepageUri = "http://minecraft.net";
 
     public MinecraftNetSession() {
         super("MinecraftNetSession");
@@ -42,6 +23,18 @@ final class MinecraftNetSession extends GameSession {
             LogUtil.die("Cannot set siteUri", ex);
         }
     }
+    // =============================================================================================
+    //                                                                                       SIGN-IN
+    // =============================================================================================
+    private static final String LoginSecureUri = "https://minecraft.net/login",
+            LogoutUri = "http://minecraft.net/logout",
+            MigratedAccountMessage = "Your account has been migrated",
+            WrongUsernameOrPasswordMessage = "Oops, unknown username or password.",
+            authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
+            loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
+            CookieName = "PLAY_SESSION";
+    private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
+            loggedInAsRegex = Pattern.compile(loggedInAsPattern);
 
     @Override
     public SignInTask signInAsync(UserAccount account, boolean remember) {
@@ -157,6 +150,40 @@ final class MinecraftNetSession extends GameSession {
         }
     }
 
+    // Tries to restore previous session (if possible)
+    private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
+        LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
+        clearCookies();
+        if (store.childrenNames().length > 0) {
+            if (remember) {
+                loadCookies();
+                final HttpCookie cookie = super.getCookie(CookieName);
+                final String userToken = "username%3A" + account.SignInUsername + "%00";
+                if (cookie != null && cookie.getValue().contains(userToken)) {
+                    LogUtil.getLogger().log(Level.FINE,
+                            "Loaded saved session for {0}", account.SignInUsername);
+                    return true;
+                } else {
+                    LogUtil.getLogger().log(Level.FINE,
+                            "Discarded saved session (username mismatch).");
+                }
+            } else {
+                LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
+            }
+        } else {
+            LogUtil.getLogger().log(Level.FINE, "No session saved.");
+        }
+        return false;
+    }
+    // =============================================================================================
+    //                                                                                   SERVER LIST
+    // =============================================================================================
+    private static final String ServerListUri = "http://minecraft.net/classic/list",
+            serverNamePattern = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
+            otherServerDataPattern = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)";
+    private static final Pattern serverNameRegex = Pattern.compile(serverNamePattern),
+            otherServerDataRegex = Pattern.compile(otherServerDataPattern);
+
     @Override
     public GetServerListTask getServerListAsync() {
         return new GetServerListWorker();
@@ -207,6 +234,33 @@ final class MinecraftNetSession extends GameSession {
             return servers.toArray(new ServerListEntry[0]);
         }
     }
+
+    // Parses Minecraft.net server list's way of showing uptime (e.g. 1s, 1m, 1h, 1d)
+    // Returns the number of seconds
+    private static int parseUptime(String uptime)
+            throws IllegalArgumentException {
+        if (uptime == null) {
+            throw new NullPointerException("uptime");
+        }
+        final String numPart = uptime.substring(0, uptime.length() - 1);
+        final char unitPart = uptime.charAt(uptime.length() - 1);
+        final int number = Integer.parseInt(numPart);
+        switch (unitPart) {
+            case 's':
+                return number;
+            case 'm':
+                return number * 60;
+            case 'h':
+                return number * 60 * 60;
+            case 'd':
+                return number * 60 * 60 * 24;
+            default:
+                throw new IllegalArgumentException("Invalid date/time parameter.");
+        }
+    }
+    // =============================================================================================
+    //                                                                              DETAILS FROM URL
+    // =============================================================================================
     private static final String playHashUrlPattern = "^https?://" // scheme
             + "(www\\.)?minecraft.net/classic/play/" // host+path
             + "([0-9a-fA-F]{28,32})/?" + // hash
@@ -284,6 +338,11 @@ final class MinecraftNetSession extends GameSession {
         }
         return null;
     }
+    // =============================================================================================
+    //                                                                                SERVER DETAILS
+    // =============================================================================================
+    private static final String appletParamPattern = "<param name=\"(\\w+)\" value=\"(.+)\">";
+    private static final Pattern appletParamRegex = Pattern.compile(appletParamPattern);
 
     @Override
     public GetServerDetailsTask getServerDetailsAsync(String url) {
@@ -328,6 +387,11 @@ final class MinecraftNetSession extends GameSession {
             return true;
         }
     }
+    // =============================================================================================
+    //                                                                                           ETC
+    // =============================================================================================
+    private static final String SkinUri = "http://s3.amazonaws.com/MinecraftSkins/",
+            PlayUri = "http://minecraft.net/classic/play/";
 
     @Override
     public String getSkinUrl() {
@@ -342,56 +406,6 @@ final class MinecraftNetSession extends GameSession {
     @Override
     public String getPlayUrl(String hash) {
         return "http://minecraft.net/classic/play/" + hash;
-    }
-
-    // Tries to restore previous session (if possible)
-    private boolean loadSessionCookie(boolean remember) throws BackingStoreException {
-        LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
-        clearCookies();
-        if (store.childrenNames().length > 0) {
-            if (remember) {
-                loadCookies();
-                final HttpCookie cookie = super.getCookie(CookieName);
-                final String userToken = "username%3A" + account.SignInUsername + "%00";
-                if (cookie != null && cookie.getValue().contains(userToken)) {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}", account.SignInUsername);
-                    return true;
-                } else {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Discarded saved session (username mismatch).");
-                }
-            } else {
-                LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
-            }
-        } else {
-            LogUtil.getLogger().log(Level.FINE, "No session saved.");
-        }
-        return false;
-    }
-
-    // Parses Minecraft.net server list's way of showing uptime (e.g. 1s, 1m, 1h, 1d)
-    // Returns the number of seconds
-    private static int parseUptime(String uptime)
-            throws IllegalArgumentException {
-        if (uptime == null) {
-            throw new NullPointerException("uptime");
-        }
-        final String numPart = uptime.substring(0, uptime.length() - 1);
-        final char unitPart = uptime.charAt(uptime.length() - 1);
-        final int number = Integer.parseInt(numPart);
-        switch (unitPart) {
-            case 's':
-                return number;
-            case 'm':
-                return number * 60;
-            case 'h':
-                return number * 60 * 60;
-            case 'd':
-                return number * 60 * 60 * 24;
-            default:
-                throw new IllegalArgumentException("Invalid date/time parameter.");
-        }
     }
     private URI siteUri;
 }
