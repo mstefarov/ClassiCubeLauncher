@@ -26,7 +26,8 @@ import javax.swing.SwingWorker;
 import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
 
-final class ClientUpdateTask extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
+final class ClientUpdateTask
+        extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================

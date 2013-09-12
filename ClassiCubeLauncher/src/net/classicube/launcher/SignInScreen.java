@@ -178,6 +178,11 @@ final class SignInScreen extends javax.swing.JFrame {
         getContentPane().add(bDirect, gridBagConstraints);
 
         bResume.setText("Resume");
+        bResume.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bResumeActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
@@ -271,6 +276,14 @@ final class SignInScreen extends javax.swing.JFrame {
         } else {
             tPassword.requestFocus();
         }
+
+        enableResumeIfNeeded();
+        // check if we have "resume" info
+    }
+
+    private void enableResumeIfNeeded() {
+        ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
+        bResume.setEnabled(resumeInfo != null);
     }
 
     // =============================================================================================
@@ -334,11 +347,17 @@ final class SignInScreen extends javax.swing.JFrame {
                 LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
             } else {
                 SessionManager.setJoinInfo(joinInfo);
-                new ClientUpdateScreen().setVisible(true);
+                ClientUpdateScreen.createAndShow();
                 dispose();
             }
         }
     }//GEN-LAST:event_bDirectActionPerformed
+
+    private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
+        SessionManager.setJoinInfo(SessionManager.getSession().loadResumeInfo());
+        ClientUpdateScreen.createAndShow();
+        dispose();
+    }//GEN-LAST:event_bResumeActionPerformed
 
     // Called when signInAsync finishes.
     // If we signed in, advance to the server list screen.
@@ -402,7 +421,7 @@ final class SignInScreen extends javax.swing.JFrame {
         tPassword.setEnabled(true);
         xRememberPassword.setEnabled(true);
         bDirect.setEnabled(true);
-        bResume.setEnabled(true);
+        enableResumeIfNeeded();
         checkIfSignInAllowed();
         buttonToDisableOnSignIn.setEnabled(true);
 

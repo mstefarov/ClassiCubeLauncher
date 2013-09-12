@@ -434,7 +434,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             getServerDetailsTask.execute();
         } else {
             SessionManager.setJoinInfo(joinInfo);
-            new ClientUpdateScreen().setVisible(true);
+            ClientUpdateScreen.createAndShow();
             dispose();
         }
     }
@@ -447,7 +447,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
                 joinInfo.playerName = session.getAccount().PlayerName;
                 SessionManager.setJoinInfo(joinInfo);
-                new ClientUpdateScreen().setVisible(true);
+                ClientUpdateScreen.createAndShow();
                 dispose();
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");

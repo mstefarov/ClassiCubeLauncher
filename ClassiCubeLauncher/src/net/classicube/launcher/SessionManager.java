@@ -7,6 +7,10 @@ final class SessionManager {
     private static GameSession activeSession;
     private static AccountManager accountManager;
 
+    public static void init() {
+        activeServiceType = Prefs.getSelectedGameService();
+    }
+
     public static GameSession selectService(GameServiceType serviceType) {
         activeServiceType = serviceType;
         accountManager = new AccountManager(serviceType.name());
@@ -34,10 +38,6 @@ final class SessionManager {
 
     public static AccountManager getAccountManager() {
         return accountManager;
-    }
-
-    public static void Init() {
-        activeServiceType = Prefs.getSelectedGameService();
     }
 
     public static void setJoinInfo(ServerJoinInfo server) {

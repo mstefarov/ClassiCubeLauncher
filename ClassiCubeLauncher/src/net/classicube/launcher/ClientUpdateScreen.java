@@ -5,9 +5,16 @@ import java.util.logging.Level;
 
 final class ClientUpdateScreen extends javax.swing.JFrame {
 
-    public ClientUpdateScreen() {
+    public static void createAndShow() {
+        ClientUpdateScreen sc = new ClientUpdateScreen();
+        ClientUpdateTask.getInstance().registerUpdateScreen(sc);
+        ClientUpdateTask.getInstance().execute();
+        sc.setVisible(true);
+    }
+
+    private ClientUpdateScreen() {
         initComponents();
-        
+
         // center the form on screen (initially)
         setLocationRelativeTo(null);
     }
@@ -104,8 +111,4 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     private javax.swing.JLabel lStats;
     private javax.swing.JProgressBar progress;
     // End of variables declaration//GEN-END:variables
-
-    void registerWithUpdateTask() {
-        ClientUpdateTask.getInstance().registerUpdateScreen(this);
-    }
 }

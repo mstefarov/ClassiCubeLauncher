@@ -18,7 +18,7 @@ public final class EntryPoint {
         // initialize shared code
         LogUtil.Init();
         GameSession.Init();
-        SessionManager.Init();
+        SessionManager.init();
 
         // begin the update process
         //ClientUpdateTask.getInstance().execute(); // TEMP: testing updates

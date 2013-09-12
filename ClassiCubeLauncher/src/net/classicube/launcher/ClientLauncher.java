@@ -13,6 +13,8 @@ final public class ClientLauncher {
     public static void launchClient() {
         LogUtil.getLogger().info("launchClient");
         final ServerJoinInfo joinInfo = SessionManager.getJoinInfo();
+        SessionManager.getSession().storeResumeInfo(joinInfo);
+        
         final File java = getJavaPath();
 
         final String nativePath;

@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
@@ -31,6 +32,45 @@ abstract class GameSession {
                 .node("GameServices")
                 .node(serviceName);
         cookieJar.removeAll();
+    }
+
+    public ServerJoinInfo loadResumeInfo() {
+        Preferences node = store.node("ResumeInfo");
+        ServerJoinInfo info = new ServerJoinInfo();
+        info.playerName = node.get("PlayerName", null);
+        info.hash = node.get("Hash", null);
+        try {
+            info.address = InetAddress.getByName(node.get("Address", null));
+        } catch (Exception ex) {
+            return null;
+        }
+        info.port = node.getInt("Port", 0);
+        info.mppass = node.get("Pass", null);
+        info.override = node.getBoolean("Override", false);
+        info.signInNeeded = node.getBoolean("SignInNeeded", true);
+        if (info.playerName == null || info.port == 0) {
+            return null;
+        }
+        return info;
+    }
+
+    public void storeResumeInfo(ServerJoinInfo info) {
+        Preferences node = store.node("ResumeInfo");
+        node.put("PlayerName", info.playerName);
+        node.put("Hash", (info.hash != null ? info.hash : ""));
+        node.put("Address", info.address.getHostAddress());
+        node.putInt("Port", info.port);
+        node.put("Pass", (info.mppass != null ? info.mppass : ""));
+        node.putBoolean("Override", info.override);
+        node.putBoolean("SignInNeeded", info.signInNeeded);
+    }
+
+    public void clearResumeInfo() {
+        try {
+            store.node("ResumeInfo").removeNode();
+        } catch (BackingStoreException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error erasing resume info", ex);
+        }
     }
 
     // Asynchronously sign a user in.
