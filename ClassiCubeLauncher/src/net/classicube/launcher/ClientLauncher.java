@@ -36,7 +36,8 @@ final public class ClientLauncher {
                     Integer.toString(joinInfo.port),
                     joinInfo.playerName,
                     joinInfo.mppass,
-                    SessionManager.getSession().getSkinUrl());
+                    SessionManager.getSession().getSkinUrl(),
+                    Boolean.toString(Prefs.getFullscreen()));
             processBuilder.directory(PathUtil.getClientDir());
             //processBuilder.inheritIO();
 

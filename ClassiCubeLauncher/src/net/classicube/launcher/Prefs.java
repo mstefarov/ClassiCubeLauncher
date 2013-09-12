@@ -6,7 +6,7 @@ final class Prefs {
     // Key names
 
     private static String keyUpdateMode = "UpdateMode",
-            keyWindowSize = "WindowSize",
+            keyFullscreen = "WindowSize",
             keyRememberUsers = "RememberUsers",
             keyRememberPasswords = "RememberPasswords",
             keyRememberServer = "RememberServer",
@@ -15,8 +15,8 @@ final class Prefs {
             keySelectedGameService = "SelectedGameService";
     // Defaults
     public static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
-    public static WindowSize WindowSizeDefault = WindowSize.NORMAL;
-    public static boolean RememberUsersDefault = true,
+    public static boolean FullscreenDefault = false,
+            RememberUsersDefault = true,
             RememberPasswordsDefault = true,
             RememberServerDefault = true;
     public static String JavaArgsDefault = "-Dorg.lwjgl.util.Debug=true "
@@ -37,12 +37,8 @@ final class Prefs {
         }
     }
 
-    public static WindowSize getWindowSize() {
-        try {
-            return WindowSize.valueOf(getPrefs().get(keyWindowSize, WindowSizeDefault.name()));
-        } catch (IllegalArgumentException ex) {
-            return WindowSizeDefault;
-        }
+    public static boolean getFullscreen() {
+        return getPrefs().getBoolean(keyFullscreen, FullscreenDefault);
     }
 
     public static boolean getRememberUsers() {
@@ -79,8 +75,8 @@ final class Prefs {
         getPrefs().put(keyUpdateMode, val.name());
     }
 
-    public static void setWindowSize(WindowSize val) {
-        getPrefs().put(keyWindowSize, val.name());
+    public static void setFullscreen(boolean val) {
+        getPrefs().putBoolean(keyFullscreen, val);
     }
 
     public static void setRememberUsers(boolean val) {
