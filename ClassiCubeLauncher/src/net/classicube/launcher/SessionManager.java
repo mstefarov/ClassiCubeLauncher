@@ -1,7 +1,5 @@
 package net.classicube.launcher;
 
-import java.util.prefs.Preferences;
-
 final class SessionManager {
 
     private static ServerInfo serverDetails;
@@ -9,11 +7,12 @@ final class SessionManager {
     private static GameSession activeSession;
     private static AccountManager accountManager;
 
-    public static void selectService(GameServiceType serviceType) {
+    public static GameSession selectService(GameServiceType serviceType) {
         activeServiceType = serviceType;
         accountManager = new AccountManager(serviceType.name());
         accountManager.Load();
         Prefs.setSelectedGameService(serviceType);
+        return createNewSession();
     }
 
     public static GameServiceType getServiceType() {
@@ -24,14 +23,11 @@ final class SessionManager {
         return activeSession;
     }
 
-    public static GameSession createSession(UserAccount userAccount) {
-        if (userAccount == null) {
-            throw new NullPointerException("userAccount");
-        }
+    public static GameSession createNewSession() {
         if (activeServiceType == GameServiceType.ClassiCubeNetService) {
-            activeSession = new ClassiCubeNetSession(userAccount);
+            activeSession = new ClassiCubeNetSession();
         } else {
-            activeSession = new MinecraftNetSession(userAccount);
+            activeSession = new MinecraftNetSession();
         }
         return activeSession;
     }

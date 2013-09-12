@@ -34,8 +34,8 @@ final class MinecraftNetSession extends GameSession {
             otherServerDataRegex = Pattern.compile(otherServerDataPattern),
             appletParamRegex = Pattern.compile(appletParamPattern);
 
-    public MinecraftNetSession(UserAccount account) {
-        super("MinecraftNetSession", account);
+    public MinecraftNetSession() {
+        super("MinecraftNetSession");
         try {
             siteUri = new URI(HomepageUri);
         } catch (URISyntaxException ex) {
@@ -44,7 +44,8 @@ final class MinecraftNetSession extends GameSession {
     }
 
     @Override
-    public SignInTask signInAsync(boolean remember) {
+    public SignInTask signInAsync(UserAccount account, boolean remember) {
+        this.account = account;
         return new SignInWorker(remember);
     }
 

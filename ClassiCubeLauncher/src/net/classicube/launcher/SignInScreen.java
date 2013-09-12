@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingWorker;
@@ -166,6 +167,11 @@ final class SignInScreen extends javax.swing.JFrame {
         getContentPane().add(xRememberPassword, gridBagConstraints);
 
         bDirect.setText("Direct...");
+        bDirect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bDirectActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -280,8 +286,8 @@ final class SignInScreen extends javax.swing.JFrame {
         final boolean remember = xRememberPassword.isSelected();
 
         // Create an async task for signing in
-        final GameSession session = SessionManager.createSession(account);
-        signInTask = session.signInAsync(remember);
+        final GameSession session = SessionManager.getSession();
+        signInTask = session.signInAsync(account, remember);
 
         // Get ready to handle the task completion
         signInTask.addPropertyChangeListener(
@@ -317,6 +323,21 @@ final class SignInScreen extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_cUsernameItemStateChanged
+
+    private void bDirectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDirectActionPerformed
+        final String prompt = "mc://";
+        String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
+        if (input != null && !prompt.equals(input)) {
+            PlayUrlDetails details = SessionManager.getSession().getDetailsFromUrl(input);
+            if (details == null) {
+                LogUtil.showWarning("Cannot join server directly: Unrecognized link format.", "Unrecognized link");
+            } else if (details.signInNeeded) {
+                LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
+            } else {
+                LogUtil.showInfo("todo: join", "");
+            }
+        }
+    }//GEN-LAST:event_bDirectActionPerformed
 
     // Called when signInAsync finishes.
     // If we signed in, advance to the server list screen.

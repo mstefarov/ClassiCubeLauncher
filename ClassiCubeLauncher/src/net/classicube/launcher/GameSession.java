@@ -19,24 +19,20 @@ import org.apache.commons.lang3.StringEscapeUtils;
 abstract class GameSession {
 
     // constructor used by implementations
-    protected GameSession(String serviceName, UserAccount account) {
+    protected GameSession(String serviceName) {
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
-        }
-        if (account == null) {
-            throw new NullPointerException("account");
         }
         store = Preferences.userNodeForPackage(getClass())
                 .node("GameServices")
                 .node(serviceName);
-        this.account = account;
         cookieJar.removeAll();
     }
 
     // Asynchronously sign a user in.
     // If "remember" is true, service should attempt to reuse stored credentials (if possible),
     // and store working credentials for next time after signing in.
-    public abstract SignInTask signInAsync(boolean remember);
+    public abstract SignInTask signInAsync(UserAccount account, boolean remember);
 
     // Asynchronously fetches the server list.
     public abstract GetServerListTask getServerListAsync();
