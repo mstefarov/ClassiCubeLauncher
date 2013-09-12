@@ -4,7 +4,6 @@ import java.util.prefs.Preferences;
 
 final class Prefs {
     // Key names
-
     private static String keyUpdateMode = "UpdateMode",
             keyFullscreen = "WindowSize",
             keyRememberUsers = "RememberUsers",
@@ -13,6 +12,7 @@ final class Prefs {
             keyJavaArgs = "JavaArgs",
             keyMaxMemory = "MaxMemory",
             keySelectedGameService = "SelectedGameService";
+    
     // Defaults
     public static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
     public static boolean FullscreenDefault = false,

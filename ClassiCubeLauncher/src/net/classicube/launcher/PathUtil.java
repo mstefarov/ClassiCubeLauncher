@@ -38,7 +38,7 @@ final class PathUtil {
             final OperatingSystem os = OperatingSystem.detect();
 
             switch (os) {
-                case Windows:
+                case WINDOWS:
                     final String appData = System.getenv("APPDATA");
                     if (appData != null) {
                         appDataPath = new File(appData);
@@ -47,7 +47,7 @@ final class PathUtil {
                     }
                     break;
 
-                case MacOS:
+                case MACOS:
                     appDataPath = new File(home, MacSuffix);
                     break;
 

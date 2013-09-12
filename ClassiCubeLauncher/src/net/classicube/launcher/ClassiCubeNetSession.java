@@ -45,6 +45,11 @@ final class ClassiCubeNetSession extends GameSession {
         return new SignInWorker(remember);
     }
 
+    @Override
+    public GameServiceType getServiceType() {
+        return GameServiceType.ClassiCubeNetService;
+    }
+
     // Asynchronously try signing in our user
     private class SignInWorker extends SignInTask {
 
@@ -79,12 +84,12 @@ final class ClassiCubeNetSession extends GameSession {
                 final String actualPlayerName = loginMatch.group(1);
                 if (remember
                         && hasCookie(CookieName)
-                        && actualPlayerName.equalsIgnoreCase(account.PlayerName)) {
+                        && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account:
                     // reuse a previous session
-                    account.PlayerName = actualPlayerName;
+                    account.playerName = actualPlayerName;
                     LogUtil.getLogger().log(Level.INFO,
-                            "Restored session for {0}", account.PlayerName);
+                            "Restored session for {0}", account.playerName);
                     storeCookies();
                     return SignInResult.SUCCESS;
 
@@ -94,7 +99,7 @@ final class ClassiCubeNetSession extends GameSession {
                     // or if there is no play session cookie set - relog
                     LogUtil.getLogger().log(Level.INFO,
                             "Switching accounts from {0} to {1}",
-                            new Object[]{actualPlayerName, account.PlayerName});
+                            new Object[]{actualPlayerName, account.playerName});
                     HttpUtil.downloadString(LogoutUri);
                     clearCookies();
                     loginPage = HttpUtil.downloadString(LoginSecureUri);
@@ -123,9 +128,9 @@ final class ClassiCubeNetSession extends GameSession {
             final String authToken = authTokenMatch.group(1);
             final StringBuilder requestStr = new StringBuilder();
             requestStr.append("username=");
-            requestStr.append(urlEncode(account.SignInUsername));
+            requestStr.append(urlEncode(account.signInUsername));
             requestStr.append("&password=");
-            requestStr.append(urlEncode(account.Password));
+            requestStr.append(urlEncode(account.password));
             requestStr.append("&csrf_token=");
             requestStr.append(urlEncode(authToken));
             if (remember) {
@@ -149,7 +154,7 @@ final class ClassiCubeNetSession extends GameSession {
             // Confirm that we are now logged in
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
-                account.PlayerName = responseMatch.group(1);
+                account.playerName = responseMatch.group(1);
                 return SignInResult.SUCCESS;
             } else {
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
@@ -169,10 +174,10 @@ final class ClassiCubeNetSession extends GameSession {
             if (remember) {
                 loadCookies();
                 final HttpCookie cookie = super.getCookie(CookieName);
-                final String userToken = "username%3A" + account.SignInUsername + "%00";
+                final String userToken = "username%3A" + account.signInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
                     LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}", account.SignInUsername);
+                            "Loaded saved session for {0}", account.signInUsername);
                     return true;
                 } else {
                     LogUtil.getLogger().log(Level.FINE,

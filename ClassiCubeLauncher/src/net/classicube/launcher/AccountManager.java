@@ -25,10 +25,10 @@ final class AccountManager {
         try {
             for (String accountName : store.childrenNames()) {
                 final UserAccount acct = new UserAccount(store.node(accountName));
-                accounts.put(acct.SignInUsername.toLowerCase(), acct);
+                accounts.put(acct.signInUsername.toLowerCase(), acct);
             }
             LogUtil.getLogger().log(Level.FINE, "Loaded {0} accounts", accounts.size());
-        } catch (BackingStoreException ex) {
+        } catch (BackingStoreException | IllegalArgumentException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading accounts", ex);
         }
     }
@@ -38,7 +38,7 @@ final class AccountManager {
         LogUtil.getLogger().log(Level.FINE, "store");
         clearStore();
         for (UserAccount acct : accounts.values()) {
-            acct.Store(store.node(acct.SignInUsername.toLowerCase()));
+            acct.store(store.node(acct.signInUsername.toLowerCase()));
         }
     }
 
@@ -52,7 +52,7 @@ final class AccountManager {
     public void clearPasswords() {
         LogUtil.getLogger().log(Level.FINE, "clearPasswords");
         for (UserAccount account : accounts.values()) {
-            account.Password = "";
+            account.password = "";
         }
         store();
     }
@@ -94,11 +94,11 @@ final class AccountManager {
         if (existingAccount == null) {
             // new account!
             final UserAccount newAccount = new UserAccount(username, password);
-            accounts.put(newAccount.SignInUsername.toLowerCase(), newAccount);
+            accounts.put(newAccount.signInUsername.toLowerCase(), newAccount);
             return newAccount;
         } else {
-            existingAccount.SignInUsername = username;
-            existingAccount.Password = password;
+            existingAccount.signInUsername = username;
+            existingAccount.password = password;
             return existingAccount;
         }
     }

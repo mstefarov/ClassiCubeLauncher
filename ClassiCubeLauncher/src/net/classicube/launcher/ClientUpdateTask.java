@@ -209,16 +209,16 @@ final class ClientUpdateTask
     private static FileToDownload pickNativeDownload() {
         final String osName;
         switch (OperatingSystem.detect()) {
-            case Windows:
+            case WINDOWS:
                 osName = "windows";
                 break;
-            case MacOS:
+            case MACOS:
                 osName = "macosx";
                 break;
-            case Nix:
+            case NIX:
                 osName = "linux";
                 break;
-            case Solaris:
+            case SOLARIS:
                 osName = "solaris";
                 break;
             default:

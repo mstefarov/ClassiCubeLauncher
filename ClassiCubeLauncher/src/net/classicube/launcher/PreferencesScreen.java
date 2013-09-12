@@ -373,7 +373,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
                     "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_bForgetServerActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bDefaults;

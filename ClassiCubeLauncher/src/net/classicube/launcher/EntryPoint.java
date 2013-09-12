@@ -17,7 +17,7 @@ public final class EntryPoint {
 
         // initialize shared code
         LogUtil.Init();
-        GameSession.Init();
+        GameSession.init();
         SessionManager.init();
 
         // begin the update process

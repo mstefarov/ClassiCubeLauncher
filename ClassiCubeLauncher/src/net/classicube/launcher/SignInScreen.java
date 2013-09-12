@@ -54,7 +54,7 @@ final class SignInScreen extends javax.swing.JFrame {
         setLocationRelativeTo(null);
 
         // pick the appropriate game service
-        if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
+        if (SessionManager.getSession().getServiceType() == GameServiceType.ClassiCubeNetService) {
             selectClassiCubeNet();
         } else {
             selectMinecraftNet();
@@ -262,7 +262,7 @@ final class SignInScreen extends javax.swing.JFrame {
         // fill the account list
         final UserAccount[] accounts = accountManager.getAccountsBySignInDate();
         for (UserAccount account : accounts) {
-            cUsername.addItem(account.SignInUsername);
+            cUsername.addItem(account.signInUsername);
         }
         if (cUsername.getItemCount() > 0) {
             cUsername.setSelectedIndex(0);
@@ -331,7 +331,7 @@ final class SignInScreen extends javax.swing.JFrame {
             final String newName = (String) evt.getItem();
             final UserAccount curAccount = accountManager.findAccount(newName);
             if (curAccount != null) {
-                tPassword.setText(curAccount.Password);
+                tPassword.setText(curAccount.password);
             }
         }
     }//GEN-LAST:event_cUsernameItemStateChanged
@@ -368,9 +368,9 @@ final class SignInScreen extends javax.swing.JFrame {
             final SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {
                 UserAccount acct = SessionManager.getSession().getAccount();
-                acct.SignInDate = new Date();
+                acct.signInDate = new Date();
                 if (!xRememberPassword.isSelected()) {
-                    acct.Password = "";
+                    acct.password = "";
                 }
                 accountManager.store();
                 new ServerListScreen().setVisible(true);

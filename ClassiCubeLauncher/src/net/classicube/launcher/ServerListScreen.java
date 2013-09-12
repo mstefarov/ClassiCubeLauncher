@@ -40,8 +40,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // set window title
         session = SessionManager.getSession();
-        final String playerName = session.getAccount().PlayerName;
-        if (SessionManager.getServiceType() == GameServiceType.ClassiCubeNetService) {
+        final String playerName = session.getAccount().playerName;
+        if (session.getServiceType() == GameServiceType.ClassiCubeNetService) {
             setTitle(playerName + " @ ClassiCube.net - servers");
             bgPanel.setImage(Resources.getClassiCubeBackground());
         } else {
@@ -445,7 +445,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             final boolean result = getServerDetailsTask.get();
             if (result) {
                 ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
-                joinInfo.playerName = session.getAccount().PlayerName;
+                joinInfo.playerName = session.getAccount().playerName;
                 SessionManager.setJoinInfo(joinInfo);
                 ClientUpdateScreen.createAndShow();
                 dispose();

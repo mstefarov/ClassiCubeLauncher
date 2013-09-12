@@ -8,10 +8,10 @@ import java.util.prefs.Preferences;
 // Stores metadata about a user account.
 // Handled by AccountManager.
 final class UserAccount {
-    public String SignInUsername;
-    public String PlayerName;
-    public String Password;
-    public Date SignInDate;
+    public String signInUsername;
+    public String playerName;
+    public String password;
+    public Date signInDate;
 
     public UserAccount(String username, String password) {
         if (username == null) {
@@ -20,10 +20,10 @@ final class UserAccount {
         if (password == null) {
             throw new NullPointerException("password");
         }
-        SignInUsername = username;
-        PlayerName = username;
-        Password = password;
-        SignInDate = new Date(0);
+        signInUsername = username;
+        playerName = username;
+        this.password = password;
+        signInDate = new Date(0);
     }
 
     // Loads all information from a given Preferences node
@@ -31,26 +31,26 @@ final class UserAccount {
         if (prefs == null) {
             throw new NullPointerException("prefs");
         }
-        SignInUsername = prefs.get("SignInUsername", null);
-        PlayerName = prefs.get("PlayerName", null);
-        Password = prefs.get("Password", "");
+        signInUsername = prefs.get("SignInUsername", null);
+        playerName = prefs.get("PlayerName", null);
+        password = prefs.get("Password", "");
         final long dateTicks = prefs.getLong("SignInDate", 0);
-        SignInDate = new Date(dateTicks);
-        if (SignInUsername == null || PlayerName == null || Password == null) {
+        signInDate = new Date(dateTicks);
+        if (signInUsername == null || playerName == null || password == null) {
             LogUtil.getLogger().log(Level.WARNING, "Could not parse pref as a sign-in account.");
             throw new IllegalArgumentException("Pref could not be parsed");
         }
     }
 
     // Stores all information into a given Preferences node
-    public void Store(Preferences prefs) {
+    public void store(Preferences prefs) {
         if (prefs == null) {
             throw new NullPointerException("prefs");
         }
-        prefs.put("SignInUsername", SignInUsername);
-        prefs.put("PlayerName", PlayerName);
-        prefs.put("Password", Password);
-        prefs.putLong("SignInDate", SignInDate.getTime());
+        prefs.put("SignInUsername", signInUsername);
+        prefs.put("PlayerName", playerName);
+        prefs.put("Password", password);
+        prefs.putLong("SignInDate", signInDate.getTime());
     }
 
     private static class UserAccountDateComparator implements Comparator<UserAccount> {
@@ -60,7 +60,7 @@ final class UserAccount {
 
         @Override
         public int compare(UserAccount o1, UserAccount o2) {
-            final Long delta = o2.SignInDate.getTime() - o1.SignInDate.getTime();
+            final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();
             return delta.intValue();
         }
     }

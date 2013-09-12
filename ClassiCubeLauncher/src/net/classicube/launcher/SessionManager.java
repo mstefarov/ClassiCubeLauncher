@@ -12,15 +12,10 @@ final class SessionManager {
     }
 
     public static GameSession selectService(GameServiceType serviceType) {
-        activeServiceType = serviceType;
         accountManager = new AccountManager(serviceType.name());
         accountManager.load();
         Prefs.setSelectedGameService(serviceType);
         return createNewSession();
-    }
-
-    public static GameServiceType getServiceType() {
-        return activeServiceType;
     }
 
     public static GameSession getSession() {

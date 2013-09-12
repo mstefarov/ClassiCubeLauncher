@@ -1,26 +1,25 @@
 package net.classicube.launcher;
 
 enum OperatingSystem {
-
-    Nix(0), Solaris(1), Windows(2), MacOS(3), Unknown(4);
+    NIX,
+    SOLARIS,
+    WINDOWS,
+    MACOS,
+    UNKNOWN;
+    
     private final static String osName = System.getProperty("os.name").toLowerCase();
-
-    private OperatingSystem(int id) {
-        this.id = id;
-    }
 
     public static OperatingSystem detect() {
         if (osName.contains("win")) {
-            return OperatingSystem.Windows;
+            return OperatingSystem.WINDOWS;
         } else if (osName.contains("mac")) {
-            return OperatingSystem.MacOS;
+            return OperatingSystem.MACOS;
         } else if (osName.contains("solaris") || osName.contains("sunos")) {
-            return OperatingSystem.Solaris;
+            return OperatingSystem.SOLARIS;
         } else if (osName.contains("linux") || osName.contains("unix")) {
-            return OperatingSystem.Nix;
+            return OperatingSystem.NIX;
         } else {
-            return OperatingSystem.Unknown;
+            return OperatingSystem.UNKNOWN;
         }
     }
-    public final int id;
 }
