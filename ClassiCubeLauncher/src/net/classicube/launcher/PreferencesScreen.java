@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.awt.event.ItemEvent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
@@ -23,8 +24,8 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private void loadPreferences() {
         xFullscreen.setSelected(Prefs.getFullscreen());
         loadUpdateMode(Prefs.getUpdateMode());
-        xRememberUsers.setSelected(Prefs.getRememberUsers());
         xRememberPasswords.setSelected(Prefs.getRememberPasswords());
+        xRememberUsers.setSelected(Prefs.getRememberUsers()); // should be loaded AFTER password
         xRememberServer.setSelected(Prefs.getRememberServer());
         tJavaArgs.setText(Prefs.getJavaArgs());
         nMemory.setValue(Prefs.getMaxMemory());
@@ -158,6 +159,11 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(jSeparator1, gridBagConstraints);
 
         xRememberUsers.setText("Remember usernames");
+        xRememberUsers.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                xRememberUsersItemStateChanged(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
@@ -373,6 +379,15 @@ final class PreferencesScreen extends javax.swing.JDialog {
                     "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_bForgetServerActionPerformed
+
+    private void xRememberUsersItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_xRememberUsersItemStateChanged
+        if(evt.getStateChange() == ItemEvent.DESELECTED){
+            xRememberPasswords.setEnabled(false);
+            xRememberPasswords.setSelected(false);
+        }else{
+            xRememberPasswords.setEnabled(true);
+        }
+    }//GEN-LAST:event_xRememberUsersItemStateChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bDefaults;

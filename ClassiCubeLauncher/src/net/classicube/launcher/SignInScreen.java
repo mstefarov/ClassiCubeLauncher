@@ -54,7 +54,7 @@ final class SignInScreen extends javax.swing.JFrame {
         setLocationRelativeTo(null);
 
         // pick the appropriate game service
-        if (SessionManager.getSession().getServiceType() == GameServiceType.ClassiCubeNetService) {
+        if (Prefs.getSelectedGameService() == GameServiceType.ClassiCubeNetService) {
             selectClassiCubeNet();
         } else {
             selectMinecraftNet();

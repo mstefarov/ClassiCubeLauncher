@@ -7,9 +7,13 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
 
     public static void createAndShow() {
         ClientUpdateScreen sc = new ClientUpdateScreen();
-        ClientUpdateTask.getInstance().registerUpdateScreen(sc);
-        ClientUpdateTask.getInstance().execute();
-        sc.setVisible(true);
+        if (Prefs.getUpdateMode() != UpdateMode.DISABLED) {
+            ClientUpdateTask.getInstance().registerUpdateScreen(sc);
+            ClientUpdateTask.getInstance().execute();
+            sc.setVisible(true);
+        } else {
+            ClientLauncher.launchClient();
+        }
     }
 
     private ClientUpdateScreen() {
@@ -17,6 +21,17 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
+
+        boolean auto = (Prefs.getUpdateMode() == UpdateMode.AUTOMATIC);
+        if (auto) {
+            this.lNotice.setText("The game will start as soon as updates are complete.");
+        } else {
+            this.lNotice.setText("A client update is being installed.");
+            this.getRootPane().setDefaultButton(bContinue);
+        }
+        this.bContinue.setVisible(!auto);
+        this.bViewReleaseNotes.setVisible(!auto);
+        pack();
     }
 
     public void setStatus(ClientUpdateTask.ProgressUpdate dl) {
@@ -39,8 +54,12 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
             return;
         }
 
-        ClientLauncher.launchClient();
-        setVisible(false);
+        if (Prefs.getUpdateMode() == UpdateMode.AUTOMATIC) {
+            ClientLauncher.launchClient();
+            dispose();
+        } else {
+            this.bContinue.setEnabled(true);
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -51,18 +70,15 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         lFileName = new javax.swing.JLabel();
         lStats = new javax.swing.JLabel();
         lNotice = new javax.swing.JLabel();
-        jCheckBox1 = new javax.swing.JCheckBox();
         bContinue = new javax.swing.JButton();
+        bViewReleaseNotes = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
-        layout.columnWidths = new int[] {0, 5, 0};
-        layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0};
-        getContentPane().setLayout(layout);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(progress, gridBagConstraints);
 
@@ -70,42 +86,56 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         getContentPane().add(lFileName, gridBagConstraints);
 
         lStats.setText("<status>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         getContentPane().add(lStats, gridBagConstraints);
 
         lNotice.setText("The game will start as soon as update is complete.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
         getContentPane().add(lNotice, gridBagConstraints);
 
-        jCheckBox1.setText("Do not notify me about updates");
+        bContinue.setText("Play >");
+        bContinue.setEnabled(false);
+        bContinue.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bContinueActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
-        getContentPane().add(jCheckBox1, gridBagConstraints);
-
-        bContinue.setText("Continue >");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bContinue, gridBagConstraints);
 
+        bViewReleaseNotes.setText("View Release Notes");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
+        getContentPane().add(bViewReleaseNotes, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bContinueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bContinueActionPerformed
+        ClientLauncher.launchClient();
+        dispose();
+    }//GEN-LAST:event_bContinueActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bContinue;
-    private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JButton bViewReleaseNotes;
     private javax.swing.JLabel lFileName;
     private javax.swing.JLabel lNotice;
     private javax.swing.JLabel lStats;

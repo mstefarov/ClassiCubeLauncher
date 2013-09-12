@@ -51,6 +51,10 @@ final class ClientUpdateTask
     @Override
     protected Boolean doInBackground()
             throws Exception {
+        if(Prefs.getUpdateMode() == UpdateMode.DISABLED){
+            return true;
+        }
+        
         digest = MessageDigest.getInstance("MD5");
         Logger logger = LogUtil.getLogger();
 
