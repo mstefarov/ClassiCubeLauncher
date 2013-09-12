@@ -19,6 +19,7 @@ public final class EntryPoint {
         LogUtil.Init();
         GameSession.init();
         SessionManager.init();
+        ClientUpdateTask.getInstance().execute();
 
         // begin the update process
         //ClientUpdateTask.getInstance().execute(); // TEMP: testing updates

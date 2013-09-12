@@ -15,9 +15,8 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     public static void createAndShow() {
         ClientUpdateScreen sc = new ClientUpdateScreen();
         if (Prefs.getUpdateMode() != UpdateMode.DISABLED) {
-            ClientUpdateTask.getInstance().registerUpdateScreen(sc);
-            ClientUpdateTask.getInstance().execute();
             sc.setVisible(true);
+            ClientUpdateTask.getInstance().registerUpdateScreen(sc);
         } else {
             ClientLauncher.launchClient();
         }
@@ -55,7 +54,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         lStats.setText(dl.status);
     }
 
-    public void onUpdateDone() {
+    public void onUpdateDone(boolean updatesApplied) {
         LogUtil.getLogger().info("onUpdateDone");
         try {
             // wait for updater to finish (if still running)
@@ -67,10 +66,11 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
             return;
         }
 
-        if (Prefs.getUpdateMode() == UpdateMode.AUTOMATIC) {
+        if (!updatesApplied || Prefs.getUpdateMode() == UpdateMode.AUTOMATIC) {
             ClientLauncher.launchClient();
             dispose();
         } else {
+            this.lNotice.setText(" ");
             this.bContinue.setEnabled(true);
         }
     }

@@ -25,17 +25,19 @@ import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
+import sun.awt.Mutex;
 
 final class ClientUpdateTask
         extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
+
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================
-
     private static final String BaseUrl = "http://www.classicube.net/static/client/",
             ClientHashUrl = BaseUrl + "client.jar.md5",
             LauncherHashUrl = BaseUrl + "ClassiCubeLauncher.jar.md5";
     private static final ClientUpdateTask instance = new ClientUpdateTask();
+    private boolean updatesApplied;
 
     public static ClientUpdateTask getInstance() {
         return instance;
@@ -51,10 +53,10 @@ final class ClientUpdateTask
     @Override
     protected Boolean doInBackground()
             throws Exception {
-        if(Prefs.getUpdateMode() == UpdateMode.DISABLED){
+        if (Prefs.getUpdateMode() == UpdateMode.DISABLED) {
             return true;
         }
-        
+
         digest = MessageDigest.getInstance("MD5");
         Logger logger = LogUtil.getLogger();
 
@@ -64,7 +66,9 @@ final class ClientUpdateTask
 
         if (files.isEmpty()) {
             logger.log(Level.INFO, "No updates needed.");
+
         } else {
+            updatesApplied = true;
             logger.log(Level.INFO, "Downloading updates: {0}", listFileNames(files));
 
             activeFile = 0;
@@ -137,7 +141,7 @@ final class ClientUpdateTask
 
     private boolean checkForLauncherUpdate() {
         signalCheckProgress(0, "launcher");
-        final File launcherFile = new File(PathUtil.getLauncherDir(), "ClassiCubeLauncher.jar");
+        final File launcherFile = new File(PathUtil.getLauncherDir(), "launcher.jar");
         return checkUpdateByHash(launcherFile, LauncherHashUrl);
     }
 
@@ -408,14 +412,8 @@ final class ClientUpdateTask
     //                                                                            PROGRESS REPORTING
     // =============================================================================================
     private volatile ClientUpdateScreen updateScreen;
-    int activeFile;
-
-    public void registerUpdateScreen(ClientUpdateScreen updateScreen) {
-        if (updateScreen == null) {
-            throw new NullPointerException("updateScreen");
-        }
-        this.updateScreen = updateScreen;
-    }
+    private int activeFile;
+    private Mutex lock = new Mutex();
 
     @Override
     protected void process(List<ProgressUpdate> chunks) {
@@ -468,11 +466,37 @@ final class ClientUpdateTask
         publish(new ProgressUpdate(fileName, status, overallProgress));
     }
 
+    private void signalDone() {
+        String message = (updatesApplied ? "Updates applied." : "No updates needed.");
+        publish(new ProgressUpdate(" ", message, 100));
+    }
+
     @Override
     protected void done() {
-        ClientUpdateScreen screen = updateScreen;
-        if (screen != null) {
-            screen.onUpdateDone();
+        try {
+            lock.lock();
+            if (updateScreen != null) {
+                signalDone();
+                updateScreen.onUpdateDone(updatesApplied);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void registerUpdateScreen(ClientUpdateScreen updateScreen) {
+        try {
+            lock.lock();
+            if (updateScreen == null) {
+                throw new NullPointerException("updateScreen");
+            }
+            this.updateScreen = updateScreen;
+            if (this.isDone()) {
+                signalDone();
+                updateScreen.onUpdateDone(updatesApplied);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
