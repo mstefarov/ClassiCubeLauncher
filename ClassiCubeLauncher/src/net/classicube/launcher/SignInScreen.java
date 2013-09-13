@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -12,7 +13,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -29,6 +29,7 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
+
     private AccountManager accountManager;
     private final ImagePanel bgPanel;
     private JToggleButton buttonToDisableOnSignIn;
@@ -43,6 +44,7 @@ final class SignInScreen extends javax.swing.JFrame {
 
         // add our fancy custom background
         bgPanel = new ImagePanel(null, true);
+        bgPanel.setGradient(true);
         setContentPane(bgPanel);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
@@ -113,6 +115,7 @@ final class SignInScreen extends javax.swing.JFrame {
     void selectClassiCubeNet() {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectClassiCube");
         bgPanel.setImage(Resources.getClassiCubeBackground());
+        bgPanel.setGradientColor(new Color(124, 104, 141));
         ipLogo.setImage(Resources.getClassiCubeLogo());
         bMinecraftNet.setEnabled(true);
         bMinecraftNet.setSelected(false);
@@ -127,6 +130,7 @@ final class SignInScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectMinecraftNet");
         bgPanel.setImage(Resources.getMinecraftNetBackground());
         ipLogo.setImage(Resources.getMinecraftNetLogo());
+        bgPanel.setGradientColor(new Color(36, 36, 36));
         bClassiCubeNet.setEnabled(true);
         bClassiCubeNet.setSelected(false);
         bMinecraftNet.setEnabled(false);
@@ -420,10 +424,10 @@ final class SignInScreen extends javax.swing.JFrame {
         ipLogo = new net.classicube.launcher.ImagePanel();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
-        bDirect = new javax.swing.JButton();
-        bResume = new javax.swing.JButton();
-        bSignIn = new javax.swing.JButton();
         progress = new javax.swing.JProgressBar();
+        bDirect = new net.classicube.launcher.JNiceLookingButton();
+        bResume = new net.classicube.launcher.JNiceLookingButton();
+        bSignIn = new net.classicube.launcher.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClassiCube Launcher");
@@ -442,7 +446,8 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(bClassiCubeNet, gridBagConstraints);
 
         bMinecraftNet.setText("Minecraft.net");
@@ -454,16 +459,16 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_END;
         gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(bMinecraftNet, gridBagConstraints);
 
         ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.insets = new java.awt.Insets(4, 0, 4, 0);
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         getContentPane().add(ipLogo, gridBagConstraints);
 
         cUsername.setEditable(true);
@@ -475,9 +480,10 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 0, 0);
         getContentPane().add(cUsername, gridBagConstraints);
 
         tPassword.setToolTipText("");
@@ -489,10 +495,19 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(tPassword, gridBagConstraints);
+
+        progress.setIndeterminate(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(progress, gridBagConstraints);
 
         bDirect.setText("Direct...");
         bDirect.addActionListener(new java.awt.event.ActionListener() {
@@ -503,7 +518,6 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         getContentPane().add(bDirect, gridBagConstraints);
 
         bResume.setText("Resume");
@@ -515,7 +529,6 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         getContentPane().add(bResume, gridBagConstraints);
 
         bSignIn.setText("Sign In >");
@@ -527,25 +540,17 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bSignIn, gridBagConstraints);
-
-        progress.setIndeterminate(true);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(progress, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton bClassiCubeNet;
-    private javax.swing.JButton bDirect;
+    private net.classicube.launcher.JNiceLookingButton bDirect;
     private javax.swing.JToggleButton bMinecraftNet;
-    private javax.swing.JButton bResume;
-    private javax.swing.JButton bSignIn;
+    private net.classicube.launcher.JNiceLookingButton bResume;
+    private net.classicube.launcher.JNiceLookingButton bSignIn;
     private javax.swing.JComboBox<String> cUsername;
     private net.classicube.launcher.ImagePanel ipLogo;
     private javax.swing.JProgressBar progress;

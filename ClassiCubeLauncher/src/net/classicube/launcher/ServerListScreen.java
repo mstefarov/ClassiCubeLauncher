@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
@@ -30,6 +31,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
+
     private final List<ServerListEntry> displayedServerList = new ArrayList<>();
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private final GameSession.GetServerListTask getServerListTask;
@@ -46,11 +48,13 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // Make a pretty background
         final ImagePanel bgPanel = new ImagePanel(null, true);
+        bgPanel.setGradient(true);
         setContentPane(bgPanel);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         // init components and stuff
         initComponents();
+        this.serverTableContainer.getViewport().setBackground(new Color(247, 247, 247));
 
         // set window title
         session = SessionManager.getSession();
@@ -58,9 +62,11 @@ public final class ServerListScreen extends javax.swing.JFrame {
         if (session.getServiceType() == GameServiceType.ClassiCubeNetService) {
             setTitle(playerName + " @ ClassiCube.net - servers");
             bgPanel.setImage(Resources.getClassiCubeBackground());
+            bgPanel.setGradientColor(new Color(124, 104, 141));
         } else {
             setTitle(playerName + " @ Minecraft.net - servers");
             bgPanel.setImage(Resources.getMinecraftNetBackground());
+            bgPanel.setGradientColor(new Color(36, 36, 36));
         }
 
         // prepare to auto-adjust table columns (when the data arrives)
@@ -287,6 +293,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }
 
     private class UptimeCellRenderer extends DefaultTableCellRenderer {
+
         @Override
         public Component getTableCellRendererComponent(final JTable table, final Object value,
                 final boolean isSelected, final boolean hasFocus, final int row, final int column) {
@@ -412,6 +419,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(tSearch, gridBagConstraints);
 
+        serverTableContainer.setBackground(new java.awt.Color(255, 255, 255));
         serverTableContainer.setMinimumSize(new java.awt.Dimension(300, 150));
         serverTableContainer.setPreferredSize(new java.awt.Dimension(550, 400));
 
@@ -500,7 +508,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;
