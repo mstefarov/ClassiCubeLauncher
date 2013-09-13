@@ -29,9 +29,9 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
+
     private final static boolean RememberMeDefault = true;
     private final static String RememberMeKeyName = "RememberPassword";
-
     private AccountManager accountManager;
     private final ImagePanel bgPanel;
     private JToggleButton buttonToDisableOnSignIn;
@@ -256,7 +256,8 @@ final class SignInScreen extends javax.swing.JFrame {
         final String prompt = "mc://";
         final String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
         if (input != null && !prompt.equals(input)) {
-            final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(input);
+            final String trimmedInput = input.replaceAll("[\\r\\n\\s]", "");
+            final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(trimmedInput);
             if (joinInfo == null) {
                 LogUtil.showWarning("Cannot join server directly: Unrecognized link format.", "Unrecognized link");
             } else if (joinInfo.signInNeeded) {
@@ -315,6 +316,7 @@ final class SignInScreen extends javax.swing.JFrame {
 
     // Selects all text in the username field on-focus (you'd think this would be easier)
     class UsernameFocusListener implements FocusListener {
+
         @Override
         public void focusGained(final FocusEvent e) {
             final JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
@@ -332,6 +334,7 @@ final class SignInScreen extends javax.swing.JFrame {
 
     // Allows pressing <Enter> to sign in, while in the password textbox
     class PasswordEnterListener implements KeyListener {
+
         @Override
         public void keyTyped(final KeyEvent e) {
             if (e.getKeyChar() == KeyEvent.VK_ENTER) {
@@ -354,8 +357,9 @@ final class SignInScreen extends javax.swing.JFrame {
     // depending on whether username/password fields are empty,
     // while user is still focused on those fields.
     class UsernameOrPasswordChangedListener implements DocumentListener, ActionListener {
+
         public int realPasswordLength,
-                   realUsernameLength;
+                realUsernameLength;
 
         public UsernameOrPasswordChangedListener() {
             realPasswordLength = tPassword.getPassword().length;
@@ -559,7 +563,6 @@ final class SignInScreen extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton bClassiCubeNet;
     private javax.swing.JButton bDirect;

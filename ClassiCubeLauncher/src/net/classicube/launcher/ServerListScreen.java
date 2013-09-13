@@ -184,11 +184,12 @@ public final class ServerListScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.INFO,
                 "Fetching details for server: {0}", selectedServer.name);
         final String url = tServerURL.getText();
-        final ServerJoinInfo joinInfo = session.getDetailsFromUrl(url);
+        final String trimmedInput = url.replaceAll("[\\r\\n\\s]", "");
+        final ServerJoinInfo joinInfo = session.getDetailsFromUrl(trimmedInput);
         if (joinInfo == null) {
             LogUtil.showWarning("Unrecognized server URL.", "Cannot connect to server");
         } else if (joinInfo.passNeeded) {
-            getServerDetailsTask = session.getServerDetailsAsync(url);
+            getServerDetailsTask = session.getServerDetailsAsync(trimmedInput);
             getServerDetailsTask.addPropertyChangeListener(
                     new PropertyChangeListener() {
                 @Override
