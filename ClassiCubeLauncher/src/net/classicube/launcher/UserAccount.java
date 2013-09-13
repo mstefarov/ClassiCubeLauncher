@@ -13,7 +13,7 @@ final class UserAccount {
     public String password;
     public Date signInDate;
 
-    public UserAccount(String username, String password) {
+    public UserAccount(final String username, final String password) {
         if (username == null) {
             throw new NullPointerException("username");
         }
@@ -27,7 +27,7 @@ final class UserAccount {
     }
 
     // Loads all information from a given Preferences node
-    public UserAccount(Preferences prefs) {
+    public UserAccount(final Preferences prefs) {
         if (prefs == null) {
             throw new NullPointerException("prefs");
         }
@@ -43,7 +43,7 @@ final class UserAccount {
     }
 
     // Stores all information into a given Preferences node
-    public void store(Preferences prefs) {
+    public void store(final Preferences prefs) {
         if (prefs == null) {
             throw new NullPointerException("prefs");
         }
@@ -61,7 +61,7 @@ final class UserAccount {
     private static final UserAccountDateComparator comparatorInstance = new UserAccountDateComparator();
     private static class UserAccountDateComparator implements Comparator<UserAccount> {
         @Override
-        public int compare(UserAccount o1, UserAccount o2) {
+        public int compare(final UserAccount o1, final UserAccount o2) {
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();
             return delta.intValue();
         }

@@ -14,17 +14,17 @@ import java.nio.file.StandardCopyOption;
 
 final class PathUtil {
 
-    private static final String MacSuffix = "/Library/Application Support";
-    public static final String ClientDirName = "net.classicube.client",
-            ClientJar = "ClassiCubeClient.jar",
-            ClientTempJar = "ClassiCubeClient.jar.tmp",
-            LauncherDirName = "net.classicube.launcher",
-            LogFileName = "launcher.log",
-            LibsDirName = "libs";
+    private static final String MAC_PATH_SUFFIX = "/Library/Application Support";
+    public static final String CLIENT_DIR_NAME = "net.classicube.client",
+            CLIENT_JAR_NAME = "ClassiCubeClient.jar",
+            CLIENT_TEMP_JAR_NAME = "ClassiCubeClient.jar.tmp",
+            LAUNCHER_DIR_NAME = "net.classicube.launcher",
+            LOG_FILE_NAME = "launcher.log",
+            LIBS_DIR_NAME = "libs";
 
     public static File getClientDir() {
         if (clientPath == null) {
-            clientPath = new File(getAppDataDir(), ClientDirName);
+            clientPath = new File(getAppDataDir(), CLIENT_DIR_NAME);
         }
         if (!clientPath.exists() && !clientPath.mkdirs()) {
             throw new RuntimeException("The working directory could not be created: " + clientPath);
@@ -48,7 +48,7 @@ final class PathUtil {
                     break;
 
                 case MACOS:
-                    appDataPath = new File(home, MacSuffix);
+                    appDataPath = new File(home, MAC_PATH_SUFFIX);
                     break;
 
                 default:
@@ -61,7 +61,7 @@ final class PathUtil {
     public static File getLauncherDir() {
         if (launcherPath == null) {
             final File userDir = getAppDataDir();
-            launcherPath = new File(userDir, LauncherDirName);
+            launcherPath = new File(userDir, LAUNCHER_DIR_NAME);
             if (launcherPath.exists()) {
                 launcherPath.mkdir();
             }
@@ -71,13 +71,13 @@ final class PathUtil {
 
     public static File getLogFile() {
         if (logFilePath == null) {
-            logFilePath = new File(PathUtil.getLauncherDir(), PathUtil.LogFileName);
+            logFilePath = new File(PathUtil.getLauncherDir(), PathUtil.LOG_FILE_NAME);
         }
         return logFilePath;
     }
 
     // Safely replace contents of destFile with sourceFile
-    public static void replaceFile(File sourceFile, File destFile)
+    public static void replaceFile(final File sourceFile, final File destFile)
             throws IOException {
         if (sourceFile == null) {
             throw new NullPointerException("sourceFile");
@@ -95,14 +95,14 @@ final class PathUtil {
     };
 
     // Deletes a directory and all of its children
-    public boolean deleteDir(File dir) {
+    public boolean deleteDir(final File dir) {
         if (dir == null) {
             throw new NullPointerException("dir");
         }
         if (dir.isDirectory()) {
-            final String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                final boolean success = deleteDir(new File(dir, children[i]));
+            final String[] files = dir.list();
+            for (final String file : files) {
+                final boolean success = deleteDir(new File(dir, file));
                 if (!success) {
                     return false;
                 }
@@ -112,7 +112,7 @@ final class PathUtil {
     }
 
     //Copies a directory, creates dir if needed
-    public static void copyDir(File sourceDir, File destDir)
+    public static void copyDir(final File sourceDir, final File destDir)
             throws FileNotFoundException, IOException {
         if (sourceDir == null) {
             throw new NullPointerException("sourceDir");
@@ -125,7 +125,7 @@ final class PathUtil {
                 destDir.mkdir();
             }
             final String files[] = sourceDir.list();
-            for (String file : files) {
+            for (final String file : files) {
                 final File srcFile = new File(sourceDir, file);
                 final File destFile = new File(destDir, file);
                 copyDir(srcFile, destFile);
@@ -148,13 +148,12 @@ final class PathUtil {
             destFile.createNewFile();
         }
 
-        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
-            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
+        try (final FileChannel source = new FileInputStream(sourceFile).getChannel()) {
+            try (final FileChannel destination = new FileOutputStream(destFile).getChannel()) {
                 destination.transferFrom(source, 0, source.size());
             }
         }
     }
-
     private static File clientPath,
             launcherPath,
             logFilePath,

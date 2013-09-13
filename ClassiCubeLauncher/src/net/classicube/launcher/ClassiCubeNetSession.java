@@ -23,7 +23,7 @@ final class ClassiCubeNetSession extends GameSession {
         super("ClassiCubeNetSession");
         try {
             this.siteUri = new URI(HomepageUri);
-        } catch (URISyntaxException ex) {
+        } catch (final URISyntaxException ex) {
             LogUtil.die("Cannot set siteUri", ex);
         }
     }
@@ -40,7 +40,7 @@ final class ClassiCubeNetSession extends GameSession {
             loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
 
     @Override
-    public SignInTask signInAsync(UserAccount account, boolean remember) {
+    public SignInTask signInAsync(final UserAccount account, final boolean remember) {
         this.account = account;
         return new SignInWorker(remember);
     }
@@ -52,18 +52,18 @@ final class ClassiCubeNetSession extends GameSession {
 
     // Asynchronously try signing in our user
     private class SignInWorker extends SignInTask {
-
-        public SignInWorker(boolean remember) {
+        public SignInWorker(final boolean remember) {
             super(remember);
         }
 
         @Override
-        protected SignInResult doInBackground() throws Exception {
+        protected SignInResult doInBackground()
+                throws Exception {
             LogUtil.getLogger().log(Level.FINE, "ClassiCubeNet.SignInWorker");
             boolean restoredSession = false;
             try {
                 restoredSession = loadSessionCookie(this.remember);
-            } catch (BackingStoreException ex) {
+            } catch (final BackingStoreException ex) {
                 LogUtil.getLogger().log(Level.WARNING,
                         "Error restoring session.", ex);
             }
@@ -90,7 +90,7 @@ final class ClassiCubeNetSession extends GameSession {
                     account.playerName = actualPlayerName;
                     LogUtil.getLogger().log(Level.INFO,
                             "Restored session for {0}", account.playerName);
-                    ClassiCubeNetSession.this.storeCookies();
+                    storeCookies();
                     return SignInResult.SUCCESS;
 
                 } else {
@@ -140,7 +140,7 @@ final class ClassiCubeNetSession extends GameSession {
             requestStr.append(urlEncode(HomepageUri));
 
             // POST our data to the login handler
-            publish("Signing in...");
+            this.publish("Signing in...");
             final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
@@ -166,13 +166,13 @@ final class ClassiCubeNetSession extends GameSession {
 
     //have not checked loadSessionCookie, presume it works fine (It remembers me)
     // Tries to restore previous session (if possible)
-    private boolean loadSessionCookie(boolean remember)
+    private boolean loadSessionCookie(final boolean remember)
             throws BackingStoreException {
         LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.loadSessionCookie");
         clearCookies();
-        if (store.childrenNames().length > 0) {
+        if (this.store.childrenNames().length > 0) {
             if (remember) {
-                loadCookies();
+                this.loadCookies();
                 final HttpCookie cookie = super.getCookie(COOKIE_NAME);
                 final String userToken = "username%3A" + account.signInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
@@ -203,9 +203,9 @@ final class ClassiCubeNetSession extends GameSession {
     }
 
     private class GetServerListWorker extends GetServerListTask {
-
         @Override
-        protected ServerListEntry[] doInBackground() throws Exception {
+        protected ServerListEntry[] doInBackground()
+                throws Exception {
             LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetGetServerListWorker");
             final String serverListString = HttpUtil.downloadString(SERVER_LIST_URL);
 
@@ -213,7 +213,7 @@ final class ClassiCubeNetSession extends GameSession {
 
             final JsonArray array = JsonParser.array().from(serverListString);
 
-            for (Object rawRow : array) { //iterate through and add servers to the list
+            for (final Object rawRow : array) { //iterate through and add servers to the list
                 final JsonObject row = (JsonObject) rawRow;
                 final ServerListEntry info = new ServerListEntry();
 
@@ -244,38 +244,38 @@ final class ClassiCubeNetSession extends GameSession {
             ipPortUrlRegex = Pattern.compile(IP_PORT_URL_PATTERN);
 
     @Override
-    public ServerJoinInfo getDetailsFromUrl(String url) {
-        ServerJoinInfo result = super.getDetailsFromDirectUrl(url);
-        if (result != null) {
-            return result;
+    public ServerJoinInfo getDetailsFromUrl(final String url) {
+        final ServerJoinInfo directResult = super.getDetailsFromDirectUrl(url);
+        if (directResult != null) {
+            return directResult;
         }
 
-        Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
+        final Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
         if (playHashUrlMatch.matches()) {
-            result = new ServerJoinInfo();
+            final ServerJoinInfo result = new ServerJoinInfo();
             result.signInNeeded = true;
             result.hash = playHashUrlMatch.group(1);
-            String overrideString = playHashUrlMatch.group(3);
+            final String overrideString = playHashUrlMatch.group(3);
             if ("1".equals(overrideString) || "true".equals(overrideString)) {
                 result.override = true;
             }
             return result;
         }
 
-        Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
+        final Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
         if (ipPortUrlMatch.matches()) {
-            result = new ServerJoinInfo();
+            final ServerJoinInfo result = new ServerJoinInfo();
             result.signInNeeded = true;
             try {
                 result.address = InetAddress.getByName(ipPortUrlMatch.group(1));
-            } catch (UnknownHostException ex) {
+            } catch (final UnknownHostException ex) {
                 return null;
             }
-            String portNum = ipPortUrlMatch.group(5);
+            final String portNum = ipPortUrlMatch.group(5);
             if (portNum != null && portNum.length() > 0) {
                 try {
                     result.port = Integer.parseInt(portNum);
-                } catch (NumberFormatException ex) {
+                } catch (final NumberFormatException ex) {
                     return null;
                 }
             }

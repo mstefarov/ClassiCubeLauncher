@@ -11,9 +11,9 @@ final class PreferencesScreen extends javax.swing.JDialog {
     // =============================================================================================
     //                                                                                INITIALIZATION
     // =============================================================================================
-    public PreferencesScreen(JFrame parent) {
+    public PreferencesScreen(final JFrame parent) {
         super(parent, "Preferences", true);
-        JRootPane root = getRootPane();
+        final JRootPane root = getRootPane();
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
         root.setDefaultButton(bSave);
@@ -36,8 +36,8 @@ final class PreferencesScreen extends javax.swing.JDialog {
         nMemory.setValue(Prefs.getMaxMemory());
     }
 
-    private void loadUpdateMode(UpdateMode val) {
-        JRadioButton btn;
+    private void loadUpdateMode(final UpdateMode val) {
+        final JRadioButton btn;
         switch (val) {
             case DISABLED:
                 btn = rUpdateDisabled;
@@ -73,7 +73,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
     }
 
     private UpdateMode storeUpdateMode() {
-        UpdateMode val;
+        final UpdateMode val;
         if (rUpdateDisabled.isSelected()) {
             val = UpdateMode.DISABLED;
         } else if (rUpdateAutomatic.isSelected()) {

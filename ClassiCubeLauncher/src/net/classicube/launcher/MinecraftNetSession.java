@@ -13,12 +13,12 @@ import java.util.regex.Pattern;
 
 final class MinecraftNetSession extends GameSession {
 
-    private static final String HomepageUri = "http://minecraft.net";
+    private static final String HOMEPAGE_URL = "http://minecraft.net";
 
     public MinecraftNetSession() {
         super("MinecraftNetSession");
         try {
-            siteUri = new URI(HomepageUri);
+            siteUri = new URI(HOMEPAGE_URL);
         } catch (URISyntaxException ex) {
             LogUtil.die("Cannot set siteUri", ex);
         }
@@ -26,18 +26,18 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                                       SIGN-IN
     // =============================================================================================
-    private static final String LoginSecureUri = "https://minecraft.net/login",
-            LogoutUri = "http://minecraft.net/logout",
-            MigratedAccountMessage = "Your account has been migrated",
-            WrongUsernameOrPasswordMessage = "Oops, unknown username or password.",
-            authTokenPattern = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
-            loggedInAsPattern = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
-            CookieName = "PLAY_SESSION";
-    private static final Pattern authTokenRegex = Pattern.compile(authTokenPattern),
-            loggedInAsRegex = Pattern.compile(loggedInAsPattern);
+    private static final String LOGIN_URL = "https://minecraft.net/login",
+            LOGOUT_URL = "http://minecraft.net/logout",
+            MIGRATED_ACCOUNT_MESSAGE = "Your account has been migrated",
+            WRONG_USER_OR_PASS_MESSAGE = "Oops, unknown username or password.",
+            AUTH_TOKEN_PATTERN = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
+            LOGGED_IN_AS_PATTERN = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
+            COOKIE_NAME = "PLAY_SESSION";
+    private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
+            loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
 
     @Override
-    public SignInTask signInAsync(UserAccount account, boolean remember) {
+    public SignInTask signInAsync(final UserAccount account, final boolean remember) {
         this.account = account;
         return new SignInWorker(remember);
     }
@@ -45,7 +45,7 @@ final class MinecraftNetSession extends GameSession {
     // Asynchronously try signing in our user
     private class SignInWorker extends SignInTask {
 
-        public SignInWorker(boolean remember) {
+        public SignInWorker(final boolean remember) {
             super(remember);
         }
 
@@ -55,15 +55,15 @@ final class MinecraftNetSession extends GameSession {
             boolean restoredSession = false;
             try {
                 restoredSession = loadSessionCookie(remember);
-            } catch (BackingStoreException ex) {
+            } catch (final BackingStoreException ex) {
                 LogUtil.getLogger().log(Level.WARNING, "Error restoring session", ex);
             }
 
             // "publish" can be used to send text status updates to the GUI (not hooked up)
-            publish("Connecting to Minecraft.net");
+            this.publish("Connecting to Minecraft.net");
 
             // download the login page
-            String loginPage = HttpUtil.downloadString(LoginSecureUri);
+            String loginPage = HttpUtil.downloadString(LOGIN_URL);
             if (loginPage == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -72,7 +72,7 @@ final class MinecraftNetSession extends GameSession {
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
                 final String actualPlayerName = loginMatch.group(1);
-                if (remember && hasCookie(CookieName)
+                if (remember && hasCookie(COOKIE_NAME)
                         && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account: reuse a previous session
                     account.playerName = actualPlayerName;
@@ -86,9 +86,9 @@ final class MinecraftNetSession extends GameSession {
                     LogUtil.getLogger().log(Level.INFO,
                             "Switching accounts from {0} to {1}",
                             new Object[]{actualPlayerName, account.playerName});
-                    HttpUtil.downloadString(LogoutUri);
+                    HttpUtil.downloadString(LOGOUT_URL);
                     clearCookies();
-                    loginPage = HttpUtil.downloadString(LoginSecureUri);
+                    loginPage = HttpUtil.downloadString(LOGIN_URL);
                 }
             }
 
@@ -97,7 +97,7 @@ final class MinecraftNetSession extends GameSession {
             if (!authTokenMatch.find()) {
                 if (restoredSession) {
                     // restoring session failed; log out and retry
-                    HttpUtil.downloadString(LogoutUri);
+                    HttpUtil.downloadString(LOGOUT_URL);
                     clearCookies();
                     LogUtil.getLogger().log(Level.WARNING,
                             "Unrecognized login form served by minecraft.net; retrying.");
@@ -122,19 +122,19 @@ final class MinecraftNetSession extends GameSession {
                 requestStr.append("&remember=true");
             }
             requestStr.append("&redirect=");
-            requestStr.append(urlEncode(HomepageUri));
+            requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            publish("Signing in...");
-            final String loginResponse = HttpUtil.uploadString(LoginSecureUri, requestStr.toString());
+            this.publish("Signing in...");
+            final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
 
             // Check for common failure scenarios
-            if (loginResponse.contains(WrongUsernameOrPasswordMessage)) {
+            if (loginResponse.contains(WRONG_USER_OR_PASS_MESSAGE)) {
                 return SignInResult.WRONG_USER_OR_PASS;
-            } else if (loginResponse.contains(MigratedAccountMessage)) {
+            } else if (loginResponse.contains(MIGRATED_ACCOUNT_MESSAGE)) {
                 return SignInResult.MIGRATED_ACCOUNT;
             }
 
@@ -151,18 +151,18 @@ final class MinecraftNetSession extends GameSession {
     }
 
     // Tries to restore previous session (if possible)
-    private boolean loadSessionCookie(boolean remember)
+    private boolean loadSessionCookie(final boolean remember)
             throws BackingStoreException {
         LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
-        clearCookies();
-        if (store.childrenNames().length > 0) {
+        this.clearCookies();
+        if (this.store.childrenNames().length > 0) {
             if (remember) {
-                loadCookies();
-                final HttpCookie cookie = super.getCookie(CookieName);
-                final String userToken = "username%3A" + account.signInUsername + "%00";
+                this.loadCookies();
+                final HttpCookie cookie = super.getCookie(COOKIE_NAME);
+                final String userToken = "username%3A" + this.account.signInUsername + "%00";
                 if (cookie != null && cookie.getValue().contains(userToken)) {
                     LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}", account.signInUsername);
+                            "Loaded saved session for {0}", this.account.signInUsername);
                     return true;
                 } else {
                     LogUtil.getLogger().log(Level.FINE,
@@ -179,11 +179,11 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================
-    private static final String ServerListUri = "http://minecraft.net/classic/list",
-            serverNamePattern = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
-            otherServerDataPattern = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)";
-    private static final Pattern serverNameRegex = Pattern.compile(serverNamePattern),
-            otherServerDataRegex = Pattern.compile(otherServerDataPattern);
+    private static final String SERVER_LIST_URL = "http://minecraft.net/classic/list",
+            SERVER_NAME_PATTERN = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
+            SERVER_DETAILS_PATTERN = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)";
+    private static final Pattern serverNameRegex = Pattern.compile(SERVER_NAME_PATTERN),
+            otherServerDataRegex = Pattern.compile(SERVER_DETAILS_PATTERN);
 
     @Override
     public GetServerListTask getServerListAsync() {
@@ -195,7 +195,7 @@ final class MinecraftNetSession extends GameSession {
         @Override
         protected ServerListEntry[] doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "MinecraftNetGetServerListWorker");
-            final String serverListString = HttpUtil.downloadString(ServerListUri);
+            final String serverListString = HttpUtil.downloadString(SERVER_LIST_URL);
             final Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             final Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
             final ArrayList<ServerListEntry> servers = new ArrayList<>();
@@ -218,7 +218,7 @@ final class MinecraftNetSession extends GameSession {
                         // that have otherwise-identical uptime. It makes sure that every
                         // server has higher uptime (by 1 second) than the preceding one.
                         server.uptime = parseUptime(uptimeString) + servers.size();
-                    } catch (IllegalArgumentException ex) {
+                    } catch (final IllegalArgumentException ex) {
                         final String logMsg = String.format(
                                 "Error parsing server uptime (\"%s\") for %s",
                                 uptimeString, server.name);
@@ -238,7 +238,7 @@ final class MinecraftNetSession extends GameSession {
 
     // Parses Minecraft.net server list's way of showing uptime (e.g. 1s, 1m, 1h, 1d)
     // Returns the number of seconds
-    private static int parseUptime(String uptime)
+    private static int parseUptime(final String uptime)
             throws IllegalArgumentException {
         if (uptime == null) {
             throw new NullPointerException("uptime");
@@ -262,25 +262,25 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                              DETAILS FROM URL
     // =============================================================================================
-    private static final String playHashUrlPattern = "^https?://" // scheme
+    private static final String PLAY_HASH_URL_PATTERN = "^https?://" // scheme
             + "(www\\.)?minecraft.net/classic/play/" // host+path
             + "([0-9a-fA-F]{28,32})/?" + // hash
             "(\\?override=(true|1))?$"; // override
-    private static final String ipPortUrlPattern = "^https?://" // scheme
+    private static final String IP_PORT_URL_PATTERN = "^https?://" // scheme
             + "(www\\.)?minecraft.net/classic/play/?" // host+path
             + "\\?ip=(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
             + "&port=(\\d{1,5})$"; // port
-    private static final Pattern playHashUrlRegex = Pattern.compile(playHashUrlPattern),
-            ipPortUrlRegex = Pattern.compile(ipPortUrlPattern);
+    private static final Pattern playHashUrlRegex = Pattern.compile(PLAY_HASH_URL_PATTERN),
+            ipPortUrlRegex = Pattern.compile(IP_PORT_URL_PATTERN);
 
     @Override
-    public ServerJoinInfo getDetailsFromUrl(String url) {
+    public ServerJoinInfo getDetailsFromUrl(final String url) {
         ServerJoinInfo result = super.getDetailsFromDirectUrl(url);
         if (result != null) {
             return result;
         }
 
-        Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
+        final Matcher playHashUrlMatch = playHashUrlRegex.matcher(url);
         if (playHashUrlMatch.matches()) {
             result = new ServerJoinInfo();
             result.signInNeeded = true;
@@ -291,20 +291,20 @@ final class MinecraftNetSession extends GameSession {
             return result;
         }
 
-        Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
+        final Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
         if (ipPortUrlMatch.matches()) {
             result = new ServerJoinInfo();
             result.signInNeeded = true;
             try {
                 result.address = InetAddress.getByName(ipPortUrlMatch.group(2));
-            } catch (UnknownHostException ex) {
+            } catch (final UnknownHostException ex) {
                 return null;
             }
-            String portNum = ipPortUrlMatch.group(6);
+            final String portNum = ipPortUrlMatch.group(6);
             if (portNum != null && portNum.length() > 0) {
                 try {
                     result.port = Integer.parseInt(portNum);
-                } catch (NumberFormatException ex) {
+                } catch (final NumberFormatException ex) {
                     return null;
                 }
             }
@@ -315,12 +315,12 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                                           ETC
     // =============================================================================================
-    private static final String SkinUrl = "http://s3.amazonaws.com/MinecraftSkins/",
-            PlayUrl = "http://minecraft.net/classic/play/";
+    private static final String SKIN_URL = "http://s3.amazonaws.com/MinecraftSkins/",
+            PLAY_URL = "http://minecraft.net/classic/play/";
 
     @Override
     public String getSkinUrl() {
-        return SkinUrl;
+        return SKIN_URL;
     }
 
     @Override
@@ -329,8 +329,8 @@ final class MinecraftNetSession extends GameSession {
     }
 
     @Override
-    public String getPlayUrl(String hash) {
-        return PlayUrl + hash;
+    public String getPlayUrl(final String hash) {
+        return PLAY_URL + hash;
     }
     
     @Override

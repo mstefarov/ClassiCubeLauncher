@@ -5,7 +5,7 @@ final class SessionManager {
     private static GameSession activeSession;
     private static AccountManager accountManager;
 
-    public static GameSession selectService(GameServiceType serviceType) {
+    public static GameSession selectService(final GameServiceType serviceType) {
         accountManager = new AccountManager(serviceType.name());
         accountManager.load();
         Prefs.setSelectedGameService(serviceType);

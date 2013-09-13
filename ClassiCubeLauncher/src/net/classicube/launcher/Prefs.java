@@ -14,25 +14,25 @@ final class Prefs {
             keySelectedGameService = "SelectedGameService";
     
     // Defaults
-    public static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
-    public static boolean FullscreenDefault = false,
+    public final static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
+    public final static boolean FullscreenDefault = false,
             RememberUsersDefault = true,
             RememberPasswordsDefault = true,
             RememberServerDefault = true;
-    public static String JavaArgsDefault = "-Dorg.lwjgl.util.Debug=true "
+    public final static String JavaArgsDefault = "-Dorg.lwjgl.util.Debug=true "
             + "-Dsun.java2d.noddraw=true "
             + "-Dsun.awt.noerasebackground=true "
             + "-Dsun.java2d.d3d=false "
             + "-Dsun.java2d.opengl=false "
             + "-Dsun.java2d.pmoffscreen=false";
-    public static int MaxMemoryDefault = 800;
-    public static GameServiceType SelectedGameServiceDefault = GameServiceType.ClassiCubeNetService;
+    public final static int MaxMemoryDefault = 800;
+    public final static GameServiceType SelectedGameServiceDefault = GameServiceType.ClassiCubeNetService;
 
     // Getters
     public static UpdateMode getUpdateMode() {
         try {
             return UpdateMode.valueOf(getPrefs().get(keyUpdateMode, UpdateModeDefault.name()));
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             return UpdateModeDefault;
         }
     }
@@ -63,43 +63,43 @@ final class Prefs {
 
     public static GameServiceType getSelectedGameService() {
         try {
-            String val = getPrefs().get(keySelectedGameService, SelectedGameServiceDefault.name());
+            final String val = getPrefs().get(keySelectedGameService, SelectedGameServiceDefault.name());
             return GameServiceType.valueOf(val);
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             return SelectedGameServiceDefault;
         }
     }
 
     // Setters
-    public static void setUpdateMode(UpdateMode val) {
+    public static void setUpdateMode(final UpdateMode val) {
         getPrefs().put(keyUpdateMode, val.name());
     }
 
-    public static void setFullscreen(boolean val) {
+    public static void setFullscreen(final boolean val) {
         getPrefs().putBoolean(keyFullscreen, val);
     }
 
-    public static void setRememberUsers(boolean val) {
+    public static void setRememberUsers(final boolean val) {
         getPrefs().putBoolean(keyRememberUsers, val);
     }
 
-    public static void setRememberPasswords(boolean val) {
+    public static void setRememberPasswords(final boolean val) {
         getPrefs().putBoolean(keyRememberPasswords, val);
     }
 
-    public static void setRememberServer(boolean val) {
+    public static void setRememberServer(final boolean val) {
         getPrefs().putBoolean(keyRememberServer, val);
     }
 
-    public static void setJavaArgs(String val) {
+    public static void setJavaArgs(final String val) {
         getPrefs().put(keyJavaArgs, val);
     }
 
-    public static void setMaxMemory(int val) {
+    public static void setMaxMemory(final int val) {
         getPrefs().putInt(keyMaxMemory, val);
     }
 
-    public static void setSelectedGameService(GameServiceType val) {
+    public static void setSelectedGameService(final GameServiceType val) {
         getPrefs().put(keySelectedGameService, val.name());
     }
 

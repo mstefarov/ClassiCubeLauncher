@@ -30,6 +30,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
+
     private final List<ServerListEntry> displayedServerList = new ArrayList<>();
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private final GameSession.GetServerListTask getServerListTask;
@@ -45,7 +46,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen");
 
         // Make a pretty background
-        ImagePanel bgPanel = new ImagePanel(null, true);
+        final ImagePanel bgPanel = new ImagePanel(null, true);
         setContentPane(bgPanel);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
@@ -86,7 +87,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
             @Override
-            public void propertyChange(PropertyChangeEvent evt) {
+            public void propertyChange(final PropertyChangeEvent evt) {
                 if ("state".equals(evt.getPropertyName())) {
                     if (evt.getNewValue().equals(StateValue.DONE)) {
                         onServerListDone();
@@ -142,7 +143,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // add new rows
         final String searchTerm = tSearch.getText().toLowerCase();
-        for (ServerListEntry server : serverList) {
+        for (final ServerListEntry server : serverList) {
             if (server.name.toLowerCase().contains(searchTerm)) {
                 displayedServerList.add(server);
                 model.addRow(new Object[]{
@@ -180,8 +181,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
     private void joinSelectedServer() {
         LogUtil.getLogger().log(Level.INFO,
                 "Fetching details for server: {0}", selectedServer.name);
-        String url = tServerURL.getText();
-        ServerJoinInfo joinInfo = session.getDetailsFromUrl(url);
+        final String url = tServerURL.getText();
+        final ServerJoinInfo joinInfo = session.getDetailsFromUrl(url);
         if (joinInfo == null) {
             LogUtil.showWarning("Unrecognized server URL.", "Cannot connect to server");
         } else if (joinInfo.signInNeeded) {
@@ -189,7 +190,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             getServerDetailsTask.addPropertyChangeListener(
                     new PropertyChangeListener() {
                 @Override
-                public void propertyChange(PropertyChangeEvent evt) {
+                public void propertyChange(final PropertyChangeEvent evt) {
                     if ("state".equals(evt.getPropertyName())) {
                         if (evt.getNewValue().equals(StateValue.DONE)) {
                             onServerDetailsDone();
@@ -211,14 +212,14 @@ public final class ServerListScreen extends javax.swing.JFrame {
         try {
             final boolean result = getServerDetailsTask.get();
             if (result) {
-                ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
+                final ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
                 joinInfo.playerName = session.getAccount().playerName;
                 ClientUpdateScreen.createAndShow(joinInfo);
                 dispose();
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");
             }
-        } catch (InterruptedException | ExecutionException ex) {
+        } catch (final InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
             LogUtil.showWarning(ex.toString(), "Problem loading server details");
             tSearch.setText("Could not load server list.");
@@ -234,7 +235,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         // allow double-clicking servers on the list, to join them
         serverTable.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(final MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     joinSelectedServer();
                 }
@@ -246,14 +247,14 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
         serverTable.getActionMap().put("Enter", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent ae) {
+            public void actionPerformed(final ActionEvent ae) {
                 joinSelectedServer();
             }
         });
 
         serverTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent lse) {
+            public void valueChanged(final ListSelectionEvent lse) {
                 if (!lse.getValueIsAdjusting()) {
                     selectedServer = getSelectedServer();
                     if (selectedServer != null) {
@@ -266,19 +267,20 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         tServerURL.addFocusListener(new FocusListener() {
             @Override
-            public void focusGained(FocusEvent e) {
+            public void focusGained(final FocusEvent e) {
                 tServerURL.selectAll();
             }
 
             @Override
-            public void focusLost(FocusEvent e) {
+            public void focusLost(final FocusEvent e) {
             }
         });
     }
 
     private class UptimeCellRenderer extends DefaultTableCellRenderer {
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        public Component getTableCellRendererComponent(final JTable table, final Object value,
+                final boolean isSelected, final boolean hasFocus, final int row, final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (column == 3) {
                 final int ticks = (int) value;
@@ -322,7 +324,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT
      * modify this code. The content of this method is always regenerated by the Form Editor.
      */
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
@@ -481,7 +482,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;

@@ -15,7 +15,7 @@ final class AccountManager {
 
     // Creates a new account manager for specified service name
     // serviceName is used to separate storage of data from different services
-    public AccountManager(String serviceName) {
+    public AccountManager(final String serviceName) {
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
         }
@@ -26,12 +26,12 @@ final class AccountManager {
     // Loads all accounts from preferences
     public void load() {
         try {
-            for (String accountName : this.store.childrenNames()) {
+            for (final String accountName : this.store.childrenNames()) {
                 final UserAccount acct = new UserAccount(this.store.node(accountName));
                 this.accounts.put(acct.signInUsername.toLowerCase(), acct);
             }
             LogUtil.getLogger().log(Level.FINE, "Loaded {0} accounts", this.accounts.size());
-        } catch (BackingStoreException | IllegalArgumentException ex) {
+        } catch (final BackingStoreException | IllegalArgumentException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading accounts", ex);
         }
     }
@@ -40,7 +40,7 @@ final class AccountManager {
     public void store() {
         LogUtil.getLogger().log(Level.FINE, "store");
         this.clearStore();
-        for (UserAccount acct : this.accounts.values()) {
+        for (final UserAccount acct : this.accounts.values()) {
             acct.store(this.store.node(acct.signInUsername.toLowerCase()));
         }
     }
@@ -55,10 +55,10 @@ final class AccountManager {
     private void clearStore() {
         LogUtil.getLogger().log(Level.FINE, "AccountManager.ClearStore");
         try {
-            for (String accountName : this.store.childrenNames()) {
+            for (final String accountName : this.store.childrenNames()) {
                 this.store.node(accountName.toLowerCase()).removeNode();
             }
-        } catch (BackingStoreException ex) {
+        } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error clearing accounts", ex);
         }
     }
@@ -66,14 +66,14 @@ final class AccountManager {
     // Clears passwords (sets them to empty string) for all accounts
     public void clearPasswords() {
         LogUtil.getLogger().log(Level.FINE, "clearPasswords");
-        for (UserAccount account : this.accounts.values()) {
+        for (final UserAccount account : this.accounts.values()) {
             account.password = "";
         }
         this.store();
     }
 
     // Tries to find stored UserAccount data for given sign-in name
-    public UserAccount findAccount(String signInName) {
+    public UserAccount findAccount(final String signInName) {
         if (signInName == null) {
             throw new NullPointerException("signInName");
         }
@@ -88,7 +88,7 @@ final class AccountManager {
     }
 
     // Either creates a new UserAccount or retrieves an existing UserAccount for given username.
-    public UserAccount onSignInBegin(String username, String password) {
+    public UserAccount onSignInBegin(final String username, final String password) {
         if (username == null) {
             throw new NullPointerException("username");
         }

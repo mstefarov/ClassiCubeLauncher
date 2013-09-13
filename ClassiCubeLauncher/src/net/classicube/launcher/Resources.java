@@ -43,14 +43,14 @@ final class Resources {
     }
 
     // Loads an image from inside the ClassiCubeLauncher JAR
-    private static Image loadImage(String fileName) {
+    private static Image loadImage(final String fileName) {
         if (fileName == null) {
             throw new NullPointerException("fileName");
         }
         final URL imageUrl = Resources.class.getResource(fileName);
         try {
             return ImageIO.read(imageUrl);
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LogUtil.die("Error loading GUI resource " + fileName, ex);
             return null;
         }

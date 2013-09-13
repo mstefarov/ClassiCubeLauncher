@@ -6,21 +6,24 @@ import javax.swing.JComponent;
 
 // A little custom panel that has a tiled background texture
 public final class ImagePanel extends JComponent {
+    private Image image;
+    private boolean isTiled;
+    private static final long serialVersionUID = 1L;
 
     public ImagePanel() {
     }
 
-    public ImagePanel(Image image, boolean isTiled) {
+    public ImagePanel(final Image image, final boolean isTiled) {
         this.image = image;
         this.isTiled = isTiled;
     }
 
-    public void setImage(Image image) {
+    public void setImage(final Image image) {
         this.image = image;
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         if (image == null) {
             return;
@@ -39,7 +42,4 @@ public final class ImagePanel extends JComponent {
             g.drawImage(image, 0, 0, iw, ih, this);
         }
     }
-    private Image image;
-    private boolean isTiled;
-    private static final long serialVersionUID = 1L;
 }

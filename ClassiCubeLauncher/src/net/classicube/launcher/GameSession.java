@@ -21,15 +21,14 @@ import org.apache.commons.lang3.StringEscapeUtils;
 // Base class for service-specific handlers.
 // A new single-use GameService object is created for every session.
 abstract class GameSession {
-
     protected Preferences store;
 
     // constructor used by implementations
-    protected GameSession(String serviceName) {
+    protected GameSession(final String serviceName) {
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
         }
-        store = Preferences.userNodeForPackage(getClass())
+        this.store = Preferences.userNodeForPackage(this.getClass())
                 .node("GameServices")
                 .node(serviceName);
     }
@@ -40,14 +39,14 @@ abstract class GameSession {
     // Asynchronously sign a user in.
     // If "remember" is true, service should attempt to reuse stored credentials (if possible),
     // and store working credentials for next time after signing in.
-    public abstract SignInTask signInAsync(UserAccount account, boolean remember);
+    public abstract SignInTask signInAsync(final UserAccount account, final boolean remember);
 
     // Asynchronously fetches the server list.
     public abstract GetServerListTask getServerListAsync();
 
     // Attempts to extract as much information as possible about a server by URL.
     // Could be a play-link with a hash, or ip/port, or a direct-connect URL.
-    public abstract ServerJoinInfo getDetailsFromUrl(String url);
+    public abstract ServerJoinInfo getDetailsFromUrl(final String url);
 
     // Gets service site's root URL (for cookie filtering).
     public abstract URI getSiteUri();
@@ -56,37 +55,22 @@ abstract class GameSession {
     public abstract String getSkinUrl();
 
     // Creates a complete play URL from given server hash
-    public abstract String getPlayUrl(String hash);
+    public abstract String getPlayUrl(final String hash);
 
     // Returns service type of this session
     public abstract GameServiceType getServiceType();
 
-    public static abstract class SignInTask extends SwingWorker<SignInResult, String> {
-
-        public SignInTask(boolean remember) {
+    public static abstract class SignInTask
+            extends SwingWorker<SignInResult, String> {
+        protected boolean remember;
+        
+        public SignInTask(final boolean remember) {
             this.remember = remember;
         }
-        protected boolean remember;
     }
 
-    public static abstract class GetServerListTask extends SwingWorker<ServerListEntry[], ServerListEntry> {
-    }
-
-    public static abstract class GetServerDetailsTask extends SwingWorker<Boolean, Boolean> {
-
-        public GetServerDetailsTask(String url) {
-            if (url == null) {
-                throw new NullPointerException("url");
-            }
-            this.url = url;
-            joinInfo = new ServerJoinInfo();
-        }
-
-        public ServerJoinInfo getJoinInfo() {
-            return joinInfo;
-        }
-        protected ServerJoinInfo joinInfo;
-        protected String url;
+    public static abstract class GetServerListTask
+            extends SwingWorker<ServerListEntry[], ServerListEntry> {
     }
     // =============================================================================================
     //                                                                       GETTING SERVICE DETAILS
@@ -100,27 +84,27 @@ abstract class GameSession {
     private static final String appletParamPattern = "<param name=\"(\\w+)\" value=\"(.+)\">";
     protected static final Pattern appletParamRegex = Pattern.compile(appletParamPattern);
 
-    protected ServerJoinInfo getDetailsFromDirectUrl(String url) {
-        ServerJoinInfo result = new ServerJoinInfo();
-        Matcher directUrlMatch = directUrlRegex.matcher(url);
+    protected ServerJoinInfo getDetailsFromDirectUrl(final String url) {
+        final ServerJoinInfo result = new ServerJoinInfo();
+        final Matcher directUrlMatch = directUrlRegex.matcher(url);
         if (directUrlMatch.matches()) {
             try {
                 result.address = InetAddress.getByName(directUrlMatch.group(1));
-            } catch (UnknownHostException ex) {
+            } catch (final UnknownHostException ex) {
                 return null;
             }
-            String portNum = directUrlMatch.group(6);
+            final String portNum = directUrlMatch.group(6);
             if (portNum != null && portNum.length() > 0) {
                 try {
                     result.port = Integer.parseInt(portNum);
-                } catch (NumberFormatException ex) {
+                } catch (final NumberFormatException ex) {
                     return null;
                 }
             } else {
                 result.port = 25565;
             }
             result.playerName = directUrlMatch.group(7);
-            String mppass = directUrlMatch.group(9);
+            final String mppass = directUrlMatch.group(9);
             if (mppass != null) {
                 result.mppass = mppass;
             } else {
@@ -132,14 +116,22 @@ abstract class GameSession {
     }
 
     // Asynchronously gets mppass for given server
-    public GetServerDetailsTask getServerDetailsAsync(String url) {
-        return new GetServerDetailsWorker(url);
+    public GetServerDetailsTask getServerDetailsAsync(final String url) {
+        return new GetServerDetailsTask(url);
     }
 
-    protected class GetServerDetailsWorker extends GetServerDetailsTask {
+    protected class GetServerDetailsTask
+            extends SwingWorker<Boolean, Boolean> {
 
-        public GetServerDetailsWorker(String url) {
-            super(url);
+        private ServerJoinInfo joinInfo;
+        private String url;
+
+        public GetServerDetailsTask(final String url) {
+            if (url == null) {
+                throw new NullPointerException("url");
+            }
+            this.url = url;
+            this.joinInfo = new ServerJoinInfo();
         }
 
         @Override
@@ -160,42 +152,48 @@ abstract class GameSession {
                 final String value = appletParamMatch.group(2);
                 switch (name) {
                     case "username":
-                        joinInfo.playerName = value;
+                        this.joinInfo.playerName = value;
                         account.playerName = value;
                         break;
                     case "server":
-                        joinInfo.address = InetAddress.getByName(value);
+                        this.joinInfo.address = InetAddress.getByName(value);
                         break;
                     case "port":
-                        joinInfo.port = Integer.parseInt(value);
+                        this.joinInfo.port = Integer.parseInt(value);
                         break;
                     case "mppass":
-                        joinInfo.mppass = value;
+                        this.joinInfo.mppass = value;
                         break;
                 }
             }
 
             // Verify that we got everything
-            if (joinInfo.playerName == null || joinInfo.address == null
-                    || joinInfo.port == 0 || joinInfo.mppass == null) {
+            if (this.joinInfo.playerName == null || this.joinInfo.address == null
+                    || this.joinInfo.port == 0 || this.joinInfo.mppass == null) {
                 LogUtil.getLogger().log(Level.WARNING, "Incomplete information returned from Minecraft.net");
                 return false;
             }
             return true;
+        }
+
+        public ServerJoinInfo getJoinInfo() {
+            return this.joinInfo;
         }
     }
 
     // =============================================================================================
     //                                                                                        RESUME
     // =============================================================================================
+    private static final String RESUME_NODE_NAME = "ResumeInfo";
+    
     public ServerJoinInfo loadResumeInfo() {
-        Preferences node = store.node("ResumeInfo");
-        ServerJoinInfo info = new ServerJoinInfo();
+        final Preferences node = store.node(RESUME_NODE_NAME);
+        final ServerJoinInfo info = new ServerJoinInfo();
         info.playerName = node.get("PlayerName", null);
         info.hash = node.get("Hash", null);
         try {
             info.address = InetAddress.getByName(node.get("Address", null));
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             return null;
         }
         info.port = node.getInt("Port", 0);
@@ -208,8 +206,8 @@ abstract class GameSession {
         return info;
     }
 
-    public void storeResumeInfo(ServerJoinInfo info) {
-        Preferences node = store.node("ResumeInfo");
+    public void storeResumeInfo(final ServerJoinInfo info) {
+        final Preferences node = this.store.node(RESUME_NODE_NAME);
         node.put("PlayerName", info.playerName);
         node.put("Hash", (info.hash != null ? info.hash : ""));
         node.put("Address", info.address.getHostAddress());
@@ -221,8 +219,8 @@ abstract class GameSession {
 
     public void clearResumeInfo() {
         try {
-            store.node("ResumeInfo").removeNode();
-        } catch (BackingStoreException ex) {
+            this.store.node(RESUME_NODE_NAME).removeNode();
+        } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error erasing resume info", ex);
         }
     }
@@ -246,34 +244,34 @@ abstract class GameSession {
     // Stores all cookies to Preferences
     protected void storeCookies() {
         try {
-            store.clear();
-        } catch (BackingStoreException ex) {
+            this.store.clear();
+        } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error storing session", ex);
         }
-        for (HttpCookie cookie : cookieJar.getCookies()) {
-            store.put(cookie.getName(), cookie.toString());
+        for (final HttpCookie cookie : cookieJar.getCookies()) {
+            this.store.put(cookie.getName(), cookie.toString());
         }
     }
 
     // Loads all cookies from Preferences
     protected void loadCookies() {
         try {
-            for (String cookieName : store.keys()) {
+            for (final String cookieName : this.store.keys()) {
                 final HttpCookie newCookie = new HttpCookie(cookieName, store.get(cookieName, null));
                 cookieJar.add(getSiteUri(), newCookie);
             }
-        } catch (BackingStoreException ex) {
+        } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading session", ex);
         }
     }
 
     // Tries to find a cookie by name. Returns null if not found.
-    protected HttpCookie getCookie(String name) {
+    protected HttpCookie getCookie(final String name) {
         if (name == null) {
             throw new NullPointerException("name");
         }
         final List<HttpCookie> cookies = cookieJar.get(getSiteUri());
-        for (HttpCookie cookie : cookies) {
+        for (final HttpCookie cookie : cookies) {
             if (cookie.getName().equals(name)) {
                 return cookie;
             }
@@ -282,7 +280,7 @@ abstract class GameSession {
     }
 
     // Checks whether a cookie with the given name is stored.
-    protected boolean hasCookie(String name) {
+    protected boolean hasCookie(final String name) {
         return (getCookie(name) != null);
     }
     // =============================================================================================
@@ -295,21 +293,21 @@ abstract class GameSession {
     }
 
     // Encodes a string in a URL-friendly format, for GET or POST
-    protected String urlEncode(String rawString) {
+    protected String urlEncode(final String rawString) {
         if (rawString == null) {
             throw new NullPointerException("rawString");
         }
         final String encName = StandardCharsets.UTF_8.name();
         try {
             return URLEncoder.encode(rawString, encName);
-        } catch (UnsupportedEncodingException ex) {
+        } catch (final UnsupportedEncodingException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Encoding error", ex);
             return null;
         }
     }
 
     // Decodes an HTML-escaped string
-    protected String htmlDecode(String encodedString) {
+    protected String htmlDecode(final String encodedString) {
         if (encodedString == null) {
             throw new NullPointerException("encodedString");
         }

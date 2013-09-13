@@ -23,7 +23,7 @@ final class LogUtil {
             final FileHandler handler = new FileHandler(logFile.getAbsolutePath());
             handler.setFormatter(new SimpleFormatter());
             logger.addHandler(handler);
-        } catch (IOException | SecurityException ex) {
+        } catch (final IOException | SecurityException ex) {
             showError("Could not open log file: " + ex, "Fatal error");
             System.exit(2);
         }
@@ -34,29 +34,23 @@ final class LogUtil {
     }
 
     // Shows an informative modal dialog box
-    public static void showInfo(String message, String title) {
+    public static void showInfo(final String message, final String title) {
         JOptionPane.showMessageDialog(null, message, "Info: " + title, JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Shows a warning modal dialog box
-    public static void showWarning(String message, String title) {
+    public static void showWarning(final String message, final String title) {
         JOptionPane.showMessageDialog(null, message, "Warning: " + title, JOptionPane.WARNING_MESSAGE);
     }
 
     // Shows an alarming modal dialog box
-    public static void showError(String message, String title) {
+    public static void showError(final String message, final String title) {
         JOptionPane.showMessageDialog(null, message, "ERROR: " + title, JOptionPane.ERROR_MESSAGE);
     }
 
-    // Kills the process after showing and loging a message
-    public static void die(String message) {
-        getLogger().log(Level.SEVERE, message);
-        showError(message, "Fatal error");
-        System.exit(2);
-    }
-
-    // Kills the process after showing and loging a message, and logging the error
-    public static void die(String message, Throwable ex) {
+    // Kills the process after showing and loging a message, and logging the error.
+    // ex may be null.
+    public static void die(final String message, final Throwable ex) {
         getLogger().log(Level.SEVERE, message, ex);
         showError(message, "Fatal error");
         System.exit(2);

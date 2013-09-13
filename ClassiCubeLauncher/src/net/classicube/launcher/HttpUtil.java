@@ -15,7 +15,7 @@ final class HttpUtil {
 
     private static final String UserAgent = "ClassiCube Launcher";
 
-    public static HttpURLConnection makeHttpConnection(String urlString, byte[] postData)
+    public static HttpURLConnection makeHttpConnection(final String urlString, final byte[] postData)
             throws MalformedURLException, IOException {
         if (urlString == null) {
             throw new NullPointerException("urlString");
@@ -39,13 +39,13 @@ final class HttpUtil {
 
     // Downloads a string using GET.
     // Returns null and logs an error on failure.
-    public static String downloadString(String urlString) {
+    public static String downloadString(final String urlString) {
         return uploadString(urlString, null);
     }
 
     // Uploads a string using POST, then downloads the response.
     // Returns null and logs an error on failure.
-    public static String uploadString(String urlString, String dataString) {
+    public static String uploadString(final String urlString, final String dataString) {
         HttpURLConnection connection = null;
         byte[] data = null;
         if (dataString != null) {
@@ -72,10 +72,10 @@ final class HttpUtil {
 
             // Read response
             final StringBuilder response = new StringBuilder();
-            String line;
-            try (InputStream is = connection.getInputStream()) {
-                try (InputStreamReader isr = new InputStreamReader(is)) {
-                    try (BufferedReader rd = new BufferedReader(isr)) {
+            try (final InputStream is = connection.getInputStream()) {
+                try (final InputStreamReader isr = new InputStreamReader(is)) {
+                    try (final BufferedReader rd = new BufferedReader(isr)) {
+                        String line;
                         while ((line = rd.readLine()) != null) {
                             response.append(line);
                             response.append('\n');
@@ -85,7 +85,7 @@ final class HttpUtil {
             }
             return response.toString();
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error while sending request to " + urlString, ex);
             return null;
 

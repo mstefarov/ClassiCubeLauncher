@@ -192,7 +192,7 @@ final class SignInScreen extends javax.swing.JFrame {
         signInTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
             @Override
-            public void propertyChange(PropertyChangeEvent evt) {
+            public void propertyChange(final PropertyChangeEvent evt) {
                 if ("state".equals(evt.getPropertyName())) {
                     if (evt.getNewValue().equals(StateValue.DONE)) {
                         onSignInDone(signInTask);
@@ -211,12 +211,12 @@ final class SignInScreen extends javax.swing.JFrame {
     // Called when signInAsync finishes.
     // If we signed in, advance to the server list screen.
     // Otherwise, inform the user that something went wrong.
-    private void onSignInDone(SwingWorker<SignInResult, String> signInTask) {
-        LogUtil.getLogger().log(Level.FINE, "SignInScreen.onSignInDone");
+    private void onSignInDone(final GameSession.SignInTask signInTask) {
+        LogUtil.getLogger().log(Level.FINE, "onSignInDone");
         try {
             final SignInResult result = signInTask.get();
             if (result == SignInResult.SUCCESS) {
-                UserAccount acct = SessionManager.getSession().getAccount();
+                final UserAccount acct = SessionManager.getSession().getAccount();
                 acct.signInDate = new Date();
                 if (!xRememberPassword.isSelected()) {
                     acct.password = "";
@@ -225,7 +225,7 @@ final class SignInScreen extends javax.swing.JFrame {
                 new ServerListScreen().setVisible(true);
                 dispose();
             } else {
-                String errorMsg;
+                final String errorMsg;
                 switch (result) {
                     case WRONG_USER_OR_PASS:
                         errorMsg = "Wrong username or password.";
@@ -243,7 +243,7 @@ final class SignInScreen extends javax.swing.JFrame {
                 }
                 LogUtil.showWarning(errorMsg, "Could not sign in.");
             }
-        } catch (InterruptedException | ExecutionException ex) {
+        } catch (final InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
             LogUtil.showError(ex.toString(), "Could not sign in.");
         }
@@ -255,9 +255,9 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     private void bDirectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDirectActionPerformed
         final String prompt = "mc://";
-        String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
+        final String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
         if (input != null && !prompt.equals(input)) {
-            ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(input);
+            final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(input);
             if (joinInfo == null) {
                 LogUtil.showWarning("Cannot join server directly: Unrecognized link format.", "Unrecognized link");
             } else if (joinInfo.signInNeeded) {
@@ -270,12 +270,12 @@ final class SignInScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_bDirectActionPerformed
 
     private void enableResumeIfNeeded() {
-        ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
+        final ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
         bResume.setEnabled(resumeInfo != null);
     }
 
     private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
-        ServerJoinInfo joinInfo = SessionManager.getSession().loadResumeInfo();
+        final ServerJoinInfo joinInfo = SessionManager.getSession().loadResumeInfo();
         ClientUpdateScreen.createAndShow(joinInfo);
         dispose();
     }//GEN-LAST:event_bResumeActionPerformed
@@ -317,7 +317,7 @@ final class SignInScreen extends javax.swing.JFrame {
     // Selects all text in the username field on-focus (you'd think this would be easier)
     class UsernameFocusListener implements FocusListener {
         @Override
-        public void focusGained(FocusEvent e) {
+        public void focusGained(final FocusEvent e) {
             final JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
             final String selectedUsername = (String) cUsername.getSelectedItem();
             if (selectedUsername != null) {
@@ -327,14 +327,14 @@ final class SignInScreen extends javax.swing.JFrame {
         }
 
         @Override
-        public void focusLost(FocusEvent e) {
+        public void focusLost(final FocusEvent e) {
         }
     }
 
     // Allows pressing <Enter> to sign in, while in the password textbox
     class PasswordEnterListener implements KeyListener {
         @Override
-        public void keyTyped(KeyEvent e) {
+        public void keyTyped(final KeyEvent e) {
             if (e.getKeyChar() == KeyEvent.VK_ENTER) {
                 if (bSignIn.isEnabled()) {
                     bSignIn.doClick();
@@ -343,11 +343,11 @@ final class SignInScreen extends javax.swing.JFrame {
         }
 
         @Override
-        public void keyPressed(KeyEvent e) { // do nothing
+        public void keyPressed(final KeyEvent e) { // do nothing
         }
 
         @Override
-        public void keyReleased(KeyEvent e) { // do nothing
+        public void keyReleased(final KeyEvent e) { // do nothing
         }
     }
 
@@ -369,21 +369,21 @@ final class SignInScreen extends javax.swing.JFrame {
         }
 
         @Override
-        public void insertUpdate(DocumentEvent e) {
+        public void insertUpdate(final DocumentEvent e) {
             somethingEdited(e);
         }
 
         @Override
-        public void removeUpdate(DocumentEvent e) {
+        public void removeUpdate(final DocumentEvent e) {
             somethingEdited(e);
         }
 
         @Override
-        public void changedUpdate(DocumentEvent e) {
+        public void changedUpdate(final DocumentEvent e) {
             somethingEdited(e);
         }
 
-        private void somethingEdited(DocumentEvent e) {
+        private void somethingEdited(final DocumentEvent e) {
             final Document doc = e.getDocument();
             if (doc.equals(tPassword.getDocument())) {
                 realPasswordLength = doc.getLength();
@@ -394,7 +394,7 @@ final class SignInScreen extends javax.swing.JFrame {
         }
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             realPasswordLength = tPassword.getPassword().length;
             final String username = (String) cUsername.getSelectedItem();
             if (username == null) {

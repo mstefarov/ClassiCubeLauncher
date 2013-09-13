@@ -14,7 +14,7 @@ final class ServerListEntry {
     public String flag;
     public int uptime;
 
-    public static String formatUptime(int seconds) {
+    public static String formatUptime(final int seconds) {
         if (seconds < 60) {
             return seconds + "s";
         } else if (seconds < 60 * 60) {
@@ -26,7 +26,7 @@ final class ServerListEntry {
         }
     }
 
-    public static String toCountryName(String countryCode) {
+    public static String toCountryName(final String countryCode) {
         if (countryCode == null) {
             throw new NullPointerException("s");
         }
