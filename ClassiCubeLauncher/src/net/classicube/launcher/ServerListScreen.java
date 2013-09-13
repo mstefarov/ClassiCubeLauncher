@@ -30,7 +30,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
-
     private final List<ServerListEntry> displayedServerList = new ArrayList<>();
     private GameSession.GetServerDetailsTask getServerDetailsTask;
     private final GameSession.GetServerListTask getServerListTask;
@@ -227,6 +226,9 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }
 
     private void joinServer(ServerJoinInfo joinInfo) {
+        if (joinInfo == null) {
+            throw new NullPointerException("joinInfo");
+        }
         if (joinInfo.playerName == null || "".equals(joinInfo.playerName)) {
             joinInfo.playerName = session.getAccount().playerName;
         }
@@ -285,7 +287,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }
 
     private class UptimeCellRenderer extends DefaultTableCellRenderer {
-
         @Override
         public Component getTableCellRendererComponent(final JTable table, final Object value,
                 final boolean isSelected, final boolean hasFocus, final int row, final int column) {
@@ -324,6 +325,10 @@ public final class ServerListScreen extends javax.swing.JFrame {
     private void bPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPreferencesActionPerformed
         new PreferencesScreen(this).setVisible(true);
     }//GEN-LAST:event_bPreferencesActionPerformed
+
+    private void tServerURLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tServerURLActionPerformed
+        joinSelectedServer();
+    }//GEN-LAST:event_tServerURLActionPerformed
 
     // =============================================================================================
     //                                                                            GENERATED GUI CODE
@@ -496,9 +501,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tServerURLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tServerURLActionPerformed
-        joinSelectedServer();
-    }//GEN-LAST:event_tServerURLActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;

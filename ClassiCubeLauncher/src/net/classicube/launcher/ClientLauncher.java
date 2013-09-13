@@ -41,11 +41,12 @@ final public class ClientLauncher {
                     SessionManager.getSession().getSkinUrl(),
                     Boolean.toString(Prefs.getFullscreen()));
             processBuilder.directory(PathUtil.getClientDir());
-            //processBuilder.inheritIO();
+            processBuilder.inheritIO();
 
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
             final Process p = processBuilder.start();
-            //p.waitFor();
+            p.waitFor();
+            //System.exit(0);
         } catch (final Exception ex) {
             LogUtil.die( "Error launching client", ex);
         }

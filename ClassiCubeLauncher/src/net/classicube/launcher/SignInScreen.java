@@ -150,6 +150,7 @@ final class SignInScreen extends javax.swing.JFrame {
     void onAfterServiceChanged() {
         accountManager = SessionManager.getAccountManager();
         cUsername.removeAllItems();
+        tPassword.setText("");
         // fill the account list
         final UserAccount[] accounts = accountManager.getAccountsBySignInDate();
         for (UserAccount account : accounts) {

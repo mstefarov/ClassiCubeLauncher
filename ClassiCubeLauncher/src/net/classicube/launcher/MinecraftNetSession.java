@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 final class MinecraftNetSession extends GameSession {
-
     private static final String HOMEPAGE_URL = "http://minecraft.net";
 
     public MinecraftNetSession() {
@@ -284,6 +283,7 @@ final class MinecraftNetSession extends GameSession {
         if (playHashUrlMatch.matches()) {
             result = new ServerJoinInfo();
             result.signInNeeded = true;
+            result.passNeeded = true;
             result.hash = playHashUrlMatch.group(2);
             if ("1".equals(playHashUrlMatch.group(4)) || "true".equals(playHashUrlMatch.group(4))) {
                 result.override = true;
@@ -332,7 +332,7 @@ final class MinecraftNetSession extends GameSession {
     public String getPlayUrl(final String hash) {
         return PLAY_URL + hash;
     }
-    
+
     @Override
     public GameServiceType getServiceType() {
         return GameServiceType.MinecraftNetService;
