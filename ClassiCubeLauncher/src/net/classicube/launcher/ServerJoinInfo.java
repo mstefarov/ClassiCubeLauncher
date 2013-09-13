@@ -7,7 +7,8 @@ public class ServerJoinInfo {
     String hash;
     InetAddress address;
     int port;
-    String mppass;
+    String pass;
     boolean override;
     boolean signInNeeded;
+    boolean passNeeded;
 }

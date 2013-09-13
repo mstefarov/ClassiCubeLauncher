@@ -108,9 +108,9 @@ abstract class GameSession {
             result.playerName = directUrlMatch.group(7);
             final String mppass = directUrlMatch.group(9);
             if (mppass != null) {
-                result.mppass = mppass;
+                result.pass = mppass;
             } else {
-                result.mppass = "";
+                result.pass = "";
             }
             return result;
         }
@@ -164,14 +164,14 @@ abstract class GameSession {
                         this.joinInfo.port = Integer.parseInt(value);
                         break;
                     case "mppass":
-                        this.joinInfo.mppass = value;
+                        this.joinInfo.pass = value;
                         break;
                 }
             }
 
             // Verify that we got everything
             if (this.joinInfo.playerName == null || this.joinInfo.address == null
-                    || this.joinInfo.port == 0 || this.joinInfo.mppass == null) {
+                    || this.joinInfo.port == 0 || this.joinInfo.pass == null) {
                 LogUtil.getLogger().log(Level.WARNING, "Incomplete information returned from Minecraft.net");
                 return false;
             }
@@ -201,7 +201,7 @@ abstract class GameSession {
             return null;
         }
         info.port = node.getInt("Port", 0);
-        info.mppass = node.get("Pass", null);
+        info.pass = node.get("Pass", null);
         info.override = node.getBoolean("Override", false);
         info.signInNeeded = node.getBoolean("SignInNeeded", true);
         if (info.playerName == null || info.port == 0) {
@@ -219,7 +219,7 @@ abstract class GameSession {
         node.put("Hash", (info.hash != null ? info.hash : ""));
         node.put("Address", info.address.getHostAddress());
         node.putInt("Port", info.port);
-        node.put("Pass", (info.mppass != null ? info.mppass : ""));
+        node.put("Pass", (info.pass != null ? info.pass : ""));
         node.putBoolean("Override", info.override);
         node.putBoolean("SignInNeeded", info.signInNeeded);
     }

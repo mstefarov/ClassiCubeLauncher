@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 
 final class ClassiCubeNetSession extends GameSession {
 
-    private static final String HomepageUri = "http://classicube.net";
+    private static final String HOMEPAGE_URL = "http://classicube.net";
 
     public ClassiCubeNetSession() {
         super("ClassiCubeNetSession");
         try {
-            this.siteUri = new URI(HomepageUri);
+            this.siteUri = new URI(HOMEPAGE_URL);
         } catch (final URISyntaxException ex) {
             LogUtil.die("Cannot set siteUri", ex);
         }
@@ -137,7 +137,7 @@ final class ClassiCubeNetSession extends GameSession {
                 requestStr.append("&remember_me=true");
             }
             requestStr.append("&redirect=");
-            requestStr.append(urlEncode(HomepageUri));
+            requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
             this.publish("Signing in...");
@@ -254,6 +254,7 @@ final class ClassiCubeNetSession extends GameSession {
         if (playHashUrlMatch.matches()) {
             final ServerJoinInfo result = new ServerJoinInfo();
             result.signInNeeded = true;
+            result.passNeeded = true;
             result.hash = playHashUrlMatch.group(1);
             final String overrideString = playHashUrlMatch.group(3);
             if ("1".equals(overrideString) || "true".equals(overrideString)) {
