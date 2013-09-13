@@ -1,8 +1,7 @@
 package net.classicube.launcher;
 
+// Keeps track of the global GameSession and AccountManager instances.
 final class SessionManager {
-
-    private static ServerJoinInfo joinInfo;
     private static GameSession activeSession;
     private static AccountManager accountManager;
 
@@ -10,15 +9,7 @@ final class SessionManager {
         accountManager = new AccountManager(serviceType.name());
         accountManager.load();
         Prefs.setSelectedGameService(serviceType);
-        return createNewSession();
-    }
-
-    public static GameSession getSession() {
-        return activeSession;
-    }
-
-    public static GameSession createNewSession() {
-        if (Prefs.getSelectedGameService() == GameServiceType.ClassiCubeNetService) {
+        if (serviceType == GameServiceType.ClassiCubeNetService) {
             activeSession = new ClassiCubeNetSession();
         } else {
             activeSession = new MinecraftNetSession();
@@ -26,15 +17,11 @@ final class SessionManager {
         return activeSession;
     }
 
+    public static GameSession getSession() {
+        return activeSession;
+    }
+
     public static AccountManager getAccountManager() {
         return accountManager;
-    }
-
-    public static void setJoinInfo(ServerJoinInfo server) {
-        joinInfo = server;
-    }
-
-    public static ServerJoinInfo getJoinInfo() {
-        return joinInfo;
     }
 }

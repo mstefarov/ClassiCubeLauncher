@@ -20,10 +20,10 @@ final class UserAccount {
         if (password == null) {
             throw new NullPointerException("password");
         }
-        signInUsername = username;
-        playerName = username;
+        this.signInUsername = username;
+        this.playerName = username;
         this.password = password;
-        signInDate = new Date(0);
+        this.signInDate = new Date(0);
     }
 
     // Loads all information from a given Preferences node
@@ -31,12 +31,12 @@ final class UserAccount {
         if (prefs == null) {
             throw new NullPointerException("prefs");
         }
-        signInUsername = prefs.get("SignInUsername", null);
-        playerName = prefs.get("PlayerName", null);
-        password = prefs.get("Password", "");
+        this.signInUsername = prefs.get("SignInUsername", null);
+        this.playerName = prefs.get("PlayerName", null);
+        this.password = prefs.get("Password", "");
         final long dateTicks = prefs.getLong("SignInDate", 0);
-        signInDate = new Date(dateTicks);
-        if (signInUsername == null || playerName == null || password == null) {
+        this.signInDate = new Date(dateTicks);
+        if (this.signInUsername == null || this.playerName == null || this.password == null) {
             LogUtil.getLogger().log(Level.WARNING, "Could not parse pref as a sign-in account.");
             throw new IllegalArgumentException("Pref could not be parsed");
         }
@@ -47,26 +47,23 @@ final class UserAccount {
         if (prefs == null) {
             throw new NullPointerException("prefs");
         }
-        prefs.put("SignInUsername", signInUsername);
-        prefs.put("PlayerName", playerName);
-        prefs.put("Password", password);
-        prefs.putLong("SignInDate", signInDate.getTime());
+        prefs.put("SignInUsername", this.signInUsername);
+        prefs.put("PlayerName", this.playerName);
+        prefs.put("Password", this.password);
+        prefs.putLong("SignInDate", this.signInDate.getTime());
     }
 
+    // Gets a comparator that sorts servers by signInDate (most recent first)
+    public static Comparator<UserAccount> getUptimeComparator() {
+        return comparatorInstance;
+    }
+
+    private static final UserAccountDateComparator comparatorInstance = new UserAccountDateComparator();
     private static class UserAccountDateComparator implements Comparator<UserAccount> {
-
-        private UserAccountDateComparator() {
-        }
-
         @Override
         public int compare(UserAccount o1, UserAccount o2) {
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();
             return delta.intValue();
         }
-    }
-    private static final UserAccountDateComparator comparatorInstance = new UserAccountDateComparator();
-
-    public static Comparator<UserAccount> getComparator() {
-        return comparatorInstance;
     }
 }

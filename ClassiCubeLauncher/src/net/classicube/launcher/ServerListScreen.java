@@ -24,9 +24,23 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 public final class ServerListScreen extends javax.swing.JFrame {
+    // =============================================================================================
+    //                                                                            FIELDS & CONSTANTS
+    // =============================================================================================
+    private final List<ServerListEntry> displayedServerList = new ArrayList<>();
+    private GameSession.GetServerDetailsTask getServerDetailsTask;
+    private final GameSession.GetServerListTask getServerListTask;
+    private ServerListEntry selectedServer;
+    private ServerListEntry[] serverList;
+    private final GameSession session;
+    private final TableColumnAdjuster tableColumnAdjuster;
 
+    // =============================================================================================
+    //                                                                                INITIALIZATION
+    // =============================================================================================
     public ServerListScreen() {
         LogUtil.getLogger().log(Level.FINE, "ServerListScreen");
 
@@ -83,6 +97,137 @@ public final class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.execute();
     }
 
+    private void disableGui() {
+        bChangeUser.setEnabled(false);
+        bPreferences.setEnabled(false);
+        tSearch.setEnabled(false);
+        serverTable.setEnabled(false);
+        tServerURL.setEnabled(false);
+        bConnect.setEnabled(false);
+    }
+
+    // =============================================================================================
+    //                                                                           SERVER LIST FILLING
+    // =============================================================================================
+    private void onServerListDone() {
+        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerListDone");
+        try {
+            serverList = getServerListTask.get();
+            fillServerTable();
+            tSearch.setPlaceholder("Search servers...");
+            tSearch.setEnabled(true);
+            tSearch.selectAll();
+            tSearch.requestFocus();
+            progress.setVisible(false);
+
+            tableColumnAdjuster.adjustColumns();
+
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading server list", ex);
+            LogUtil.showWarning(ex.toString(), "Problem loading server list");
+            tSearch.setText("Could not load server list.");
+        }
+    }
+
+    private void fillServerTable() {
+        final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
+
+        // reset sort order
+        final RowSorter<? extends TableModel> rowSorter = serverTable.getRowSorter();
+        rowSorter.setSortKeys(null);
+
+        // remove all rows
+        model.setNumRows(0);
+        displayedServerList.clear();
+
+        // add new rows
+        final String searchTerm = tSearch.getText().toLowerCase();
+        for (ServerListEntry server : serverList) {
+            if (server.name.toLowerCase().contains(searchTerm)) {
+                displayedServerList.add(server);
+                model.addRow(new Object[]{
+                    server.name,
+                    server.players,
+                    server.maxPlayers,
+                    server.uptime,
+                    ServerListEntry.toCountryName(server.flag)
+                });
+            }
+        }
+
+        // select first server
+        if (model.getRowCount() > 0) {
+            serverTable.setRowSelectionInterval(0, 0);
+        }
+    }
+
+    // =============================================================================================
+    //                                                                              JOINING A SERVER
+    // =============================================================================================
+    private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
+        joinSelectedServer();
+    }//GEN-LAST:event_bConnectActionPerformed
+
+    private ServerListEntry getSelectedServer() {
+        final int[] rowIndex = serverTable.getSelectedRows();
+        if (rowIndex.length == 1) {
+            final int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
+            return displayedServerList.get(trueIndex);
+        }
+        return null;
+    }
+
+    private void joinSelectedServer() {
+        LogUtil.getLogger().log(Level.INFO,
+                "Fetching details for server: {0}", selectedServer.name);
+        String url = tServerURL.getText();
+        ServerJoinInfo joinInfo = session.getDetailsFromUrl(url);
+        if (joinInfo == null) {
+            LogUtil.showWarning("Unrecognized server URL.", "Cannot connect to server");
+        } else if (joinInfo.signInNeeded) {
+            getServerDetailsTask = session.getServerDetailsAsync(url);
+            getServerDetailsTask.addPropertyChangeListener(
+                    new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if ("state".equals(evt.getPropertyName())) {
+                        if (evt.getNewValue().equals(StateValue.DONE)) {
+                            onServerDetailsDone();
+                        }
+                    }
+                }
+            });
+            progress.setVisible(true);
+            disableGui();
+            getServerDetailsTask.execute();
+        } else {
+            ClientUpdateScreen.createAndShow(joinInfo);
+            dispose();
+        }
+    }
+
+    private void onServerDetailsDone() {
+        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerDetailsDone");
+        try {
+            final boolean result = getServerDetailsTask.get();
+            if (result) {
+                ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
+                joinInfo.playerName = session.getAccount().playerName;
+                ClientUpdateScreen.createAndShow(joinInfo);
+                dispose();
+            } else {
+                LogUtil.showError("Could not fetch server details.", "Error");
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
+            LogUtil.showWarning(ex.toString(), "Problem loading server details");
+            tSearch.setText("Could not load server list.");
+        }
+    }
+
+    // =============================================================================================
+    //                                                                           GUI EVENT LISTENERS
+    // =============================================================================================
     private void setHandlers() {
         tServerURL.setEditable(false);//TODO: make serverURL accept server links
 
@@ -131,17 +276,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         });
     }
 
-    private void disableGui() {
-        bChangeUser.setEnabled(false);
-        bPreferences.setEnabled(false);
-        tSearch.setEnabled(false);
-        serverTable.setEnabled(false);
-        tServerURL.setEnabled(false);
-        bConnect.setEnabled(false);
-    }
-
     private class UptimeCellRenderer extends DefaultTableCellRenderer {
-
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -155,67 +290,34 @@ public final class ServerListScreen extends javax.swing.JFrame {
         }
     }
 
-    private void onServerListDone() {
-        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerListDone");
-        try {
-            serverList = getServerListTask.get();
-            fillServerTable();
-            tSearch.setPlaceholder("Search servers...");
-            tSearch.setEnabled(true);
-            tSearch.selectAll();
-            tSearch.requestFocus();
-            progress.setVisible(false);
+    private void bChangeUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeUserActionPerformed
+        LogUtil.getLogger().log(Level.INFO, "[Change User]");
+        new SignInScreen().setVisible(true);
+        dispose();
+    }//GEN-LAST:event_bChangeUserActionPerformed
 
-            tableColumnAdjuster.adjustColumns();
+    private void tSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tSearchKeyReleased
+        //System.out.println(tSearch.getText());
+        fillServerTable();
+    }//GEN-LAST:event_tSearchKeyReleased
 
-        } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error loading server list", ex);
-            LogUtil.showWarning(ex.toString(), "Problem loading server list");
-            tSearch.setText("Could not load server list.");
+    private void tSearchFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tSearchFocusGained
+        tSearch.selectAll();
+    }//GEN-LAST:event_tSearchFocusGained
+
+    private void tSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tSearchActionPerformed
+        if (serverTable.getSelectedRows().length == 1) {
+            joinSelectedServer();
         }
-    }
+    }//GEN-LAST:event_tSearchActionPerformed
 
-    private void fillServerTable() {
-        final DefaultTableModel model = (DefaultTableModel) serverTable.getModel();
+    private void bPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPreferencesActionPerformed
+        new PreferencesScreen(this).setVisible(true);
+    }//GEN-LAST:event_bPreferencesActionPerformed
 
-        // reset sort order
-        final RowSorter rowSorter = serverTable.getRowSorter();
-        rowSorter.setSortKeys(null);
-
-        // remove all rows
-        model.setNumRows(0);
-        displayedServerList.clear();
-
-        // add new rows
-        final String searchTerm = tSearch.getText().toLowerCase();
-        for (ServerListEntry server : serverList) {
-            if (server.name.toLowerCase().contains(searchTerm)) {
-                displayedServerList.add(server);
-                model.addRow(new Object[]{
-                    server.name,
-                    server.players,
-                    server.maxPlayers,
-                    server.uptime,
-                    ServerListEntry.toCountryName(server.flag)
-                });
-            }
-        }
-
-        // select first server
-        if (model.getRowCount() > 0) {
-            serverTable.setRowSelectionInterval(0, 0);
-        }
-    }
-
-    private ServerListEntry getSelectedServer() {
-        final int[] rowIndex = serverTable.getSelectedRows();
-        if (rowIndex.length == 1) {
-            final int trueIndex = serverTable.convertRowIndexToModel(rowIndex[0]);
-            return displayedServerList.get(trueIndex);
-        }
-        return null;
-    }
-
+    // =============================================================================================
+    //                                                                            GENERATED GUI CODE
+    // =============================================================================================
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT
      * modify this code. The content of this method is always regenerated by the Form Editor.
@@ -380,84 +482,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void bChangeUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeUserActionPerformed
-        LogUtil.getLogger().log(Level.INFO, "[Change User]");
-        new SignInScreen().setVisible(true);
-        dispose();
-    }//GEN-LAST:event_bChangeUserActionPerformed
-
-    private void bConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bConnectActionPerformed
-        joinSelectedServer();
-    }//GEN-LAST:event_bConnectActionPerformed
-
-    private void tSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tSearchKeyReleased
-        //System.out.println(tSearch.getText());
-        fillServerTable();
-    }//GEN-LAST:event_tSearchKeyReleased
-
-    private void tSearchFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tSearchFocusGained
-        tSearch.selectAll();
-    }//GEN-LAST:event_tSearchFocusGained
-
-    private void tSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tSearchActionPerformed
-        if (serverTable.getSelectedRows().length == 1) {
-            joinSelectedServer();
-        }
-    }//GEN-LAST:event_tSearchActionPerformed
-
-    private void bPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPreferencesActionPerformed
-        new PreferencesScreen(this).setVisible(true);
-    }//GEN-LAST:event_bPreferencesActionPerformed
-
-    void joinSelectedServer() {
-        LogUtil.getLogger().log(Level.INFO,
-                "Fetching details for server: {0}", selectedServer.name);
-        String url = tServerURL.getText();
-        ServerJoinInfo joinInfo = session.getDetailsFromUrl(url);
-        if (joinInfo == null) {
-            LogUtil.showWarning("Unrecognized server URL.", "Cannot connect to server");
-        } else if (joinInfo.signInNeeded) {
-            getServerDetailsTask = session.getServerDetailsAsync(url);
-            getServerDetailsTask.addPropertyChangeListener(
-                    new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if ("state".equals(evt.getPropertyName())) {
-                        if (evt.getNewValue().equals(StateValue.DONE)) {
-                            onServerDetailsDone();
-                        }
-                    }
-                }
-            });
-            progress.setVisible(true);
-            disableGui();
-            getServerDetailsTask.execute();
-        } else {
-            SessionManager.setJoinInfo(joinInfo);
-            ClientUpdateScreen.createAndShow();
-            dispose();
-        }
-    }
-
-    private void onServerDetailsDone() {
-        LogUtil.getLogger().log(Level.FINE, "ServerListScreen.onServerDetailsDone");
-        try {
-            final boolean result = getServerDetailsTask.get();
-            if (result) {
-                ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
-                joinInfo.playerName = session.getAccount().playerName;
-                SessionManager.setJoinInfo(joinInfo);
-                ClientUpdateScreen.createAndShow();
-                dispose();
-            } else {
-                LogUtil.showError("Could not fetch server details.", "Error");
-            }
-        } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
-            LogUtil.showWarning(ex.toString(), "Problem loading server details");
-            tSearch.setText("Could not load server list.");
-        }
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;
@@ -468,11 +492,4 @@ public final class ServerListScreen extends javax.swing.JFrame {
     private net.classicube.launcher.PlaceholderTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
-    private final List<ServerListEntry> displayedServerList = new ArrayList<>();
-    private final GameSession.GetServerListTask getServerListTask;
-    private GameSession.GetServerDetailsTask getServerDetailsTask;
-    private ServerListEntry[] serverList;
-    private final GameSession session;
-    private ServerListEntry selectedServer;
-    private final TableColumnAdjuster tableColumnAdjuster;
 }

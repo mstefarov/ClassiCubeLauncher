@@ -482,7 +482,7 @@ final class ClientUpdateTask
             throw new NullPointerException("updateScreen");
         }
         this.updateScreen = updateScreen;
-        if (this.isDone()) {
+        if (isDone()) {
             signalDone();
             updateScreen.onUpdateDone(updatesApplied);
         }

@@ -9,20 +9,29 @@ import java.util.logging.Level;
 import javax.swing.JOptionPane;
 
 final class ClientUpdateScreen extends javax.swing.JFrame {
-
+    // =============================================================================================
+    //                                                                            FIELDS & CONSTANTS
+    // =============================================================================================
     private static final String ReleaseNotesUrl = "https://github.com/andrewphorn/ClassiCube-Client/commits/master";
 
-    public static void createAndShow() {
-        ClientUpdateScreen sc = new ClientUpdateScreen();
+    private Desktop desktop;
+    private ServerJoinInfo joinInfo;
+
+    // =============================================================================================
+    //                                                                                INITIALIZATION
+    // =============================================================================================
+    public static void createAndShow(ServerJoinInfo joinInfo) {
         if (Prefs.getUpdateMode() != UpdateMode.DISABLED) {
+            ClientUpdateScreen sc = new ClientUpdateScreen(joinInfo);
             sc.setVisible(true);
             ClientUpdateTask.getInstance().registerUpdateScreen(sc);
         } else {
-            ClientLauncher.launchClient();
+            ClientLauncher.launchClient(joinInfo);
         }
     }
 
-    private ClientUpdateScreen() {
+    private ClientUpdateScreen(ServerJoinInfo joinInfo) {
+        this.joinInfo = joinInfo;
         initComponents();
 
         // center the form on screen (initially)
@@ -31,21 +40,23 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         // tweak the UI for auto/notify preference
         boolean auto = (Prefs.getUpdateMode() == UpdateMode.AUTOMATIC);
         if (auto) {
-            this.lNotice.setText("The game will start as soon as updates are complete.");
+            lNotice.setText("The game will start as soon as updates are complete.");
         } else {
-            this.lNotice.setText("A client update is being installed.");
-            this.getRootPane().setDefaultButton(bContinue);
+            lNotice.setText("A client update is being installed.");
+            getRootPane().setDefaultButton(bContinue);
             desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
             if (desktop != null && !desktop.isSupported(Desktop.Action.BROWSE)) {
                 desktop = null;
             }
         }
-        this.bContinue.setVisible(!auto);
-        this.bViewReleaseNotes.setVisible(!auto);
+        bContinue.setVisible(!auto);
+        bViewReleaseNotes.setVisible(!auto);
         pack();
     }
-    Desktop desktop;
 
+    // =============================================================================================
+    //                                                                                      UPDATING
+    // =============================================================================================
     public void setStatus(ClientUpdateTask.ProgressUpdate dl) {
         System.out.println(String.format("setStatus(%d, \"%s\", \"%s\")", dl.progress, dl.fileName, dl.status));
         //LogUtil.getLogger().info("ClientUpdateScreen.setStatus");
@@ -67,14 +78,40 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         }
 
         if (!updatesApplied || Prefs.getUpdateMode() == UpdateMode.AUTOMATIC) {
-            ClientLauncher.launchClient();
+            ClientLauncher.launchClient(joinInfo);
             dispose();
         } else {
-            this.lNotice.setText(" ");
-            this.bContinue.setEnabled(true);
+            lNotice.setText(" ");
+            bContinue.setEnabled(true);
         }
     }
 
+    // =============================================================================================
+    //                                                                           GUI EVENT LISTENERS
+    // =============================================================================================
+    private void bContinueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bContinueActionPerformed
+        ClientLauncher.launchClient(joinInfo);
+        dispose();
+    }//GEN-LAST:event_bContinueActionPerformed
+
+    private void bViewReleaseNotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bViewReleaseNotesActionPerformed
+        if (desktop != null) {
+            try {
+                desktop.browse(new URI(ReleaseNotesUrl));
+            } catch (URISyntaxException | IOException ex) {
+                LogUtil.getLogger().log(Level.WARNING, "Error opening release notes URL", ex);
+                JOptionPane.showInputDialog(this, "Release notes URL", ReleaseNotesUrl);
+            }
+        }
+    }//GEN-LAST:event_bViewReleaseNotesActionPerformed
+
+    // =============================================================================================
+    //                                                                            GENERATED GUI CODE
+    // =============================================================================================
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
+     * modify this code. The content of this method is always regenerated by the Form Editor.
+     */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
@@ -148,21 +185,6 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void bContinueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bContinueActionPerformed
-        ClientLauncher.launchClient();
-        dispose();
-    }//GEN-LAST:event_bContinueActionPerformed
-
-    private void bViewReleaseNotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bViewReleaseNotesActionPerformed
-        if (desktop != null) {
-            try {
-                desktop.browse(new URI(ReleaseNotesUrl));
-            } catch (URISyntaxException | IOException ex) {
-                LogUtil.getLogger().log(Level.WARNING, "Error opening release notes URL", ex);
-                JOptionPane.showInputDialog(this, "Release notes URL", ReleaseNotesUrl);
-            }
-        }
-    }//GEN-LAST:event_bViewReleaseNotesActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bContinue;
     private javax.swing.JButton bViewReleaseNotes;

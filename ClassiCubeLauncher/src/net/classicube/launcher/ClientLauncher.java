@@ -5,14 +5,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 
+// Handles launching the client.
 final public class ClientLauncher {
 
     private static final String ClassPath = "client.jar;libs/*",
             ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
 
-    public static void launchClient() {
+    public static void launchClient(ServerJoinInfo joinInfo) {
         LogUtil.getLogger().info("launchClient");
-        final ServerJoinInfo joinInfo = SessionManager.getJoinInfo();
         SessionManager.getSession().storeResumeInfo(joinInfo);
         
         final File java = getJavaPath();

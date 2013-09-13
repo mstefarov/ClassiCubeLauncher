@@ -8,7 +8,9 @@ import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 
 final class PreferencesScreen extends javax.swing.JDialog {
-
+    // =============================================================================================
+    //                                                                                INITIALIZATION
+    // =============================================================================================
     public PreferencesScreen(JFrame parent) {
         super(parent, "Preferences", true);
         JRootPane root = getRootPane();
@@ -21,6 +23,9 @@ final class PreferencesScreen extends javax.swing.JDialog {
         setLocationRelativeTo(parent);
     }
 
+    // =============================================================================================
+    //                                                                         LOADING/STORING PREFS
+    // =============================================================================================
     private void loadPreferences() {
         xFullscreen.setSelected(Prefs.getFullscreen());
         loadUpdateMode(Prefs.getUpdateMode());
@@ -47,6 +52,16 @@ final class PreferencesScreen extends javax.swing.JDialog {
         rgUpdateMode.setSelected(btn.getModel(), true);
     }
 
+    private void loadDefaults() {
+        xFullscreen.setSelected(Prefs.FullscreenDefault);
+        loadUpdateMode(Prefs.UpdateModeDefault);
+        xRememberUsers.setSelected(Prefs.RememberUsersDefault);
+        xRememberPasswords.setSelected(Prefs.RememberPasswordsDefault);
+        xRememberServer.setSelected(Prefs.RememberServerDefault);
+        tJavaArgs.setText(Prefs.JavaArgsDefault);
+        nMemory.setValue(Prefs.MaxMemoryDefault);
+    }
+
     private void storePreferences() {
         Prefs.setFullscreen(xFullscreen.isSelected());
         Prefs.setUpdateMode(storeUpdateMode());
@@ -69,17 +84,74 @@ final class PreferencesScreen extends javax.swing.JDialog {
         return val;
     }
 
-    private void loadDefaults() {
-        xFullscreen.setSelected(Prefs.FullscreenDefault);
-        loadUpdateMode(Prefs.UpdateModeDefault);
-        xRememberUsers.setSelected(Prefs.RememberUsersDefault);
-        xRememberPasswords.setSelected(Prefs.RememberPasswordsDefault);
-        xRememberServer.setSelected(Prefs.RememberServerDefault);
-        tJavaArgs.setText(Prefs.JavaArgsDefault);
-        nMemory.setValue(Prefs.MaxMemoryDefault);
-    }
+    // =============================================================================================
+    //                                                                                    FORGETTING
+    // =============================================================================================
+    private void bForgetUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetUsersActionPerformed
+        if (JOptionPane.showConfirmDialog(this,
+                "Really erase all stored user information?", "Warning",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+            SessionManager.getAccountManager().clear();
+            JOptionPane.showMessageDialog(this,
+                    "All stored user information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_bForgetUsersActionPerformed
 
-    @SuppressWarnings("unchecked")
+    private void bForgetPasswordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetPasswordsActionPerformed
+        if (JOptionPane.showConfirmDialog(this,
+                "Really erase all stored passwords?", "Warning",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+            SessionManager.getAccountManager().clearPasswords();
+            JOptionPane.showMessageDialog(this,
+                    "All stored passwords erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_bForgetPasswordsActionPerformed
+
+    private void bForgetServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServerActionPerformed
+        if (JOptionPane.showConfirmDialog(this,
+                "Really erase last-joined server?", "Warning",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+            SessionManager.getSession().clearResumeInfo();
+            JOptionPane.showMessageDialog(this,
+                    "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_bForgetServerActionPerformed
+
+    // =============================================================================================
+    //                                                                           GUI EVENT LISTENERS
+    // =============================================================================================
+    private void bCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bCancelActionPerformed
+        dispose();
+    }//GEN-LAST:event_bCancelActionPerformed
+
+    private void bDefaultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDefaultsActionPerformed
+        loadDefaults();
+    }//GEN-LAST:event_bDefaultsActionPerformed
+
+    private void bSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveActionPerformed
+        storePreferences();
+        dispose();
+    }//GEN-LAST:event_bSaveActionPerformed
+    
+    private void xRememberUsersItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_xRememberUsersItemStateChanged
+        if(evt.getStateChange() == ItemEvent.DESELECTED){
+            xRememberPasswords.setEnabled(false);
+            xRememberPasswords.setSelected(false);
+        }else{
+            xRememberPasswords.setEnabled(true);
+        }
+    }//GEN-LAST:event_xRememberUsersItemStateChanged
+
+    // =============================================================================================
+    //                                                                            GENERATED GUI CODE
+    // =============================================================================================
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT
+     * modify this code. The content of this method is always regenerated by the Form Editor.
+     */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
@@ -334,60 +406,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void bCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bCancelActionPerformed
-        dispose();
-    }//GEN-LAST:event_bCancelActionPerformed
-
-    private void bDefaultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDefaultsActionPerformed
-        loadDefaults();
-    }//GEN-LAST:event_bDefaultsActionPerformed
-
-    private void bSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveActionPerformed
-        storePreferences();
-        dispose();
-    }//GEN-LAST:event_bSaveActionPerformed
-
-    private void bForgetUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetUsersActionPerformed
-        if (JOptionPane.showConfirmDialog(this,
-                "Really erase all stored user information?", "Warning",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
-            SessionManager.getAccountManager().clear();
-            JOptionPane.showMessageDialog(this,
-                    "All stored user information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
-        }
-    }//GEN-LAST:event_bForgetUsersActionPerformed
-
-    private void bForgetPasswordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetPasswordsActionPerformed
-        if (JOptionPane.showConfirmDialog(this,
-                "Really erase all stored passwords?", "Warning",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
-            SessionManager.getAccountManager().clearPasswords();
-            JOptionPane.showMessageDialog(this,
-                    "All stored passwords erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
-        }
-    }//GEN-LAST:event_bForgetPasswordsActionPerformed
-
-    private void bForgetServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServerActionPerformed
-        if (JOptionPane.showConfirmDialog(this,
-                "Really erase last-joined server?", "Warning",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
-            SessionManager.getSession().clearResumeInfo();
-            JOptionPane.showMessageDialog(this,
-                    "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
-        }
-    }//GEN-LAST:event_bForgetServerActionPerformed
-
-    private void xRememberUsersItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_xRememberUsersItemStateChanged
-        if(evt.getStateChange() == ItemEvent.DESELECTED){
-            xRememberPasswords.setEnabled(false);
-            xRememberPasswords.setSelected(false);
-        }else{
-            xRememberPasswords.setEnabled(true);
-        }
-    }//GEN-LAST:event_xRememberUsersItemStateChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bDefaults;

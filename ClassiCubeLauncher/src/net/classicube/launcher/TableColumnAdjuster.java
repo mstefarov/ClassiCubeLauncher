@@ -33,7 +33,8 @@ import javax.swing.table.TableModel;
  *  or more of the other columns must decrease. Because of this the resize mode
  *  of RESIZE_ALL_COLUMNS will work the best.
  */
-public final class TableColumnAdjuster implements PropertyChangeListener, TableModelListener {
+public final class TableColumnAdjuster
+        implements PropertyChangeListener, TableModelListener {
 
     private JTable table;
     private int spacing;

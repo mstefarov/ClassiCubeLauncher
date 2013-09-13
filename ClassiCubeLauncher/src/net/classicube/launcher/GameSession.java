@@ -32,7 +32,6 @@ abstract class GameSession {
         store = Preferences.userNodeForPackage(getClass())
                 .node("GameServices")
                 .node(serviceName);
-        cookieJar.removeAll();
     }
 
     // =============================================================================================
@@ -292,7 +291,7 @@ abstract class GameSession {
     protected UserAccount account;
 
     public UserAccount getAccount() {
-        return account;
+        return this.account;
     }
 
     // Encodes a string in a URL-friendly format, for GET or POST
@@ -300,9 +299,9 @@ abstract class GameSession {
         if (rawString == null) {
             throw new NullPointerException("rawString");
         }
-        final String enc = StandardCharsets.UTF_8.name();
+        final String encName = StandardCharsets.UTF_8.name();
         try {
-            return URLEncoder.encode(rawString, enc);
+            return URLEncoder.encode(rawString, encName);
         } catch (UnsupportedEncodingException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Encoding error", ex);
             return null;

@@ -27,10 +27,22 @@ import javax.swing.text.JTextComponent;
 // Sign-in screen! First thing the user sees.
 // Instantiated and first shown by EntryPoint.main
 final class SignInScreen extends javax.swing.JFrame {
-
+    // =============================================================================================
+    //                                                                            FIELDS & CONSTANTS
+    // =============================================================================================
     private final static boolean RememberMeDefault = true;
     private final static String RememberMeKeyName = "RememberPassword";
 
+    private AccountManager accountManager;
+    private final ImagePanel bgPanel;
+    private JToggleButton buttonToDisableOnSignIn;
+    private UsernameOrPasswordChangedListener fieldChangeListener;
+    private final Preferences prefs;
+    private GameSession.SignInTask signInTask;
+
+    // =============================================================================================
+    //                                                                                INITIALIZATION
+    // =============================================================================================
     public SignInScreen() {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen");
 
@@ -62,6 +74,343 @@ final class SignInScreen extends javax.swing.JFrame {
 
         // Alright, we're good to go.
         enableGUI();
+    }
+
+    // Grays out the UI, and shows a progress bar
+    private void disableGUI() {
+        cUsername.setEnabled(false);
+        tPassword.setEnabled(false);
+        xRememberPassword.setEnabled(false);
+        bDirect.setEnabled(false);
+        bResume.setEnabled(false);
+        bSignIn.setEnabled(false);
+        buttonToDisableOnSignIn.setEnabled(false);
+
+        progress.setVisible(true);
+        pack();
+    }
+
+    // Re-enabled the UI, and hides the progress bar
+    private void enableGUI() {
+        cUsername.setEnabled(true);
+        tPassword.setEnabled(true);
+        xRememberPassword.setEnabled(true);
+        bDirect.setEnabled(true);
+        enableResumeIfNeeded();
+        checkIfSignInAllowed();
+        buttonToDisableOnSignIn.setEnabled(true);
+
+        progress.setVisible(false);
+        pack();
+    }
+
+    // =============================================================================================
+    //                                                      MINECRAFT / CLASSICUBE SERVICE SWITCHING
+    // =============================================================================================
+    private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            LogUtil.getLogger().log(Level.INFO, "[Minecraft.Net]");
+            selectMinecraftNet();
+        }
+    }//GEN-LAST:event_bMinecraftNetItemStateChanged
+
+    private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            LogUtil.getLogger().log(Level.INFO, "[ClassiCube.Net]");
+            selectClassiCubeNet();
+        }
+    }//GEN-LAST:event_bClassiCubeNetItemStateChanged
+
+    void selectClassiCubeNet() {
+        LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectClassiCube");
+        bgPanel.setImage(Resources.getClassiCubeBackground());
+        ipLogo.setImage(Resources.getClassiCubeLogo());
+        bMinecraftNet.setEnabled(true);
+        bMinecraftNet.setSelected(false);
+        bClassiCubeNet.setEnabled(false);
+        buttonToDisableOnSignIn = bMinecraftNet;
+        SessionManager.selectService(GameServiceType.ClassiCubeNetService);
+        onAfterServiceChanged();
+
+    }
+
+    void selectMinecraftNet() {
+        LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectMinecraftNet");
+        bgPanel.setImage(Resources.getMinecraftNetBackground());
+        ipLogo.setImage(Resources.getMinecraftNetLogo());
+        bClassiCubeNet.setEnabled(true);
+        bClassiCubeNet.setSelected(false);
+        bMinecraftNet.setEnabled(false);
+        buttonToDisableOnSignIn = bClassiCubeNet;
+        SessionManager.selectService(GameServiceType.MinecraftNetService);
+        onAfterServiceChanged();
+    }
+
+    // Called after either [Minecraft.net] or [ClassiCube] button is pressed.
+    // Loads accounts, changes the background/logo, switches focus back to username/password fields
+    void onAfterServiceChanged() {
+        accountManager = SessionManager.getAccountManager();
+        cUsername.removeAllItems();
+        // fill the account list
+        final UserAccount[] accounts = accountManager.getAccountsBySignInDate();
+        for (UserAccount account : accounts) {
+            cUsername.addItem(account.signInUsername);
+        }
+        if (cUsername.getItemCount() > 0) {
+            cUsername.setSelectedIndex(0);
+        }
+        repaint();
+
+        // focus on either username (if empty) or password field
+        final String username = (String) cUsername.getSelectedItem();
+        if (username == null || username.isEmpty()) {
+            cUsername.requestFocus();
+        } else {
+            tPassword.requestFocus();
+        }
+
+        enableResumeIfNeeded();
+        // check if we have "resume" info
+    }
+
+    // =============================================================================================
+    //                                                                              SIGN-IN HANDLING
+    // =============================================================================================
+    private void bSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSignInActionPerformed
+        // Grab user information from the form
+        LogUtil.getLogger().log(Level.INFO, "[Sign In]");
+        final String username = (String) cUsername.getSelectedItem();
+        final String password = new String(tPassword.getPassword());
+        final UserAccount account = accountManager.onSignInBegin(username, password);
+        final boolean remember = xRememberPassword.isSelected();
+
+        // Create an async task for signing in
+        final GameSession session = SessionManager.getSession();
+        signInTask = session.signInAsync(account, remember);
+
+        // Get ready to handle the task completion
+        signInTask.addPropertyChangeListener(
+                new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("state".equals(evt.getPropertyName())) {
+                    if (evt.getNewValue().equals(StateValue.DONE)) {
+                        onSignInDone(signInTask);
+                    }
+                }
+            }
+        });
+
+        // Gray everything out and show a progress bar
+        disableGUI();
+
+        // Begin signing in asynchronously
+        signInTask.execute();
+    }//GEN-LAST:event_bSignInActionPerformed
+
+    // Called when signInAsync finishes.
+    // If we signed in, advance to the server list screen.
+    // Otherwise, inform the user that something went wrong.
+    private void onSignInDone(SwingWorker<SignInResult, String> signInTask) {
+        LogUtil.getLogger().log(Level.FINE, "SignInScreen.onSignInDone");
+        try {
+            final SignInResult result = signInTask.get();
+            if (result == SignInResult.SUCCESS) {
+                UserAccount acct = SessionManager.getSession().getAccount();
+                acct.signInDate = new Date();
+                if (!xRememberPassword.isSelected()) {
+                    acct.password = "";
+                }
+                accountManager.store();
+                new ServerListScreen().setVisible(true);
+                dispose();
+            } else {
+                String errorMsg;
+                switch (result) {
+                    case WRONG_USER_OR_PASS:
+                        errorMsg = "Wrong username or password.";
+                        break;
+                    case MIGRATED_ACCOUNT:
+                        errorMsg = "Your account has been migrated. "
+                                + "Use your Mojang account (email) to sign in.";
+                        break;
+                    case CONNECTION_ERROR:
+                        errorMsg = "Connection problem. The website may be down.";
+                        break;
+                    default:
+                        errorMsg = result.name();
+                        break;
+                }
+                LogUtil.showWarning(errorMsg, "Could not sign in.");
+            }
+        } catch (InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
+            LogUtil.showError(ex.toString(), "Could not sign in.");
+        }
+        enableGUI();
+    }
+
+    // =============================================================================================
+    //                                                                     DIRECT-CONNECT AND RESUME
+    // =============================================================================================
+    private void bDirectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDirectActionPerformed
+        final String prompt = "mc://";
+        String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
+        if (input != null && !prompt.equals(input)) {
+            ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(input);
+            if (joinInfo == null) {
+                LogUtil.showWarning("Cannot join server directly: Unrecognized link format.", "Unrecognized link");
+            } else if (joinInfo.signInNeeded) {
+                LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
+            } else {
+                ClientUpdateScreen.createAndShow(joinInfo);
+                dispose();
+            }
+        }
+    }//GEN-LAST:event_bDirectActionPerformed
+
+    private void enableResumeIfNeeded() {
+        ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
+        bResume.setEnabled(resumeInfo != null);
+    }
+
+    private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
+        ServerJoinInfo joinInfo = SessionManager.getSession().loadResumeInfo();
+        ClientUpdateScreen.createAndShow(joinInfo);
+        dispose();
+    }//GEN-LAST:event_bResumeActionPerformed
+
+    // =============================================================================================
+    //                                                                           GUI EVENT LISTENERS
+    // =============================================================================================
+    private void hookUpListeners() {
+        // hook up listeners for username/password field changes
+        fieldChangeListener = new UsernameOrPasswordChangedListener();
+        final JTextComponent usernameEditor = (JTextComponent) cUsername.getEditor().getEditorComponent();
+        usernameEditor.getDocument().addDocumentListener(fieldChangeListener);
+        tPassword.getDocument().addDocumentListener(fieldChangeListener);
+        cUsername.addActionListener(fieldChangeListener);
+        tPassword.addActionListener(fieldChangeListener);
+
+        // Allow pressing <Enter> to sign in, while in the password textbox
+        tPassword.addKeyListener(new PasswordEnterListener());
+
+        // Selects all text in the username field on-focus
+        usernameEditor.addFocusListener(new UsernameFocusListener());
+    }
+
+    // Select all text in password field, when focused
+    private void tPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tPasswordFocusGained
+        tPassword.selectAll();
+    }//GEN-LAST:event_tPasswordFocusGained
+
+    private void cUsernameItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cUsernameItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            final String newName = (String) evt.getItem();
+            final UserAccount curAccount = accountManager.findAccount(newName);
+            if (curAccount != null) {
+                tPassword.setText(curAccount.password);
+            }
+        }
+    }//GEN-LAST:event_cUsernameItemStateChanged
+
+    // Selects all text in the username field on-focus (you'd think this would be easier)
+    class UsernameFocusListener implements FocusListener {
+        @Override
+        public void focusGained(FocusEvent e) {
+            final JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
+            final String selectedUsername = (String) cUsername.getSelectedItem();
+            if (selectedUsername != null) {
+                editor.setCaretPosition(selectedUsername.length());
+                editor.moveCaretPosition(0);
+            }
+        }
+
+        @Override
+        public void focusLost(FocusEvent e) {
+        }
+    }
+
+    // Allows pressing <Enter> to sign in, while in the password textbox
+    class PasswordEnterListener implements KeyListener {
+        @Override
+        public void keyTyped(KeyEvent e) {
+            if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+                if (bSignIn.isEnabled()) {
+                    bSignIn.doClick();
+                }
+            }
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) { // do nothing
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) { // do nothing
+        }
+    }
+
+    // Allows enabling/disabling [Sign In] button dynamically,
+    // depending on whether username/password fields are empty,
+    // while user is still focused on those fields.
+    class UsernameOrPasswordChangedListener implements DocumentListener, ActionListener {
+        public int realPasswordLength,
+                   realUsernameLength;
+
+        public UsernameOrPasswordChangedListener() {
+            realPasswordLength = tPassword.getPassword().length;
+            final String username = (String) cUsername.getSelectedItem();
+            if (username == null) {
+                realUsernameLength = 0;
+            } else {
+                realUsernameLength = username.length();
+            }
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            somethingEdited(e);
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            somethingEdited(e);
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            somethingEdited(e);
+        }
+
+        private void somethingEdited(DocumentEvent e) {
+            final Document doc = e.getDocument();
+            if (doc.equals(tPassword.getDocument())) {
+                realPasswordLength = doc.getLength();
+            } else {
+                realUsernameLength = doc.getLength();
+            }
+            checkIfSignInAllowed();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            realPasswordLength = tPassword.getPassword().length;
+            final String username = (String) cUsername.getSelectedItem();
+            if (username == null) {
+                realUsernameLength = 0;
+            } else {
+                realUsernameLength = username.length();
+            }
+            checkIfSignInAllowed();
+        }
+    }
+
+    // Enable/disable [Sign In] depending on whether username/password are given.
+    void checkIfSignInAllowed() {
+        final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 1)
+                && (fieldChangeListener.realPasswordLength > 0);
+        bSignIn.setEnabled(enableSignIn);
     }
 
     // =============================================================================================
@@ -212,346 +561,6 @@ final class SignInScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    // =============================================================================================
-    //                                                      MINECRAFT / CLASSICUBE SERVICE SWITCHING
-    // =============================================================================================
-    private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.getLogger().log(Level.INFO, "[Minecraft.Net]");
-            selectMinecraftNet();
-        }
-    }//GEN-LAST:event_bMinecraftNetItemStateChanged
-
-    private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.getLogger().log(Level.INFO, "[ClassiCube.Net]");
-            selectClassiCubeNet();
-        }
-    }//GEN-LAST:event_bClassiCubeNetItemStateChanged
-
-    void selectClassiCubeNet() {
-        LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectClassiCube");
-        bgPanel.setImage(Resources.getClassiCubeBackground());
-        ipLogo.setImage(Resources.getClassiCubeLogo());
-        bMinecraftNet.setEnabled(true);
-        bMinecraftNet.setSelected(false);
-        bClassiCubeNet.setEnabled(false);
-        buttonToDisableOnSignIn = bMinecraftNet;
-        SessionManager.selectService(GameServiceType.ClassiCubeNetService);
-        onAfterServiceChanged();
-
-    }
-
-    void selectMinecraftNet() {
-        LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectMinecraftNet");
-        bgPanel.setImage(Resources.getMinecraftNetBackground());
-        ipLogo.setImage(Resources.getMinecraftNetLogo());
-        bClassiCubeNet.setEnabled(true);
-        bClassiCubeNet.setSelected(false);
-        bMinecraftNet.setEnabled(false);
-        buttonToDisableOnSignIn = bClassiCubeNet;
-        SessionManager.selectService(GameServiceType.MinecraftNetService);
-        onAfterServiceChanged();
-    }
-
-    // Called after either [Minecraft.net] or [ClassiCube] button is pressed.
-    // Loads accounts, changes the background/logo, switches focus back to username/password fields
-    void onAfterServiceChanged() {
-        accountManager = SessionManager.getAccountManager();
-        cUsername.removeAllItems();
-        // fill the account list
-        final UserAccount[] accounts = accountManager.getAccountsBySignInDate();
-        for (UserAccount account : accounts) {
-            cUsername.addItem(account.signInUsername);
-        }
-        if (cUsername.getItemCount() > 0) {
-            cUsername.setSelectedIndex(0);
-        }
-        repaint();
-
-        // focus on either username (if empty) or password field
-        final String username = (String) cUsername.getSelectedItem();
-        if (username == null || username.isEmpty()) {
-            cUsername.requestFocus();
-        } else {
-            tPassword.requestFocus();
-        }
-
-        enableResumeIfNeeded();
-        // check if we have "resume" info
-    }
-
-    private void enableResumeIfNeeded() {
-        ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
-        bResume.setEnabled(resumeInfo != null);
-    }
-
-    // =============================================================================================
-    //                                                                              SIGN-IN HANDLING
-    // =============================================================================================
-    private void bSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSignInActionPerformed
-        // Grab user information from the form
-        LogUtil.getLogger().log(Level.INFO, "[Sign In]");
-        final String username = (String) cUsername.getSelectedItem();
-        final String password = new String(tPassword.getPassword());
-        final UserAccount account = accountManager.onSignInBegin(username, password);
-        final boolean remember = xRememberPassword.isSelected();
-
-        // Create an async task for signing in
-        final GameSession session = SessionManager.getSession();
-        signInTask = session.signInAsync(account, remember);
-
-        // Get ready to handle the task completion
-        signInTask.addPropertyChangeListener(
-                new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if ("state".equals(evt.getPropertyName())) {
-                    if (evt.getNewValue().equals(StateValue.DONE)) {
-                        onSignInDone(signInTask);
-                    }
-                }
-            }
-        });
-
-        // Gray everything out and show a progress bar
-        disableGUI();
-
-        // Begin signing in asynchronously
-        signInTask.execute();
-    }//GEN-LAST:event_bSignInActionPerformed
-
-    // Select all text in password field, when focused
-    private void tPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_tPasswordFocusGained
-        tPassword.selectAll();
-    }//GEN-LAST:event_tPasswordFocusGained
-
-    private void cUsernameItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cUsernameItemStateChanged
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            final String newName = (String) evt.getItem();
-            final UserAccount curAccount = accountManager.findAccount(newName);
-            if (curAccount != null) {
-                tPassword.setText(curAccount.password);
-            }
-        }
-    }//GEN-LAST:event_cUsernameItemStateChanged
-
-    private void bDirectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDirectActionPerformed
-        final String prompt = "mc://";
-        String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
-        if (input != null && !prompt.equals(input)) {
-            ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(input);
-            if (joinInfo == null) {
-                LogUtil.showWarning("Cannot join server directly: Unrecognized link format.", "Unrecognized link");
-            } else if (joinInfo.signInNeeded) {
-                LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
-            } else {
-                SessionManager.setJoinInfo(joinInfo);
-                ClientUpdateScreen.createAndShow();
-                dispose();
-            }
-        }
-    }//GEN-LAST:event_bDirectActionPerformed
-
-    private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
-        SessionManager.setJoinInfo(SessionManager.getSession().loadResumeInfo());
-        ClientUpdateScreen.createAndShow();
-        dispose();
-    }//GEN-LAST:event_bResumeActionPerformed
-
-    // Called when signInAsync finishes.
-    // If we signed in, advance to the server list screen.
-    // Otherwise, inform the user that something went wrong.
-    private void onSignInDone(SwingWorker<SignInResult, String> signInTask) {
-        LogUtil.getLogger().log(Level.FINE, "SignInScreen.onSignInDone");
-        try {
-            final SignInResult result = signInTask.get();
-            if (result == SignInResult.SUCCESS) {
-                UserAccount acct = SessionManager.getSession().getAccount();
-                acct.signInDate = new Date();
-                if (!xRememberPassword.isSelected()) {
-                    acct.password = "";
-                }
-                accountManager.store();
-                new ServerListScreen().setVisible(true);
-                dispose();
-            } else {
-                String errorMsg;
-                switch (result) {
-                    case WRONG_USER_OR_PASS:
-                        errorMsg = "Wrong username or password.";
-                        break;
-                    case MIGRATED_ACCOUNT:
-                        errorMsg = "Your account has been migrated. "
-                                + "Use your Mojang account (email) to sign in.";
-                        break;
-                    case CONNECTION_ERROR:
-                        errorMsg = "Connection problem. The website may be down.";
-                        break;
-                    default:
-                        errorMsg = result.name();
-                        break;
-                }
-                LogUtil.showWarning(errorMsg, "Could not sign in.");
-            }
-        } catch (InterruptedException | ExecutionException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
-            LogUtil.showError(ex.toString(), "Could not sign in.");
-        }
-        enableGUI();
-    }
-
-    // Grays out the UI, and shows a progress bar
-    private void disableGUI() {
-        cUsername.setEnabled(false);
-        tPassword.setEnabled(false);
-        xRememberPassword.setEnabled(false);
-        bDirect.setEnabled(false);
-        bResume.setEnabled(false);
-        bSignIn.setEnabled(false);
-        buttonToDisableOnSignIn.setEnabled(false);
-
-        progress.setVisible(true);
-        pack();
-    }
-
-    // Re-enabled the UI, and hides the progress bar
-    private void enableGUI() {
-        cUsername.setEnabled(true);
-        tPassword.setEnabled(true);
-        xRememberPassword.setEnabled(true);
-        bDirect.setEnabled(true);
-        enableResumeIfNeeded();
-        checkIfSignInAllowed();
-        buttonToDisableOnSignIn.setEnabled(true);
-
-        progress.setVisible(false);
-        pack();
-    }
-
-    // =============================================================================================
-    //                                                                           GUI EVENT LISTENERS
-    // =============================================================================================
-    private void hookUpListeners() {
-        // hook up listeners for username/password field changes
-        fieldChangeListener = new UsernameOrPasswordChangedListener();
-        final JTextComponent usernameEditor = (JTextComponent) cUsername.getEditor().getEditorComponent();
-        usernameEditor.getDocument().addDocumentListener(fieldChangeListener);
-        tPassword.getDocument().addDocumentListener(fieldChangeListener);
-        cUsername.addActionListener(fieldChangeListener);
-        tPassword.addActionListener(fieldChangeListener);
-
-        // Allow pressing <Enter> to sign in, while in the password textbox
-        tPassword.addKeyListener(new PasswordEnterListener());
-
-        // Selects all text in the username field on-focus
-        usernameEditor.addFocusListener(new UsernameFocusListener());
-    }
-
-    // Selects all text in the username field on-focus (you'd think this would be easier)
-    class UsernameFocusListener implements FocusListener {
-
-        @Override
-        public void focusGained(FocusEvent e) {
-            final JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
-            final String selectedUsername = (String) cUsername.getSelectedItem();
-            if (selectedUsername != null) {
-                editor.setCaretPosition(selectedUsername.length());
-                editor.moveCaretPosition(0);
-            }
-        }
-
-        @Override
-        public void focusLost(FocusEvent e) {
-        }
-    }
-
-    // Allows pressing <Enter> to sign in, while in the password textbox
-    class PasswordEnterListener implements KeyListener {
-
-        @Override
-        public void keyTyped(KeyEvent e) {
-            if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-                if (bSignIn.isEnabled()) {
-                    bSignIn.doClick();
-                }
-            }
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) { // do nothing
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) { // do nothing
-        }
-    }
-
-    // Allows enabling/disabling [Sign In] button dynamically,
-    // depending on whether username/password fields are empty,
-    // while user is still focused on those fields.
-    class UsernameOrPasswordChangedListener implements DocumentListener, ActionListener {
-
-        public int realPasswordLength,
-                realUsernameLength;
-
-        public UsernameOrPasswordChangedListener() {
-            realPasswordLength = tPassword.getPassword().length;
-            final String username = (String) cUsername.getSelectedItem();
-            if (username == null) {
-                realUsernameLength = 0;
-            } else {
-                realUsernameLength = username.length();
-            }
-        }
-
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            somethingEdited(e);
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            somethingEdited(e);
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            somethingEdited(e);
-        }
-
-        private void somethingEdited(DocumentEvent e) {
-            final Document doc = e.getDocument();
-            if (doc.equals(tPassword.getDocument())) {
-                realPasswordLength = doc.getLength();
-            } else {
-                realUsernameLength = doc.getLength();
-            }
-            checkIfSignInAllowed();
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            realPasswordLength = tPassword.getPassword().length;
-            final String username = (String) cUsername.getSelectedItem();
-            if (username == null) {
-                realUsernameLength = 0;
-            } else {
-                realUsernameLength = username.length();
-            }
-            checkIfSignInAllowed();
-        }
-    }
-
-    // Enable/disable [Sign In] depending on whether username/password are given.
-    void checkIfSignInAllowed() {
-        final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 1)
-                && (fieldChangeListener.realPasswordLength > 0);
-        bSignIn.setEnabled(enableSignIn);
-    }
-    // =============================================================================================
-    //                                                                          GUI COMPONENT FIELDS
-    // =============================================================================================
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton bClassiCubeNet;
     private javax.swing.JButton bDirect;
@@ -564,13 +573,4 @@ final class SignInScreen extends javax.swing.JFrame {
     private javax.swing.JPasswordField tPassword;
     private javax.swing.JCheckBox xRememberPassword;
     // End of variables declaration//GEN-END:variables
-    // =============================================================================================
-    //                                                                            APPLICATION FIELDS
-    // =============================================================================================
-    private AccountManager accountManager;
-    private final ImagePanel bgPanel;
-    private JToggleButton buttonToDisableOnSignIn;
-    private UsernameOrPasswordChangedListener fieldChangeListener;
-    private final Preferences prefs;
-    private GameSession.SignInTask signInTask;
 }

@@ -1,6 +1,5 @@
 package net.classicube.launcher;
 
-import java.net.InetAddress;
 import java.util.Locale;
 
 // Stores all metadata about a game server
