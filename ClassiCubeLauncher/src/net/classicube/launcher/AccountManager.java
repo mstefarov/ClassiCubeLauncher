@@ -43,6 +43,9 @@ final class AccountManager {
     public void store() {
         LogUtil.getLogger().log(Level.FINE, "store");
         this.clearStore();
+        if (!Prefs.getRememberUsers()) {
+            return;
+        }
         for (final UserAccount acct : this.accounts.values()) {
             acct.store(this.store.node(acct.signInUsername.toLowerCase()));
         }

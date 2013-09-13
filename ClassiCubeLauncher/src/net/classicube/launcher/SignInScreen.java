@@ -29,14 +29,10 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
-
-    private final static boolean RememberMeDefault = true;
-    private final static String RememberMeKeyName = "RememberPassword";
     private AccountManager accountManager;
     private final ImagePanel bgPanel;
     private JToggleButton buttonToDisableOnSignIn;
     private UsernameOrPasswordChangedListener fieldChangeListener;
-    private final Preferences prefs;
     private GameSession.SignInTask signInTask;
 
     // =============================================================================================
@@ -52,10 +48,6 @@ final class SignInScreen extends javax.swing.JFrame {
 
         // create the rest of components
         initComponents();
-
-        // grab initial "remember me" value from settings
-        prefs = Preferences.userNodeForPackage(getClass());
-        xRememberPassword.setSelected(prefs.getBoolean(RememberMeKeyName, RememberMeDefault));
 
         // some UI tweaks
         hookUpListeners();
@@ -79,7 +71,6 @@ final class SignInScreen extends javax.swing.JFrame {
     private void disableGUI() {
         cUsername.setEnabled(false);
         tPassword.setEnabled(false);
-        xRememberPassword.setEnabled(false);
         bDirect.setEnabled(false);
         bResume.setEnabled(false);
         bSignIn.setEnabled(false);
@@ -93,7 +84,6 @@ final class SignInScreen extends javax.swing.JFrame {
     private void enableGUI() {
         cUsername.setEnabled(true);
         tPassword.setEnabled(true);
-        xRememberPassword.setEnabled(true);
         bDirect.setEnabled(true);
         enableResumeIfNeeded();
         checkIfSignInAllowed();
@@ -182,7 +172,7 @@ final class SignInScreen extends javax.swing.JFrame {
         final String username = (String) cUsername.getSelectedItem();
         final String password = new String(tPassword.getPassword());
         final UserAccount account = accountManager.onSignInBegin(username, password);
-        final boolean remember = xRememberPassword.isSelected();
+        final boolean remember = Prefs.getRememberPasswords();
 
         // Create an async task for signing in
         final GameSession session = SessionManager.getSession();
@@ -218,9 +208,6 @@ final class SignInScreen extends javax.swing.JFrame {
             if (result == SignInResult.SUCCESS) {
                 final UserAccount acct = SessionManager.getSession().getAccount();
                 acct.signInDate = new Date();
-                if (!xRememberPassword.isSelected()) {
-                    acct.password = "";
-                }
                 accountManager.store();
                 new ServerListScreen().setVisible(true);
                 dispose();
@@ -433,7 +420,6 @@ final class SignInScreen extends javax.swing.JFrame {
         ipLogo = new net.classicube.launcher.ImagePanel();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
-        xRememberPassword = new javax.swing.JCheckBox();
         bDirect = new javax.swing.JButton();
         bResume = new javax.swing.JButton();
         bSignIn = new javax.swing.JButton();
@@ -477,6 +463,7 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 4, 0);
         getContentPane().add(ipLogo, gridBagConstraints);
 
         cUsername.setEditable(true);
@@ -507,17 +494,6 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(tPassword, gridBagConstraints);
 
-        xRememberPassword.setForeground(new java.awt.Color(255, 255, 255));
-        xRememberPassword.setText("Remember password");
-        xRememberPassword.setActionCommand("Remember");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.ipady = 8;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(xRememberPassword, gridBagConstraints);
-
         bDirect.setText("Direct...");
         bDirect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -526,7 +502,7 @@ final class SignInScreen extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         getContentPane().add(bDirect, gridBagConstraints);
 
@@ -538,7 +514,7 @@ final class SignInScreen extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         getContentPane().add(bResume, gridBagConstraints);
 
@@ -550,14 +526,14 @@ final class SignInScreen extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
         getContentPane().add(bSignIn, gridBagConstraints);
 
         progress.setIndeterminate(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(progress, gridBagConstraints);
@@ -574,6 +550,5 @@ final class SignInScreen extends javax.swing.JFrame {
     private net.classicube.launcher.ImagePanel ipLogo;
     private javax.swing.JProgressBar progress;
     private javax.swing.JPasswordField tPassword;
-    private javax.swing.JCheckBox xRememberPassword;
     // End of variables declaration//GEN-END:variables
 }
