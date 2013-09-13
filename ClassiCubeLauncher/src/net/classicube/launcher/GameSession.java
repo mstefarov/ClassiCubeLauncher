@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 // Base class for service-specific handlers.
 // A new single-use GameService object is created for every session.
 abstract class GameSession {
+
     protected Preferences store;
 
     // constructor used by implementations
@@ -62,8 +63,9 @@ abstract class GameSession {
 
     public static abstract class SignInTask
             extends SwingWorker<SignInResult, String> {
+
         protected boolean remember;
-        
+
         public SignInTask(final boolean remember) {
             this.remember = remember;
         }
@@ -180,13 +182,15 @@ abstract class GameSession {
             return this.joinInfo;
         }
     }
-
     // =============================================================================================
     //                                                                                        RESUME
     // =============================================================================================
-    private static final String RESUME_NODE_NAME = "ResumeInfo";
-    
+    protected static final String RESUME_NODE_NAME = "ResumeInfo";
+
     public ServerJoinInfo loadResumeInfo() {
+        if (!Prefs.getRememberServer()) {
+            return null;
+        }
         final Preferences node = store.node(RESUME_NODE_NAME);
         final ServerJoinInfo info = new ServerJoinInfo();
         info.playerName = node.get("PlayerName", null);
@@ -207,6 +211,9 @@ abstract class GameSession {
     }
 
     public void storeResumeInfo(final ServerJoinInfo info) {
+        if (!Prefs.getRememberServer()) {
+            return;
+        }
         final Preferences node = this.store.node(RESUME_NODE_NAME);
         node.put("PlayerName", info.playerName);
         node.put("Hash", (info.hash != null ? info.hash : ""));
@@ -215,14 +222,6 @@ abstract class GameSession {
         node.put("Pass", (info.mppass != null ? info.mppass : ""));
         node.putBoolean("Override", info.override);
         node.putBoolean("SignInNeeded", info.signInNeeded);
-    }
-
-    public void clearResumeInfo() {
-        try {
-            this.store.node(RESUME_NODE_NAME).removeNode();
-        } catch (final BackingStoreException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error erasing resume info", ex);
-        }
     }
     // =============================================================================================
     //                                                                                       COOKIES

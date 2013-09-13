@@ -25,6 +25,9 @@ final class AccountManager {
 
     // Loads all accounts from preferences
     public void load() {
+        if (!Prefs.getRememberUsers()) {
+            return;
+        }
         try {
             for (final String accountName : this.store.childrenNames()) {
                 final UserAccount acct = new UserAccount(this.store.node(accountName));

@@ -8,6 +8,7 @@ import java.util.prefs.Preferences;
 // Stores metadata about a user account.
 // Handled by AccountManager.
 final class UserAccount {
+
     public String signInUsername;
     public String playerName;
     public String password;
@@ -33,7 +34,11 @@ final class UserAccount {
         }
         this.signInUsername = prefs.get("SignInUsername", null);
         this.playerName = prefs.get("PlayerName", null);
-        this.password = prefs.get("Password", "");
+        if (Prefs.getRememberPasswords()) {
+            this.password = prefs.get("Password", "");
+        }else{
+            this.password = "";
+        }
         final long dateTicks = prefs.getLong("SignInDate", 0);
         this.signInDate = new Date(dateTicks);
         if (this.signInUsername == null || this.playerName == null || this.password == null) {
@@ -49,7 +54,11 @@ final class UserAccount {
         }
         prefs.put("SignInUsername", this.signInUsername);
         prefs.put("PlayerName", this.playerName);
-        prefs.put("Password", this.password);
+        if (Prefs.getRememberPasswords()) {
+            prefs.put("Password", this.password);
+        } else {
+            prefs.put("Password", "");
+        }
         prefs.putLong("SignInDate", this.signInDate.getTime());
     }
 
@@ -57,9 +66,10 @@ final class UserAccount {
     public static Comparator<UserAccount> getUptimeComparator() {
         return comparatorInstance;
     }
-
     private static final UserAccountDateComparator comparatorInstance = new UserAccountDateComparator();
+
     private static class UserAccountDateComparator implements Comparator<UserAccount> {
+
         @Override
         public int compare(final UserAccount o1, final UserAccount o2) {
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();

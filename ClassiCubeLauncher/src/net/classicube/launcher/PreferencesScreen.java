@@ -11,6 +11,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
     // =============================================================================================
     //                                                                                INITIALIZATION
     // =============================================================================================
+
     public PreferencesScreen(final JFrame parent) {
         super(parent, "Preferences", true);
         final JRootPane root = getRootPane();
@@ -114,7 +115,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
                 "Really erase last-joined server?", "Warning",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
-            SessionManager.getSession().clearResumeInfo();
+            SessionManager.clearAllResumeInfo();
             JOptionPane.showMessageDialog(this,
                     "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
         }
@@ -133,15 +134,28 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
     private void bSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveActionPerformed
         storePreferences();
+        if (!this.xRememberUsers.isSelected()) {
+            SessionManager.getAccountManager().clear();
+        }
+        if (!this.xRememberPasswords.isSelected()) {
+            SessionManager.getAccountManager().clearPasswords();
+        }
+        if (!this.xRememberServer.isSelected()) {
+            SessionManager.clearAllResumeInfo();
+        }
         dispose();
     }//GEN-LAST:event_bSaveActionPerformed
-    
+
     private void xRememberUsersItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_xRememberUsersItemStateChanged
-        if(evt.getStateChange() == ItemEvent.DESELECTED){
-            xRememberPasswords.setEnabled(false);
-            xRememberPasswords.setSelected(false);
-        }else{
-            xRememberPasswords.setEnabled(true);
+        if (evt.getStateChange() == ItemEvent.DESELECTED) {
+            this.xRememberPasswords.setEnabled(false);
+            this.xRememberPasswords.setSelected(false);
+            this.bForgetPasswords.setEnabled(false);
+            this.bForgetUsers.setEnabled(false);
+        } else {
+            this.xRememberPasswords.setEnabled(true);
+            this.bForgetUsers.setEnabled(true);
+            this.bForgetPasswords.setEnabled(xRememberPasswords.isSelected());
         }
     }//GEN-LAST:event_xRememberUsersItemStateChanged
 
@@ -257,6 +271,11 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(bForgetUsers, gridBagConstraints);
 
         xRememberPasswords.setText("Remember passwords");
+        xRememberPasswords.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                xRememberPasswordsItemStateChanged(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 8;
@@ -406,6 +425,13 @@ final class PreferencesScreen extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void xRememberPasswordsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_xRememberPasswordsItemStateChanged
+        if (evt.getStateChange() == ItemEvent.DESELECTED) {
+            this.bForgetPasswords.setEnabled(false);
+        } else {
+            this.bForgetPasswords.setEnabled(true);
+        }
+    }//GEN-LAST:event_xRememberPasswordsItemStateChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bCancel;
     private javax.swing.JButton bDefaults;

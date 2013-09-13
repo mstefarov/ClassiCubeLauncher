@@ -1,7 +1,12 @@
 package net.classicube.launcher;
 
 // Keeps track of the global GameSession and AccountManager instances.
+import java.util.logging.Level;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
 final class SessionManager {
+
     private static GameSession activeSession;
     private static AccountManager accountManager;
 
@@ -23,5 +28,17 @@ final class SessionManager {
 
     public static AccountManager getAccountManager() {
         return accountManager;
+    }
+
+    public static void clearAllResumeInfo() {
+        try {
+            Preferences servicesNode = Preferences.userNodeForPackage(SessionManager.class).node("GameServices");
+            Preferences ccNode = servicesNode.node("ClassiCubeNetSession");
+            ccNode.node(GameSession.RESUME_NODE_NAME).removeNode();
+            Preferences mcNode = servicesNode.node("MinecraftNetSession");
+            mcNode.node(GameSession.RESUME_NODE_NAME).removeNode();
+        } catch (final BackingStoreException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error erasing resume info", ex);
+        }
     }
 }
