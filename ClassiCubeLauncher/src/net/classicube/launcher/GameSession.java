@@ -211,6 +211,9 @@ abstract class GameSession {
     }
 
     public void storeResumeInfo(final ServerJoinInfo info) {
+        if (info == null) {
+            throw new NullPointerException("info");
+        }
         if (!Prefs.getRememberServer()) {
             return;
         }

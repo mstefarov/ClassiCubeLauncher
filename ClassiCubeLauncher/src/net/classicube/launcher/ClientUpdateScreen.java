@@ -14,7 +14,6 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     // =============================================================================================
     private static final String RELEASE_NOTES_URL =
             "https://github.com/andrewphorn/ClassiCube-Client/commits/master";
-    
     private Desktop desktop;
     private final ServerJoinInfo joinInfo;
 
@@ -22,6 +21,9 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     //                                                                                INITIALIZATION
     // =============================================================================================
     public static void createAndShow(final ServerJoinInfo joinInfo) {
+        if (joinInfo == null) {
+            throw new NullPointerException("info");
+        }
         if (Prefs.getUpdateMode() != UpdateMode.DISABLED) {
             ClientUpdateScreen sc = new ClientUpdateScreen(joinInfo);
             sc.setVisible(true);
@@ -71,7 +73,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
             ClientUpdateTask.getInstance().get();
 
         } catch (final InterruptedException | ExecutionException ex) {
-            LogUtil.die( "Error updating", ex);
+            LogUtil.die("Error updating", ex);
             return;
         }
 

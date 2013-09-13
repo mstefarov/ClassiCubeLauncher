@@ -205,8 +205,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             disableGui();
             getServerDetailsTask.execute();
         } else {
-            ClientUpdateScreen.createAndShow(joinInfo);
-            dispose();
+            joinServer(joinInfo);
         }
     }
 
@@ -216,12 +215,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             final boolean result = getServerDetailsTask.get();
             if (result) {
                 final ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
-                if (joinInfo.playerName == null || "".equals(joinInfo.playerName)) {
-                    joinInfo.playerName = session.getAccount().playerName;
-                }
-                System.out.println(joinInfo.address+":"+joinInfo.port+"/"+joinInfo.playerName+"/"+joinInfo.pass);
-                ClientUpdateScreen.createAndShow(joinInfo);
-                dispose();
+                joinServer(joinInfo);
             } else {
                 LogUtil.showError("Could not fetch server details.", "Error");
             }
@@ -230,6 +224,15 @@ public final class ServerListScreen extends javax.swing.JFrame {
             LogUtil.showWarning(ex.toString(), "Problem loading server details");
             tSearch.setText("Could not load server list.");
         }
+    }
+
+    private void joinServer(ServerJoinInfo joinInfo) {
+        if (joinInfo.playerName == null || "".equals(joinInfo.playerName)) {
+            joinInfo.playerName = session.getAccount().playerName;
+        }
+        System.out.println(joinInfo.address + ":" + joinInfo.port + "/" + joinInfo.playerName + "/" + joinInfo.pass);
+        ClientUpdateScreen.createAndShow(joinInfo);
+        dispose();
     }
 
     // =============================================================================================
@@ -496,7 +499,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
     private void tServerURLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tServerURLActionPerformed
         joinSelectedServer();
     }//GEN-LAST:event_tServerURLActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bChangeUser;
     private javax.swing.JButton bConnect;
