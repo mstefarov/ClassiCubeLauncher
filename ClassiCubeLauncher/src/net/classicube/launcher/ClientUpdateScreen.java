@@ -14,6 +14,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
+
     private static final String RELEASE_NOTES_URL =
             "https://github.com/andrewphorn/ClassiCube-Client/commits/master";
     private Desktop desktop;
@@ -39,7 +40,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         this.joinInfo = joinInfo;
         final JRootPane root = getRootPane();
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
-        
+
         initComponents();
 
         // center the form on screen (initially)
@@ -66,7 +67,12 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     //                                                                                      UPDATING
     // =============================================================================================
     public void setStatus(final ClientUpdateTask.ProgressUpdate dl) {
-        this.progress.setValue(dl.progress);
+        if (dl.progress < 0) {
+            this.progress.setIndeterminate(true);
+        } else {
+            this.progress.setIndeterminate(false);
+            this.progress.setValue(dl.progress);
+        }
         this.lFileName.setText(dl.fileName);
         this.lStats.setText(dl.status);
     }
@@ -129,6 +135,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         bViewReleaseNotes = new net.classicube.launcher.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Game Update");
         getContentPane().setLayout(new java.awt.GridBagLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -177,7 +184,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bContinue, gridBagConstraints);
 
-        bViewReleaseNotes.setText("View Release Notes");
+        bViewReleaseNotes.setText("View Changes");
         bViewReleaseNotes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bViewReleaseNotesActionPerformed(evt);
