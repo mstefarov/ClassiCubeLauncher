@@ -25,6 +25,9 @@ final class PreferencesScreen extends javax.swing.JDialog {
         pack();
         loadPreferences();
         setLocationRelativeTo(parent);
+        
+        // fix for ugly spinner border
+        nMemory.getEditor().setOpaque(false);
     }
 
     // =============================================================================================
