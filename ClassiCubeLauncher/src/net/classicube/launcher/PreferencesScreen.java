@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.awt.Color;
 import java.awt.event.ItemEvent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -17,6 +18,8 @@ final class PreferencesScreen extends javax.swing.JDialog {
         final JRootPane root = getRootPane();
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
+        this.getRootPane().setBackground(new Color(247, 247, 247));
+        this.getContentPane().setBackground(new Color(247, 247, 247));
         root.setDefaultButton(bSave);
         bSave.setPreferredSize(bCancel.getSize());
         pack();
@@ -177,20 +180,20 @@ final class PreferencesScreen extends javax.swing.JDialog {
         rUpdateAutomatic = new javax.swing.JRadioButton();
         javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
         xRememberUsers = new javax.swing.JCheckBox();
-        bForgetUsers = new javax.swing.JButton();
+        bForgetUsers = new net.classicube.launcher.JNiceLookingButton();
         xRememberPasswords = new javax.swing.JCheckBox();
-        bForgetPasswords = new javax.swing.JButton();
+        bForgetPasswords = new net.classicube.launcher.JNiceLookingButton();
         xRememberServer = new javax.swing.JCheckBox();
-        bForgetServer = new javax.swing.JButton();
+        bForgetServer = new net.classicube.launcher.JNiceLookingButton();
         javax.swing.JSeparator jSeparator2 = new javax.swing.JSeparator();
         javax.swing.JLabel lParameters = new javax.swing.JLabel();
         tJavaArgs = new javax.swing.JTextField();
         javax.swing.JLabel lMemory = new javax.swing.JLabel();
         nMemory = new javax.swing.JSpinner();
         javax.swing.JSeparator jSeparator3 = new javax.swing.JSeparator();
-        bDefaults = new javax.swing.JButton();
-        bSave = new javax.swing.JButton();
-        bCancel = new javax.swing.JButton();
+        bDefaults = new net.classicube.launcher.JNiceLookingButton();
+        bSave = new net.classicube.launcher.JNiceLookingButton();
+        bCancel = new net.classicube.launcher.JNiceLookingButton();
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         xFullscreen = new javax.swing.JCheckBox();
         jSeparator4 = new javax.swing.JSeparator();
@@ -433,12 +436,12 @@ final class PreferencesScreen extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_xRememberPasswordsItemStateChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bCancel;
-    private javax.swing.JButton bDefaults;
-    private javax.swing.JButton bForgetPasswords;
-    private javax.swing.JButton bForgetServer;
-    private javax.swing.JButton bForgetUsers;
-    private javax.swing.JButton bSave;
+    private net.classicube.launcher.JNiceLookingButton bCancel;
+    private net.classicube.launcher.JNiceLookingButton bDefaults;
+    private net.classicube.launcher.JNiceLookingButton bForgetPasswords;
+    private net.classicube.launcher.JNiceLookingButton bForgetServer;
+    private net.classicube.launcher.JNiceLookingButton bForgetUsers;
+    private net.classicube.launcher.JNiceLookingButton bSave;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSpinner nMemory;
     private javax.swing.JRadioButton rUpdateAutomatic;

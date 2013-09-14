@@ -104,7 +104,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bForgetUsers">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bForgetUsers">
       <Properties>
         <Property name="text" type="java.lang.String" value="Forget all users"/>
       </Properties>
@@ -130,7 +130,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bForgetPasswords">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bForgetPasswords">
       <Properties>
         <Property name="text" type="java.lang.String" value="Forget all passwords"/>
       </Properties>
@@ -153,7 +153,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bForgetServer">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bForgetServer">
       <Properties>
         <Property name="text" type="java.lang.String" value="Forget last server"/>
       </Properties>
@@ -243,7 +243,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bDefaults">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bDefaults">
       <Properties>
         <Property name="text" type="java.lang.String" value="Defaults"/>
       </Properties>
@@ -256,7 +256,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bSave">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bSave">
       <Properties>
         <Property name="text" type="java.lang.String" value="Save"/>
       </Properties>
@@ -269,7 +269,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bCancel">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bCancel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Cancel"/>
       </Properties>

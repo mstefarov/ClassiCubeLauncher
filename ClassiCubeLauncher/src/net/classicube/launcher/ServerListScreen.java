@@ -348,15 +348,15 @@ public final class ServerListScreen extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        bChangeUser = new javax.swing.JButton();
-        bPreferences = new javax.swing.JButton();
+        bChangeUser = new net.classicube.launcher.JNiceLookingButton();
+        bPreferences = new net.classicube.launcher.JNiceLookingButton();
         javax.swing.JSeparator separator1 = new javax.swing.JSeparator();
         tSearch = new net.classicube.launcher.PlaceholderTextField();
         serverTableContainer = new javax.swing.JScrollPane();
         serverTable = new javax.swing.JTable();
         javax.swing.JSeparator separator2 = new javax.swing.JSeparator();
         tServerURL = new javax.swing.JTextField();
-        bConnect = new javax.swing.JButton();
+        bConnect = new net.classicube.launcher.JNiceLookingButton();
         progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -509,9 +509,9 @@ public final class ServerListScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bChangeUser;
-    private javax.swing.JButton bConnect;
-    private javax.swing.JButton bPreferences;
+    private net.classicube.launcher.JNiceLookingButton bChangeUser;
+    private net.classicube.launcher.JNiceLookingButton bConnect;
+    private net.classicube.launcher.JNiceLookingButton bPreferences;
     private javax.swing.JProgressBar progress;
     private javax.swing.JTable serverTable;
     private javax.swing.JScrollPane serverTableContainer;
