@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,10 +88,17 @@ final class PathUtil {
         }
         Path sourcePath = Paths.get(sourceFile.getAbsolutePath());
         Path destPath = Paths.get(destFile.getAbsolutePath());
-        Files.move(sourcePath, destPath, FileReplaceOptions);
+        try {
+            Files.move(sourcePath, destPath, FileReplaceOptions);
+        } catch (AtomicMoveNotSupportedException ex) {
+            Files.move(sourcePath, destPath, FallbackFileReplaceOptions);
+        }
     }
     private static final CopyOption[] FileReplaceOptions = new CopyOption[]{
         StandardCopyOption.ATOMIC_MOVE,
+        StandardCopyOption.REPLACE_EXISTING
+    };
+    private static final CopyOption[] FallbackFileReplaceOptions = new CopyOption[]{
         StandardCopyOption.REPLACE_EXISTING
     };
 
