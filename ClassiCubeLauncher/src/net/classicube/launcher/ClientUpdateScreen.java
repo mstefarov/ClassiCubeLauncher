@@ -7,6 +7,8 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
+import javax.swing.border.EmptyBorder;
 
 final class ClientUpdateScreen extends javax.swing.JFrame {
     // =============================================================================================
@@ -35,6 +37,9 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
 
     private ClientUpdateScreen(final ServerJoinInfo joinInfo) {
         this.joinInfo = joinInfo;
+        final JRootPane root = getRootPane();
+        root.setBorder(new EmptyBorder(8, 8, 8, 8));
+        
         initComponents();
 
         // center the form on screen (initially)
@@ -132,6 +137,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(progress, gridBagConstraints);
 
+        lFileName.setForeground(new java.awt.Color(255, 255, 255));
         lFileName.setText("<fileName>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -140,6 +146,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         getContentPane().add(lFileName, gridBagConstraints);
 
+        lStats.setForeground(new java.awt.Color(255, 255, 255));
         lStats.setText("<status>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -148,6 +155,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         getContentPane().add(lStats, gridBagConstraints);
 
+        lNotice.setForeground(new java.awt.Color(255, 255, 255));
         lNotice.setText("<notice>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

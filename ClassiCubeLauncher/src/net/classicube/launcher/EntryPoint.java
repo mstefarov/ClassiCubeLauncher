@@ -45,6 +45,7 @@ public final class EntryPoint {
                     ret.put("nimbusSelectionBackground", ccBorder);
                     ret.put("Table.background", Color.WHITE);
                     ret.put("Table.background", Color.WHITE);
+                    ret.put("nimbusOrange", new Color(101,38,143));
                     return ret;
                 }
             });

@@ -18,16 +18,23 @@ final class PreferencesScreen extends javax.swing.JDialog {
         final JRootPane root = getRootPane();
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
-        this.getRootPane().setBackground(new Color(247, 247, 247));
-        this.getContentPane().setBackground(new Color(247, 247, 247));
+        
         root.setDefaultButton(bSave);
+        
+        // tweak BG colors
+        root.setBackground(new Color(247, 247, 247));
+        getContentPane().setBackground(new Color(247, 247, 247));
+        
+        // match save and cancel buttons' sizes
         bSave.setPreferredSize(bCancel.getSize());
-        pack();
-        loadPreferences();
-        setLocationRelativeTo(parent);
         
         // fix for ugly spinner border
         nMemory.getEditor().setOpaque(false);
+        
+        pack();
+        setLocationRelativeTo(parent);
+        
+        loadPreferences();
     }
 
     // =============================================================================================
