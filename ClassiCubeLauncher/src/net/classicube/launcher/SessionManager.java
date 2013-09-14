@@ -41,4 +41,18 @@ final class SessionManager {
             LogUtil.getLogger().log(Level.SEVERE, "Error erasing resume info", ex);
         }
     }
+    
+    public static boolean hasAnyResumeInfo(){
+        try {
+            Preferences servicesNode = Preferences.userNodeForPackage(SessionManager.class).node("GameServices");
+            Preferences ccNode = servicesNode.node("ClassiCubeNetSession");
+            if(ccNode.nodeExists(GameSession.RESUME_NODE_NAME)) return true;
+            Preferences mcNode = servicesNode.node("MinecraftNetSession");
+            if(mcNode.nodeExists(GameSession.RESUME_NODE_NAME)) return true;
+            return false;
+        } catch (final BackingStoreException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error checking resume info", ex);
+            return false;
+        }
+    }
 }

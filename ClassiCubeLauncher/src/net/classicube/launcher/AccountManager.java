@@ -78,6 +78,19 @@ final class AccountManager {
         this.store();
     }
 
+    public boolean hasAccounts() {
+        return !accounts.isEmpty();
+    }
+
+    public boolean hasPasswords() {
+        for (final UserAccount account : this.accounts.values()) {
+            if (!account.password.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Tries to find stored UserAccount data for given sign-in name
     public UserAccount findAccount(final String signInName) {
         if (signInName == null) {

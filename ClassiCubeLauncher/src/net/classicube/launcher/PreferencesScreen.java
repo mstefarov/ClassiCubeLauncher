@@ -18,23 +18,41 @@ final class PreferencesScreen extends javax.swing.JDialog {
         final JRootPane root = getRootPane();
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
         initComponents();
-        
+
         root.setDefaultButton(bSave);
-        
+
         // tweak BG colors
         root.setBackground(new Color(247, 247, 247));
         getContentPane().setBackground(new Color(247, 247, 247));
-        
+
         // match save and cancel buttons' sizes
         bSave.setPreferredSize(bCancel.getSize());
-        
+
         // fix for ugly spinner border
         nMemory.getEditor().setOpaque(false);
-        
+
         pack();
         setLocationRelativeTo(parent);
-        
+
         loadPreferences();
+        checkIfForgetButtonsShouldBeEnabled();
+    }
+
+    void checkIfForgetButtonsShouldBeEnabled() {
+        AccountManager curManager = SessionManager.getAccountManager();
+        AccountManager otherManager;
+        if (SessionManager.getSession().getServiceType() == GameServiceType.ClassiCubeNetService) {
+            otherManager = new AccountManager("MinecraftNetService");
+        } else {
+            otherManager = new AccountManager("ClassiCubeNetService");
+        }
+        boolean hasUsers = curManager.hasAccounts() || otherManager.hasAccounts();
+        boolean hasPasswords = hasUsers && (curManager.hasPasswords() || otherManager.hasPasswords());
+        boolean hasResume = SessionManager.hasAnyResumeInfo();
+
+        this.bForgetUsers.setEnabled(hasUsers);
+        this.bForgetPasswords.setEnabled(hasPasswords);
+        this.bForgetServer.setEnabled(hasResume);
     }
 
     // =============================================================================================
@@ -109,6 +127,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
             SessionManager.getAccountManager().clear();
             JOptionPane.showMessageDialog(this,
                     "All stored user information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+            checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetUsersActionPerformed
 
@@ -120,6 +139,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
             SessionManager.getAccountManager().clearPasswords();
             JOptionPane.showMessageDialog(this,
                     "All stored passwords erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+            checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetPasswordsActionPerformed
 
@@ -131,6 +151,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
             SessionManager.clearAllResumeInfo();
             JOptionPane.showMessageDialog(this,
                     "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
+            checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetServerActionPerformed
 
