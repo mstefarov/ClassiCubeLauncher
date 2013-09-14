@@ -6,8 +6,10 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Map;
 import javax.swing.JButton;
 
 public class JNiceLookingButton extends JButton {
@@ -17,6 +19,11 @@ public class JNiceLookingButton extends JButton {
         // Prepare
         Graphics2D g2 = (Graphics2D) g.create();
         Dimension size = this.getSize();
+
+        // Force antialiasing
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        Map<?, ?> desktopHints = (Map<?, ?>) (tk.getDesktopProperty("awt.font.desktophints"));
+        g2.addRenderingHints(desktopHints);
 
         // Define colors
         Color ccGradientTop, ccGradientBottom, ccHighlight, ccBorder;

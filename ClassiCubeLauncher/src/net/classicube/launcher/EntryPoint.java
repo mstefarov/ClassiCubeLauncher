@@ -26,6 +26,8 @@ public final class EntryPoint {
 
         // set look-and-feel to Numbus
         try {
+            System.setProperty("awt.useSystemAAFontSettings", "on");
+            System.setProperty("swing.aatext", "true");
             UIManager.setLookAndFeel(new NimbusLookAndFeel() {
                 @Override
                 public UIDefaults getDefaults() {
