@@ -28,7 +28,7 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
   <SubComponents>
-    <Component class="javax.swing.JToggleButton" name="bClassiCubeNet">
+    <Component class="net.classicube.launcher.JNiceLookingToggleButton" name="bClassiCubeNet">
       <Properties>
         <Property name="text" type="java.lang.String" value="ClassiCube.net"/>
         <Property name="enabled" type="boolean" value="false"/>
@@ -42,7 +42,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JToggleButton" name="bMinecraftNet">
+    <Component class="net.classicube.launcher.JNiceLookingToggleButton" name="bMinecraftNet">
       <Properties>
         <Property name="text" type="java.lang.String" value="Minecraft.net"/>
       </Properties>

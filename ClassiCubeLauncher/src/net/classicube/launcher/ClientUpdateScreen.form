@@ -60,7 +60,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bContinue">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bContinue">
       <Properties>
         <Property name="text" type="java.lang.String" value="Play &gt;"/>
         <Property name="enabled" type="boolean" value="false"/>
@@ -74,7 +74,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JButton" name="bViewReleaseNotes">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bViewReleaseNotes">
       <Properties>
         <Property name="text" type="java.lang.String" value="View Release Notes"/>
       </Properties>

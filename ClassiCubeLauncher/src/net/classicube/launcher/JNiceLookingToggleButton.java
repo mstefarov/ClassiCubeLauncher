@@ -8,9 +8,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import javax.swing.JButton;
+import javax.swing.JToggleButton;
 
-public class JNiceLookingButton extends JButton {
+public class JNiceLookingToggleButton extends JToggleButton {
 
     @Override
     protected void paintComponent(Graphics g) {

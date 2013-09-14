@@ -419,8 +419,8 @@ final class SignInScreen extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        bClassiCubeNet = new javax.swing.JToggleButton();
-        bMinecraftNet = new javax.swing.JToggleButton();
+        bClassiCubeNet = new net.classicube.launcher.JNiceLookingToggleButton();
+        bMinecraftNet = new net.classicube.launcher.JNiceLookingToggleButton();
         ipLogo = new net.classicube.launcher.ImagePanel();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
@@ -546,9 +546,9 @@ final class SignInScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton bClassiCubeNet;
+    private net.classicube.launcher.JNiceLookingToggleButton bClassiCubeNet;
     private net.classicube.launcher.JNiceLookingButton bDirect;
-    private javax.swing.JToggleButton bMinecraftNet;
+    private net.classicube.launcher.JNiceLookingToggleButton bMinecraftNet;
     private net.classicube.launcher.JNiceLookingButton bResume;
     private net.classicube.launcher.JNiceLookingButton bSignIn;
     private javax.swing.JComboBox<String> cUsername;

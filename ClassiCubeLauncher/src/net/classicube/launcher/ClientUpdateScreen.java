@@ -120,8 +120,8 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         lFileName = new javax.swing.JLabel();
         lStats = new javax.swing.JLabel();
         lNotice = new javax.swing.JLabel();
-        bContinue = new javax.swing.JButton();
-        bViewReleaseNotes = new javax.swing.JButton();
+        bContinue = new net.classicube.launcher.JNiceLookingButton();
+        bViewReleaseNotes = new net.classicube.launcher.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -185,8 +185,8 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bContinue;
-    private javax.swing.JButton bViewReleaseNotes;
+    private net.classicube.launcher.JNiceLookingButton bContinue;
+    private net.classicube.launcher.JNiceLookingButton bViewReleaseNotes;
     private javax.swing.JLabel lFileName;
     private javax.swing.JLabel lNotice;
     private javax.swing.JLabel lStats;
