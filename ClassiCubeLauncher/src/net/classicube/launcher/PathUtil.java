@@ -18,7 +18,7 @@ final class PathUtil {
     public static final String CLIENT_DIR_NAME = "net.classicube.client",
             CLIENT_JAR_NAME = "ClassiCubeClient.jar",
             CLIENT_TEMP_JAR_NAME = "ClassiCubeClient.jar.tmp",
-            LAUNCHER_DIR_NAME = "net.classicube.launcher",
+            LAUNCHER_DIR_NAME = ".net.classicube.launcher",
             LOG_FILE_NAME = "launcher.log",
             LIBS_DIR_NAME = "libs";
 
