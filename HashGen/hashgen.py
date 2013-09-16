@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os
 import hashlib
-import tempfile
+import zipfile
 from subprocess import call
 
 files = [
@@ -16,20 +16,19 @@ files = [
     'solaris_natives.jar'
 ]
 
-def packfile(file):
-    call("pack200 -E9 -g "+file+".pack "+file, shell=True)
-    call("lzma -9 "+file+".pack", shell=True)
-    return file+".pack.lzma"
+def packfile(filename):
+    call("pack200 -E9 -g "+filename+".pack "+filename, shell=True)
+    call("lzma -9 "+filename+".pack", shell=True)
+    return filename+".pack.lzma"
 
-def hashfile(afile, hasher, blocksize=65536):
-    buf = afile.read(blocksize)
-    while len(buf) > 0:
-        hasher.update(buf)
-        buf = afile.read(blocksize)
+def hashfile(jarname, hasher, blocksize=65536):
+    zf = zipfile.ZipFile(jarname, 'r')
+    buf = zf.read('META-INF/MANIFEST.MF', blocksize)
+    hasher.update(buf)
+    zf.close()
     return hasher.hexdigest()
 
-for file in files:
-    hash = hashfile(open(file,'rb'),hashlib.sha1())
-    packedname = packfile(file)
-    print packedname,os.path.getsize(packedname),hash
-
+for f in files:
+    hash = hashfile(f, hashlib.sha1())
+    packedname = packfile(f)
+    print packedname, os.path.getsize(packedname), hash
