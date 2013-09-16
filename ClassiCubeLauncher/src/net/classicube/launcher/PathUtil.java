@@ -15,13 +15,10 @@ import java.nio.file.StandardCopyOption;
 
 final class PathUtil {
 
-    private static final String MAC_PATH_SUFFIX = "/Library/Application Support";
-    public static final String CLIENT_DIR_NAME = "net.classicube.client",
-            CLIENT_JAR_NAME = "ClassiCubeClient.jar",
-            CLIENT_TEMP_JAR_NAME = "ClassiCubeClient.jar.tmp",
+    private static final String MAC_PATH_SUFFIX = "/Library/Application Support",
+            CLIENT_DIR_NAME = ".net.classicube.client",
             LAUNCHER_DIR_NAME = ".net.classicube.launcher",
-            LOG_FILE_NAME = "launcher.log",
-            LIBS_DIR_NAME = "libs";
+            LOG_FILE_NAME = "launcher.log";
 
     public static File getClientDir() {
         if (clientPath == null) {
