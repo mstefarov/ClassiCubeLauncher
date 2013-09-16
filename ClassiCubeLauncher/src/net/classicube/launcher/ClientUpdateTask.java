@@ -23,6 +23,8 @@ import java.util.jar.Pack200;
 import java.util.jar.Pack200.Unpacker;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
 import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
@@ -162,9 +164,9 @@ final class ClientUpdateTask
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
-                                    "Will download "+localFile.localName.getName()+": contents don't match ("+localHash+" vs "+remoteFile.hash+")");
+                                    "Will download " + localFile.localName.getName() + ": contents don't match (" + localHash + " vs " + remoteFile.hash + ")");
                             download = true;
-                        }else{
+                        } else {
                             LogUtil.getLogger().log(Level.INFO,
                                     "Skipping {0}: contents match ({1} = {2})",
                                     new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
@@ -205,10 +207,16 @@ final class ClientUpdateTask
         if (clientJar == null) {
             throw new NullPointerException("clientJar");
         }
-        try (final FileInputStream is = new FileInputStream(clientJar)) {
-            final DigestInputStream dis = new DigestInputStream(is, digest);
-            while (dis.read(ioBuffer) != -1) {
-                // DigestInputStream is doing its job, we just need to read through it.
+        try (ZipFile zipFile = new ZipFile(clientJar)) {
+            ZipEntry manifest = zipFile.getEntry("META-INF/MANIFEST.MF");
+            if (manifest == null) {
+                return "<none>";
+            }
+            try (final InputStream is = zipFile.getInputStream(manifest)) {
+                final DigestInputStream dis = new DigestInputStream(is, digest);
+                while (dis.read(ioBuffer) != -1) {
+                    // DigestInputStream is doing its job, we just need to read through it.
+                }
             }
         }
         final byte[] localHashBytes = digest.digest();
