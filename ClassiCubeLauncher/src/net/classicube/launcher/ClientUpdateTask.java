@@ -33,9 +33,7 @@ final class ClientUpdateTask
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================
-    private static final String BASE_URL = "http://www.classicube.net/static/client/",
-            CLIENT_HASH_URL = BASE_URL + "client.jar.md5",
-            LAUNCHER_HASH_URL = BASE_URL + "ClassiCubeLauncher.jar.md5";
+    private static final String BASE_URL = "http://static.classicube.net/client/";
     private static final ClientUpdateTask instance = new ClientUpdateTask();
     private boolean updatesApplied;
 
@@ -56,7 +54,7 @@ final class ClientUpdateTask
             return true;
         }
 
-        this.digest = MessageDigest.getInstance("MD5");
+        this.digest = MessageDigest.getInstance("SHA1");
         Logger logger = LogUtil.getLogger();
 
         // step 1: build up file list
@@ -110,7 +108,7 @@ final class ClientUpdateTask
          */ // TODO: auto-update launcher when we start regular deployment
 
         files.add(new FileToDownload(
-                "client.jar",
+                "client.jar.pack.lzma",
                 new File(clientDir, "client.jar")));
 
         files.add(new FileToDownload(
@@ -158,15 +156,18 @@ final class ClientUpdateTask
                             "ClientUpdateTask: Will download {0}: does not exist locally",
                             localFile.localName.getName());
                     download = true;
-                } else if (!localFile.remoteUrl.endsWith("lzma")) { // TODO: do not update .lzma files until remote hashes work properly
+                } else {
                     try {
                         String localHash = computeLocalHash(localFile.localName);
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
-                                    "Will download {0}: contents don''t match ({1} vs {2})",
-                                    new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
+                                    "Will download "+localFile.localName.getName()+": contents don't match ("+localHash+" vs "+remoteFile.hash+")");
                             download = true;
+                        }else{
+                            LogUtil.getLogger().log(Level.INFO,
+                                    "Skipping {0}: contents match ({1} = {2})",
+                                    new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
                         }
                     } catch (IOException ex) {
                         LogUtil.getLogger().log(Level.SEVERE,
@@ -232,7 +233,7 @@ final class ClientUpdateTask
             default:
                 throw new IllegalArgumentException();
         }
-        final String remoteName = osName + "_natives.jar.lzma";
+        final String remoteName = osName + "_natives.jar.pack.lzma";
         final File localPath = new File(PathUtil.getClientDir(),
                 "natives/" + osName + "_natives.jar");
         return new FileToDownload(remoteName, localPath);
