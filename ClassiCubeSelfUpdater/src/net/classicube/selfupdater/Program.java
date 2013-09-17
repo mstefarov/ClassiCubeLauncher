@@ -1,44 +1,61 @@
 package net.classicube.selfupdater;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.channels.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 public class Program {
+    private static final Logger logger = Logger.getLogger(Program.class.getName());
+    private static final String LauncherEntryClass = "net.classicube.launcher.EntryPoint";
+    private static final String LAUNCHER_JAR_NAME = "launcher.jar";
+    private static final String LauncherEntryMethod = "main";
 
-    static final String MacSuffix = "/Library/Application Support";
-    static final String LauncherDirName = "net.classicube.launcher";
-    static final String LauncherJarName = "ClassiCubeLauncher.jar";
-    static final String UpdatedLauncherJarName = "ClassiCubeLauncher.new.jar";
-    static final String LauncherEntryClass = "net.classicube.launcher.EntryPoint";
-    static final String LauncherEntryMethod = "main";
-    static final String LauncherDownload = "http://www.classicube.net/static/launcher/ClassiCubeLauncher.jar";
+    public static void main(String[] args) {
+        File launcherDir = SharedUpdaterCode.getLauncherDir();
+        File launcherJar = new File(launcherDir, LAUNCHER_JAR_NAME);
+        File launcherNewJar = new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME);
 
-    public static void main(String[] args) throws IOException {
-        // Find launcher jars
-        File userDir = findUserDir();
-        File launcherDir = new File(userDir, LauncherDirName);
-        File launcherJar = new File(launcherDir, LauncherJarName);
-        File updatedJarFile = new File(launcherDir, UpdatedLauncherJarName);
-
-        // Update launcher.jar, if needed
-        if (updatedJarFile.exists()) {
-            try {
-                replaceFile(updatedJarFile, launcherJar);
-            } catch (IOException ex) {
-                System.err.println("ClassiCubeLauncher: Error updating: " + ex);
-            }
+        if (launcherNewJar.exists()) {
+            replaceFile(launcherNewJar, launcherJar);
+        } else if (!launcherJar.exists()) {
+            downloadLauncher();
         }
 
-        if (!launcherJar.exists()) {
-            downloadLauncherJar(launcherJar);
+        startLauncher(launcherJar);
+    }
+
+    private static void downloadLauncher() {
+        File launcherDir = SharedUpdaterCode.getLauncherDir();
+        File launcherJar = new File(launcherDir, LAUNCHER_JAR_NAME);
+        launcherJar.getParentFile().mkdirs();
+        File lzmaJar = new File(launcherDir, SharedUpdaterCode.LZMA_JAR_NAME);
+        if (!lzmaJar.exists()) {
+            File lzmaTempFile = downloadFile("lzma.jar");
+            replaceFile(lzmaTempFile, lzmaJar);
+        }
+        File launcherTempFile = downloadFile("launcher.jar.pack.lzma");
+        try {
+            File processedLauncherFile = SharedUpdaterCode.processDownload(logger, launcherTempFile, "launcher.jar.pack.lzma", "launcher.jar");
+            replaceFile(processedLauncherFile, launcherJar);
+        } catch (IOException ex) {
+            String message = String.format("Error unpacking the launcher.\nDebug info: %s", ex.getMessage());
+            fatalError(message);
         }
 
-        // Hand control over to the launcher
+    }
+
+    private static void startLauncher(File launcherJar) {
         try {
             Class<?> lpClass = loadLauncher(launcherJar);
             Method entryPoint = lpClass.getMethod(LauncherEntryMethod, String[].class);
@@ -50,50 +67,54 @@ public class Program {
         }
     }
 
-    // Find OS-specific application data dir
-    static File findUserDir() {
-        String os = System.getProperty("os.name");
-        String path;
-        if (os.contains("Windows")) {
-            path = System.getenv("AppData");
-        } else {
-            path = System.getProperty("user.home");
-            if (os.contains("MacOS")) {
-                path += MacSuffix;
-            }
-        }
-        return new File(path);
-    }
-
-    // Replace contents of destFile with sourceFile
-    static void replaceFile(File sourceFile, File destFile)
-            throws IOException {
-        if (!destFile.exists()) {
-            destFile.createNewFile();
-        }
-
-        try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
-            try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
-                destination.transferFrom(source, 0, source.size());
-            }
-        }
-
-        sourceFile.delete();
-    }
-
-    // Load the entry point from
-    static Class<?> loadLauncher(File launcherJar)
+    // Load the entry point from launcher's jar
+    private static Class<?> loadLauncher(File launcherJar)
             throws IOException, ClassNotFoundException {
         URL[] urls = {new URL("jar:file:" + launcherJar + "!/")};
         URLClassLoader loader = URLClassLoader.newInstance(urls);
         return loader.loadClass(LauncherEntryClass);
     }
 
-    private static void downloadLauncherJar(File launcherJar) throws MalformedURLException, IOException {
-        URL website = new URL(LauncherDownload);
-        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-        try (FileOutputStream fos = new FileOutputStream(launcherJar)) {
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+    private static File downloadFile(String remoteName) {
+        try {
+            final File tempFile = File.createTempFile(remoteName, ".downloaded");
+            final URL website = new URL(SharedUpdaterCode.BASE_URL + remoteName);
+            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            }
+            return tempFile;
+        } catch (IOException ex) {
+            String message = String.format("Error downloading launcher component \"%s\".\nDebug info: %s",
+                    new Object[]{remoteName, ex.getMessage()});
+            fatalError(message);
+            return null;
         }
+    }
+
+    // Replace contents of destFile with sourceFile
+    static void replaceFile(File sourceFile, File destFile) {
+        try {
+            if (!destFile.exists()) {
+                destFile.createNewFile();
+            }
+
+            try (FileChannel source = new FileInputStream(sourceFile).getChannel()) {
+                try (FileChannel destination = new FileOutputStream(destFile).getChannel()) {
+                    destination.transferFrom(source, 0, source.size());
+                }
+            }
+
+            sourceFile.delete();
+        } catch (IOException ex) {
+            String message = String.format("Error deploying launcher component \"%s\".\nDebug info: %s",
+                    new Object[]{destFile.getName(), ex.getMessage()});
+            fatalError(message);
+        }
+    }
+
+    static void fatalError(String message) {
+        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+        System.exit(1);
     }
 }

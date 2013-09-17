@@ -22,7 +22,8 @@ public class SharedUpdaterCode {
     public static final String BASE_URL = "http://static.classicube.net/client/",
             LZMA_JAR_NAME = "lzma.jar",
             LAUNCHER_DIR_NAME = ".net.classicube.launcher",
-            MAC_PATH_SUFFIX = "/Library/Application Support";
+            MAC_PATH_SUFFIX = "/Library/Application Support",
+            LAUNCHER_NEW_JAR_NAME = "launcher.jar.new";
     private static Constructor constructor;
     private static File launcherPath,
             appDataPath;

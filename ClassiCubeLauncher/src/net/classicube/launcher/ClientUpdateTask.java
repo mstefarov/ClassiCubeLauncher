@@ -101,11 +101,9 @@ final class ClientUpdateTask
                 "lzma.jar",
                 new File(launcherDir, "lzma.jar")));
 
-        /*
-         files.add(new FileToDownload(
-         "launcher.jar",
-         new File(launcherDir, "ClassiCubeLauncher.jar.new")));
-         */ // TODO: auto-update launcher when we start regular deployment
+        files.add(new FileToDownload(
+                "launcher.jar.pack.lzma",
+                new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
 
         files.add(new FileToDownload(
                 "client.jar.pack.lzma",
