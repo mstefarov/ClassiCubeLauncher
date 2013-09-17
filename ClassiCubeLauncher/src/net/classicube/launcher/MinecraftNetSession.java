@@ -204,6 +204,7 @@ final class MinecraftNetSession extends GameSession {
                 final ServerListEntry server = new ServerListEntry();
                 server.hash = serverListMatch.group(1);
                 server.name = htmlDecode(serverListMatch.group(2));
+                server.name = server.name.replaceAll("&hellip;", "...");
                 final int rowStart = serverListMatch.end();
 
                 // Try getting the rest using another regex
