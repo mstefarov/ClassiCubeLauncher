@@ -15,15 +15,12 @@ import java.nio.file.StandardCopyOption;
 
 final class PathUtil {
 
-    private static final String MAC_PATH_SUFFIX = "/Library/Application Support",
-            CLIENT_DIR_NAME = ".net.classicube.client",
-            LAUNCHER_DIR_NAME = ".net.classicube.launcher",
+    private static final String CLIENT_DIR_NAME = ".net.classicube.client",
             LOG_FILE_NAME = "launcher.log";
-    public static final String LZMA_JAR_NAME = "lzma.jar";
 
     public static File getClientDir() {
         if (clientPath == null) {
-            clientPath = new File(getAppDataDir(), CLIENT_DIR_NAME);
+            clientPath = new File(SharedUpdaterCode.getAppDataDir(), CLIENT_DIR_NAME);
         }
         if (!clientPath.exists() && !clientPath.mkdirs()) {
             throw new RuntimeException("The working directory could not be created: " + clientPath);
@@ -31,46 +28,9 @@ final class PathUtil {
         return clientPath;
     }
 
-    public static File getAppDataDir() {
-        if (appDataPath == null) {
-            final String home = System.getProperty("user.home", ".");
-            final OperatingSystem os = OperatingSystem.detect();
-
-            switch (os) {
-                case WINDOWS:
-                    final String appData = System.getenv("APPDATA");
-                    if (appData != null) {
-                        appDataPath = new File(appData);
-                    } else {
-                        appDataPath = new File(home);
-                    }
-                    break;
-
-                case MACOS:
-                    appDataPath = new File(home, MAC_PATH_SUFFIX);
-                    break;
-
-                default:
-                    appDataPath = new File(home);
-            }
-        }
-        return appDataPath;
-    }
-
-    public static File getLauncherDir() {
-        if (launcherPath == null) {
-            final File userDir = getAppDataDir();
-            launcherPath = new File(userDir, LAUNCHER_DIR_NAME);
-            if (launcherPath.exists()) {
-                launcherPath.mkdir();
-            }
-        }
-        return launcherPath;
-    }
-
     public static File getLogFile() {
         if (logFilePath == null) {
-            logFilePath = new File(PathUtil.getLauncherDir(), PathUtil.LOG_FILE_NAME);
+            logFilePath = new File(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_FILE_NAME);
         }
         return logFilePath;
     }
@@ -161,7 +121,5 @@ final class PathUtil {
         }
     }
     private static File clientPath,
-            launcherPath,
-            logFilePath,
-            appDataPath;
+            logFilePath;
 }

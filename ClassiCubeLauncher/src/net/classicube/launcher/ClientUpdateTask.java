@@ -95,7 +95,7 @@ final class ClientUpdateTask
         final List<FileToDownload> files = new ArrayList<>();
 
         final File clientDir = PathUtil.getClientDir();
-        final File launcherDir = PathUtil.getLauncherDir();
+        final File launcherDir = SharedUpdaterCode.getLauncherDir();
 
         files.add(new FileToDownload(
                 "lzma.jar",
@@ -149,7 +149,7 @@ final class ClientUpdateTask
             signalCheckProgress(localFile.localName.getName());
             RemoteFile remoteFile = remoteFiles.get(localFile.remoteUrl);
             if (remoteFile != null) {
-                boolean isLzma = localFile.localName.getName().equals(PathUtil.LZMA_JAR_NAME);
+                boolean isLzma = localFile.localName.getName().equals(SharedUpdaterCode.LZMA_JAR_NAME);
                 boolean download = false;
                 if (!localFile.localName.exists()) {
                     // If local file does not exist
@@ -194,7 +194,7 @@ final class ClientUpdateTask
 
         // special treatment for LZMA
         RemoteFile lzmaFile = new RemoteFile();
-        lzmaFile.name = PathUtil.LZMA_JAR_NAME;
+        lzmaFile.name = SharedUpdaterCode.LZMA_JAR_NAME;
         lzmaFile.length = 7187;
         lzmaFile.hash = "N/A";
         remoteFiles.put(lzmaFile.name.toLowerCase(), lzmaFile);

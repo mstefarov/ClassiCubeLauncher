@@ -15,7 +15,7 @@ public final class EntryPoint {
 
     public static void main(final String[] args) {
         // Create launcher's data dir
-        final File launcherDataDir = PathUtil.getLauncherDir();
+        final File launcherDataDir = SharedUpdaterCode.getLauncherDir();
         if (!launcherDataDir.exists() && !launcherDataDir.mkdirs()) {
             LogUtil.die("Could not create launcher data dir.", null);
         }

@@ -1,4 +1,4 @@
-package net.classicube.launcher;
+package net.classicube.selfupdater;
 
 import java.io.BufferedInputStream;
 import java.io.File;
