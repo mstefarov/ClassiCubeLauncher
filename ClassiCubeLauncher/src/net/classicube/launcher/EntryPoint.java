@@ -1,6 +1,6 @@
 package net.classicube.launcher;
 
-import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
+import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel; // TODO investigate javax.swing.plaf.nimbus.NimbusLookAndFeel
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;

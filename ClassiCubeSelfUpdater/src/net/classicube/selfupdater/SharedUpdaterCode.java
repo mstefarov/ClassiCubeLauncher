@@ -24,7 +24,7 @@ public class SharedUpdaterCode {
             LAUNCHER_DIR_NAME = ".net.classicube.launcher",
             MAC_PATH_SUFFIX = "/Library/Application Support",
             LAUNCHER_NEW_JAR_NAME = "launcher.jar.new";
-    private static Constructor constructor;
+    private static Constructor<?> constructor;
     private static File launcherPath,
             appDataPath;
 
@@ -67,6 +67,9 @@ public class SharedUpdaterCode {
 
     public static File processDownload(final Logger logger, final File downloadedFile, final String remoteUrl, final String namePart)
             throws FileNotFoundException, IOException {
+        if (logger == null) {
+            throw new NullPointerException("logger");
+        }
         if (downloadedFile == null) {
             throw new NullPointerException("downloadedFile");
         }
@@ -76,7 +79,7 @@ public class SharedUpdaterCode {
         if (namePart == null) {
             throw new NullPointerException("namePart");
         }
-        String remoteUrlLower = remoteUrl.toLowerCase();
+        final String remoteUrlLower = remoteUrl.toLowerCase();
         logger.log(Level.FINE, "processDownload({0})", namePart);
 
         if (remoteUrlLower.endsWith(".pack.lzma")) {
@@ -108,17 +111,23 @@ public class SharedUpdaterCode {
         }
     }
 
-    private static InputStream makeLzmaInputStream(final Logger logger, InputStream str) {
+    private static InputStream makeLzmaInputStream(final Logger logger, final InputStream stream) {
+        if (logger == null) {
+            throw new NullPointerException("logger");
+        }
+        if (stream == null) {
+            throw new NullPointerException("stream");
+        }
         try {
             if (constructor == null) {
-                File jarFile = new File(getLauncherDir(), LZMA_JAR_NAME);
-                URL[] jarUrl = new URL[]{jarFile.toURI().toURL()};
-                URLClassLoader jarLoader = new URLClassLoader(jarUrl, SharedUpdaterCode.class.getClassLoader());
-                Class lzmaClass = Class.forName("LZMA.LzmaInputStream", true, jarLoader);
+                final File jarFile = new File(getLauncherDir(), LZMA_JAR_NAME);
+                final URL[] jarUrl = new URL[]{jarFile.toURI().toURL()};
+                final URLClassLoader jarLoader = new URLClassLoader(jarUrl, SharedUpdaterCode.class.getClassLoader());
+                final Class<?> lzmaClass = Class.forName("LZMA.LzmaInputStream", true, jarLoader);
                 constructor = lzmaClass.getDeclaredConstructor(InputStream.class);
             }
-            return (InputStream) constructor.newInstance(str);
-        } catch (MalformedURLException | ClassNotFoundException | NoSuchMethodException |
+            return (InputStream) constructor.newInstance(stream);
+        } catch (final MalformedURLException | ClassNotFoundException | NoSuchMethodException |
                 SecurityException | InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException ex) {
             logger.log(Level.SEVERE, "Error creating LzmaInputStream", ex);
@@ -128,6 +137,9 @@ public class SharedUpdaterCode {
 
     private static void decompressLzma(final Logger logger, final File compressedInput, final File decompressedOutput)
             throws FileNotFoundException, IOException {
+        if (logger == null) {
+            throw new NullPointerException("logger");
+        }
         if (compressedInput == null) {
             throw new NullPointerException("compressedInput");
         }
