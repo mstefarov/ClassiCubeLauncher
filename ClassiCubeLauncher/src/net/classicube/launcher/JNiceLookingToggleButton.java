@@ -19,13 +19,15 @@ public class JNiceLookingToggleButton extends JToggleButton {
         Dimension size = this.getSize();
 
         // Define colors
+        int offset = 0;
         Color ccGradientTop, ccGradientBottom, ccHighlight, ccBorder;
         if (isEnabled()) {
-            if (getModel().isArmed() || getModel().isPressed()) {
+            if (getModel().isArmed() || getModel().isPressed() || getModel().isSelected()) {
                 // Pressed
                 ccGradientTop = new Color(146, 123, 166);
                 ccGradientBottom = new Color(168, 141, 191);
                 ccHighlight = ccGradientTop;
+                offset = 1;
             } else if (getModel().isRollover()) {
                 // Hover
                 ccGradientTop = new Color(180, 153, 203);
@@ -78,12 +80,12 @@ public class JNiceLookingToggleButton extends JToggleButton {
         // Paint text shadow
         if (isEnabled()) {
             g2.setPaint(ccBorder);
-            g2.drawString(getText(), x + 1, y + 1);
+            g2.drawString(getText(), x + 1 + offset, y + 1 + offset);
         }
 
         // Paint text proper
         g2.setPaint(Color.WHITE);
-        g2.drawString(getText(), x, y);
+        g2.drawString(getText(), x + offset, y + offset);
 
         // Clean up
         g2.dispose();
