@@ -1,8 +1,6 @@
 package net.classicube.launcher;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,16 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-import java.util.jar.Pack200.Unpacker;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
-import lzma.sdk.lzma.Decoder;
-import lzma.streams.LzmaInputStream;
 
 final class ClientUpdateTask
         extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
@@ -35,7 +28,6 @@ final class ClientUpdateTask
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================
-    private static final String BASE_URL = "http://static.classicube.net/client/";
     private static final ClientUpdateTask instance = new ClientUpdateTask();
     private boolean updatesApplied;
 
@@ -81,7 +73,9 @@ final class ClientUpdateTask
 
                     // step 3: unpack
                     signalUnpackProgress();
-                    final File processedFile = processDownload(downloadedFile, file);
+                    final File processedFile = SharedUpdaterCode.processDownload(
+                            LogUtil.getLogger(),
+                            downloadedFile, file.remoteUrl, file.localName.getName());
 
                     // step 4: deploy
                     deployFile(processedFile, file.localName);
@@ -102,6 +96,10 @@ final class ClientUpdateTask
 
         final File clientDir = PathUtil.getClientDir();
         final File launcherDir = PathUtil.getLauncherDir();
+
+        files.add(new FileToDownload(
+                "lzma.jar",
+                new File(launcherDir, "lzma.jar")));
 
         /*
          files.add(new FileToDownload(
@@ -151,6 +149,7 @@ final class ClientUpdateTask
             signalCheckProgress(localFile.localName.getName());
             RemoteFile remoteFile = remoteFiles.get(localFile.remoteUrl);
             if (remoteFile != null) {
+                boolean isLzma = localFile.localName.getName().equals(PathUtil.LZMA_JAR_NAME);
                 boolean download = false;
                 if (!localFile.localName.exists()) {
                     // If local file does not exist
@@ -158,13 +157,14 @@ final class ClientUpdateTask
                             "ClientUpdateTask: Will download {0}: does not exist locally",
                             localFile.localName.getName());
                     download = true;
-                } else {
+                } else if (!isLzma) {
                     try {
                         String localHash = computeLocalHash(localFile.localName);
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
-                                    "Will download " + localFile.localName.getName() + ": contents don't match (" + localHash + " vs " + remoteFile.hash + ")");
+                                    "Will download {0}: contents don''t match ({1} vs {2})",
+                                    new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
                             download = true;
                         } else {
                             LogUtil.getLogger().log(Level.INFO,
@@ -191,6 +191,15 @@ final class ClientUpdateTask
     private HashMap<String, RemoteFile> getRemoteIndex() {
         String hashIndex = HttpUtil.downloadString("http://www.classicube.net/static/client/version");
         HashMap<String, RemoteFile> remoteFiles = new HashMap<>();
+
+        // special treatment for LZMA
+        RemoteFile lzmaFile = new RemoteFile();
+        lzmaFile.name = PathUtil.LZMA_JAR_NAME;
+        lzmaFile.length = 7187;
+        lzmaFile.hash = "N/A";
+        remoteFiles.put(lzmaFile.name.toLowerCase(), lzmaFile);
+
+        // the rest of the files
         for (String line : hashIndex.split("\\r?\\n")) {
             String[] components = line.split(" ");
             RemoteFile file = new RemoteFile();
@@ -253,7 +262,7 @@ final class ClientUpdateTask
             throw new NullPointerException("file");
         }
         final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
-        final URL website = new URL(BASE_URL + file.remoteUrl);
+        final URL website = new URL(SharedUpdaterCode.BASE_URL + file.remoteUrl);
 
         try (final InputStream siteIn = website.openStream()) {
             try (final FileOutputStream fileOut = new FileOutputStream(tempFile)) {
@@ -272,86 +281,6 @@ final class ClientUpdateTask
     // =============================================================================================
     //                                                                      POST-DOWNLOAD PROCESSING
     // =============================================================================================
-    private File processDownload(final File rawFile, final FileToDownload fileInfo)
-            throws FileNotFoundException, IOException {
-        if (rawFile == null) {
-            throw new NullPointerException("rawFile");
-        }
-        if (fileInfo == null) {
-            throw new NullPointerException("fileInfo");
-        }
-        LogUtil.getLogger().log(Level.FINE, "processDownload({0})", fileInfo.localName.getName());
-        final String remoteUrlLower = fileInfo.remoteUrl.toLowerCase();
-        final String namePart = fileInfo.localName.getName();
-
-        if (remoteUrlLower.endsWith(".pack.lzma")) {
-            // decompress (LZMA) and then unpack (Pack200)
-            final File newFile1 = File.createTempFile(namePart, ".decompressed.tmp");
-            decompressLzma(rawFile, newFile1);
-            rawFile.delete();
-            final File newFile2 = File.createTempFile(namePart, ".unpacked.tmp");
-            unpack200(newFile1, newFile2);
-            newFile1.delete();
-            return newFile2;
-
-        } else if (remoteUrlLower.endsWith(".lzma")) {
-            // decompress (LZMA)
-            final File newFile = File.createTempFile(namePart, ".decompressed.tmp");
-            decompressLzma(rawFile, newFile);
-            rawFile.delete();
-            return newFile;
-
-        } else if (remoteUrlLower.endsWith(".pack")) {
-            // unpack (Pack200)
-            final File newFile = File.createTempFile(namePart, ".unpacked.tmp");
-            unpack200(rawFile, newFile);
-            rawFile.delete();
-            return newFile;
-
-        } else {
-            return rawFile;
-        }
-    }
-
-    private void decompressLzma(final File compressedInput, final File decompressedOutput)
-            throws FileNotFoundException, IOException {
-        if (compressedInput == null) {
-            throw new NullPointerException("compressedInput");
-        }
-        if (decompressedOutput == null) {
-            throw new NullPointerException("decompressedOutput");
-        }
-        LogUtil.getLogger().log(Level.FINE, "LZMA: {0}", compressedInput.getName());
-        try (final FileInputStream fileIn = new FileInputStream(compressedInput)) {
-            try (final BufferedInputStream bufferedIn = new BufferedInputStream(fileIn)) {
-                final LzmaInputStream compressedIn = new LzmaInputStream(bufferedIn, new Decoder());
-                try (final FileOutputStream fileOut = new FileOutputStream(decompressedOutput)) {
-                    int len;
-                    while ((len = compressedIn.read(ioBuffer)) > 0) {
-                        fileOut.write(ioBuffer, 0, len);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void unpack200(final File compressedInput, final File decompressedOutput)
-            throws FileNotFoundException, IOException {
-        if (compressedInput == null) {
-            throw new NullPointerException("compressedInput");
-        }
-        if (decompressedOutput == null) {
-            throw new NullPointerException("decompressedOutput");
-        }
-        LogUtil.getLogger().log(Level.FINE, "unpack200: {0}", compressedInput.getName());
-        try (final FileOutputStream fostream = new FileOutputStream(decompressedOutput)) {
-            try (final JarOutputStream jostream = new JarOutputStream(fostream)) {
-                final Unpacker unpacker = Pack200.newUnpacker();
-                unpacker.unpack(compressedInput, jostream);
-            }
-        }
-    }
-
     private void deployFile(final File processedFile, final File localName) {
         if (processedFile == null) {
             throw new NullPointerException("processedFile");

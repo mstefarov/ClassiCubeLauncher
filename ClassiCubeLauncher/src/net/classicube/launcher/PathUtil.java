@@ -19,6 +19,7 @@ final class PathUtil {
             CLIENT_DIR_NAME = ".net.classicube.client",
             LAUNCHER_DIR_NAME = ".net.classicube.launcher",
             LOG_FILE_NAME = "launcher.log";
+    public static final String LZMA_JAR_NAME = "lzma.jar";
 
     public static File getClientDir() {
         if (clientPath == null) {
