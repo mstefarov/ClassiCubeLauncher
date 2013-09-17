@@ -230,11 +230,16 @@ final class ClientUpdateTask
         }
         final byte[] localHashBytes = digest.digest();
         final String hashString = new BigInteger(1, localHashBytes).toString(16);
-        return padLeft(hashString, 20);
+        return padLeft(hashString, 40);
     }
 
     private static String padLeft(String s, int n) {
-        return String.format("%1$" + n + "s", s);
+        StringBuilder sb = new StringBuilder();
+        for (int toPrepend = n - s.length(); toPrepend > 0; toPrepend--) {
+            sb.append('0');
+        }
+        sb.append(s);
+        return sb.toString();
     }
 
     private static FileToDownload pickNativeDownload() {
