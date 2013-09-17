@@ -255,8 +255,8 @@ final class SignInScreen extends javax.swing.JFrame {
             } else if (joinInfo.signInNeeded) {
                 LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
             } else {
-                ClientUpdateScreen.createAndShow(joinInfo);
                 dispose();
+                ClientUpdateScreen.createAndShow(joinInfo);
             }
         }
     }//GEN-LAST:event_bDirectActionPerformed
@@ -268,8 +268,8 @@ final class SignInScreen extends javax.swing.JFrame {
 
     private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
         final ServerJoinInfo joinInfo = SessionManager.getSession().loadResumeInfo();
-        ClientUpdateScreen.createAndShow(joinInfo);
         dispose();
+        ClientUpdateScreen.createAndShow(joinInfo);
     }//GEN-LAST:event_bResumeActionPerformed
 
     // =============================================================================================

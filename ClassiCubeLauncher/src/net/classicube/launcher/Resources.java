@@ -12,7 +12,8 @@ final class Resources {
     private static Image classiCubeBackground = null,
             minecraftNetBackground = null,
             classiCubeLogo = null,
-            minecraftNetLogo = null;
+            minecraftNetLogo = null,
+            errorIcon = null;
 
     public static Image getClassiCubeBackground() {
         if (classiCubeBackground == null) {
@@ -40,6 +41,13 @@ final class Resources {
             minecraftNetLogo = loadImage("/images/MinecraftNetLogo.png");
         }
         return minecraftNetLogo;
+    }
+
+    public static Image getErrorIcon() {
+        if (errorIcon == null) {
+            errorIcon = loadImage("/images/errorIcon.png");
+        }
+        return errorIcon;
     }
 
     // Loads an image from inside the ClassiCubeLauncher JAR

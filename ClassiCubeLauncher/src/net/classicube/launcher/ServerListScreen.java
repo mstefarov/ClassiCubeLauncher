@@ -239,8 +239,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
             joinInfo.playerName = session.getAccount().playerName;
         }
         System.out.println(joinInfo.address + ":" + joinInfo.port + "/" + joinInfo.playerName + "/" + joinInfo.pass);
-        ClientUpdateScreen.createAndShow(joinInfo);
         dispose();
+        ClientUpdateScreen.createAndShow(joinInfo);
     }
 
     // =============================================================================================
@@ -310,8 +310,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
     private void bChangeUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeUserActionPerformed
         LogUtil.getLogger().log(Level.INFO, "[Change User]");
-        new SignInScreen().setVisible(true);
         dispose();
+        new SignInScreen().setVisible(true);
     }//GEN-LAST:event_bChangeUserActionPerformed
 
     private void tSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tSearchKeyReleased
