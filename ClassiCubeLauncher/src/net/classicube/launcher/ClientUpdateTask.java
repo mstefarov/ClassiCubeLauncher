@@ -88,6 +88,8 @@ final class ClientUpdateTask
             logger.log(Level.INFO, "Updates applied.");
         }
 
+        verifyFiles(files);
+
         return true;
     }
 
@@ -146,16 +148,20 @@ final class ClientUpdateTask
         for (FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
             RemoteFile remoteFile = remoteFiles.get(localFile.remoteUrl);
-            if (remoteFile != null) {
-                boolean isLzma = localFile.localName.getName().equals(SharedUpdaterCode.LZMA_JAR_NAME);
-                boolean download = false;
-                if (!localFile.localName.exists()) {
-                    // If local file does not exist
+            boolean isLzma = localFile.localName.getName().equals(SharedUpdaterCode.LZMA_JAR_NAME);
+            boolean download = false;
+            if (!localFile.localName.exists()) {
+                // If local file does not exist
+                if (remoteFile != null) {
                     LogUtil.getLogger().log(Level.INFO,
                             "ClientUpdateTask: Will download {0}: does not exist locally",
                             localFile.localName.getName());
                     download = true;
-                } else if (!isLzma) {
+                } else {
+                    throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" does not exist.");
+                }
+            } else if (!isLzma) {
+                if (remoteFile != null) {
                     try {
                         String localHash = computeLocalHash(localFile.localName);
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
@@ -164,23 +170,19 @@ final class ClientUpdateTask
                                     "Will download {0}: contents don''t match ({1} vs {2})",
                                     new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
                             download = true;
-                        } else {
-                            LogUtil.getLogger().log(Level.INFO,
-                                    "Skipping {0}: contents match ({1} = {2})",
-                                    new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
                         }
                     } catch (IOException ex) {
                         LogUtil.getLogger().log(Level.SEVERE,
                                 "Error computing hash of a local file", ex);
                     }
+                } else {
+                    LogUtil.getLogger().log(Level.WARNING,
+                            "No remote match for local file {0}", localFile.localName.getName());
                 }
-                if (download) {
-                    localFile.remoteLength = remoteFile.length;
-                    filesToDownload.add(localFile);
-                }
-            } else {
-                LogUtil.getLogger().log(Level.WARNING,
-                        "No remote match for local file {0}", localFile.localName.getName());
+            }
+            if (download) {
+                localFile.remoteLength = remoteFile.length;
+                filesToDownload.add(localFile);
             }
         }
         return filesToDownload;
@@ -227,7 +229,12 @@ final class ClientUpdateTask
             }
         }
         final byte[] localHashBytes = digest.digest();
-        return new BigInteger(1, localHashBytes).toString(16);
+        final String hashString = new BigInteger(1, localHashBytes).toString(16);
+        return padLeft(hashString, 20);
+    }
+
+    private static String padLeft(String s, int n) {
+        return String.format("%1$" + n + "s", s);
     }
 
     private static FileToDownload pickNativeDownload() {
@@ -248,7 +255,7 @@ final class ClientUpdateTask
             default:
                 throw new IllegalArgumentException();
         }
-        final String remoteName = osName + "_natives.jar.pack.lzma";
+        final String remoteName = osName + "_natives.jar";
         final File localPath = new File(PathUtil.getClientDir(),
                 "natives/" + osName + "_natives.jar");
         return new FileToDownload(remoteName, localPath);
@@ -417,6 +424,14 @@ final class ClientUpdateTask
         if (this.isDone()) {
             this.signalDone();
             updateScreen.onUpdateDone(this.updatesApplied);
+        }
+    }
+
+    private void verifyFiles(List<FileToDownload> files) {
+        for (FileToDownload file : files) {
+            if (!file.localName.exists()) {
+                throw new RuntimeException("Update process failed: ");
+            }
         }
     }
 

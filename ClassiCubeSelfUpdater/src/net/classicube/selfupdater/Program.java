@@ -35,7 +35,7 @@ public class Program {
         startLauncher(launcherJar);
     }
 
-    private static void downloadLauncher() {
+    private static void downloadLauncher() { // TODO: indicate progress
         File launcherDir = SharedUpdaterCode.getLauncherDir();
         File launcherJar = new File(launcherDir, LAUNCHER_JAR_NAME);
         launcherJar.getParentFile().mkdirs();
