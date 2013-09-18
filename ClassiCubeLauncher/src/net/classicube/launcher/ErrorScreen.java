@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.io.PrintWriter;
@@ -16,7 +17,14 @@ public class ErrorScreen extends javax.swing.JDialog {
     private ErrorScreen(final JFrame parent, final String title, final String message, final Throwable ex) {
         // set title, add border
         super(parent, title, true);
-        getRootPane().setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        // set background
+        final ImagePanel bgPanel = new ImagePanel(null, true);
+        bgPanel.setGradient(true);
+        bgPanel.setImage(Resources.getClassiCubeBackground());
+        bgPanel.setGradientColor(new Color(124, 104, 141));
+        bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        setContentPane(bgPanel);
 
         initComponents();
 
@@ -64,8 +72,8 @@ public class ErrorScreen extends javax.swing.JDialog {
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(400, 100));
-        setPreferredSize(new java.awt.Dimension(400, 100));
+        setResizable(false);
+        setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         tDetails.setEditable(false);
