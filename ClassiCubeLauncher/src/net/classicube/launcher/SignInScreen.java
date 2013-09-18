@@ -234,7 +234,7 @@ final class SignInScreen extends javax.swing.JFrame {
                 }
                 ErrorScreen.show(this, "Could not sign in", errorMsg, null);
             }
-        } catch (final InterruptedException | ExecutionException ex) {
+        } catch (final Exception ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
             ErrorScreen.show(this, "Error signing in", ex.getMessage(), ex);
         }

@@ -17,9 +17,9 @@ public class JNiceLookingToggleButton extends JToggleButton {
         // Prepare
         Graphics2D g2 = (Graphics2D) g.create();
         Dimension size = this.getSize();
+        int offset = 0;
 
         // Define colors
-        int offset = 0;
         Color ccGradientTop, ccGradientBottom, ccHighlight, ccBorder;
         if (isEnabled()) {
             if (getModel().isArmed() || getModel().isPressed() || getModel().isSelected()) {

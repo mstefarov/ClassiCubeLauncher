@@ -17,6 +17,7 @@ public class JNiceLookingButton extends JButton {
         // Prepare
         Graphics2D g2 = (Graphics2D) g.create();
         Dimension size = this.getSize();
+        int offset = 0;
 
         // Define colors
         Color ccGradientTop, ccGradientBottom, ccHighlight, ccBorder;
@@ -26,6 +27,7 @@ public class JNiceLookingButton extends JButton {
                 ccGradientTop = new Color(146, 123, 166);
                 ccGradientBottom = new Color(168, 141, 191);
                 ccHighlight = ccGradientTop;
+                offset = 1;
             } else if (getModel().isRollover()) {
                 // Hover
                 ccGradientTop = new Color(180, 153, 203);
@@ -78,12 +80,12 @@ public class JNiceLookingButton extends JButton {
         // Paint text shadow
         if (isEnabled()) {
             g2.setPaint(ccBorder);
-            g2.drawString(getText(), x + 1, y + 1);
+            g2.drawString(getText(), x + 1 + offset, y + 1 + offset);
         }
 
         // Paint text proper
         g2.setPaint(Color.WHITE);
-        g2.drawString(getText(), x, y);
+        g2.drawString(getText(), x + offset, y + offset);
 
         // Clean up
         g2.dispose();
