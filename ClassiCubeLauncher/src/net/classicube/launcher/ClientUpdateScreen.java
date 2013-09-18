@@ -52,7 +52,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
             lNotice.setText("The game will start as soon as updates are complete.");
         } else {
             lNotice.setText("A client update is being installed.");
-            getRootPane().setDefaultButton(bContinue);
+            root.setDefaultButton(bContinue);
             this.desktop = (Desktop.isDesktopSupported() ? Desktop.getDesktop() : null);
             if (this.desktop != null && !this.desktop.isSupported(Desktop.Action.BROWSE)) {
                 this.desktop = null;

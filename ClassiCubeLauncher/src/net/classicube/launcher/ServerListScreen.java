@@ -83,6 +83,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
+        
+        getRootPane().setDefaultButton(this.bConnect);
 
         // start fetching the server list
         tSearch.setPlaceholder("Loading server list...");
