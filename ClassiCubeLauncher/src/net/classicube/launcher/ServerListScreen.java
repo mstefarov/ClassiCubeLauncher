@@ -2,6 +2,7 @@ package net.classicube.launcher;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -83,7 +85,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
-        
+
         getRootPane().setDefaultButton(this.bConnect);
 
         // start fetching the server list
@@ -105,7 +107,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.execute();
     }
 
-    private void enableGui(){
+    private void enableGui() {
         bChangeUser.setEnabled(true);
         bPreferences.setEnabled(true);
         tSearch.setEnabled(true);
@@ -113,7 +115,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         tServerURL.setEnabled(true);
         bConnect.setEnabled(true);
     }
-    
+
     private void disableGui() {
         bChangeUser.setEnabled(false);
         bPreferences.setEnabled(false);
@@ -280,6 +282,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             }
         });
 
+        // Fill in the "Server URL" field when a server is selected in the table
         serverTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(final ListSelectionEvent lse) {
@@ -293,6 +296,24 @@ public final class ServerListScreen extends javax.swing.JFrame {
             }
         });
 
+        // Prevent the server list JTable from permanently stealing keyboard focus
+        ActionMap tableActions = serverTable.getActionMap();
+        tableActions.put("selectPreviousColumnCell", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+                manager.focusPreviousComponent();
+            }
+        });
+        tableActions.put("selectNextColumnCell", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+                manager.focusNextComponent();
+            }
+        });
+
+        // Select contents of ServerURL field on-focus
         tServerURL.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(final FocusEvent e) {
@@ -306,7 +327,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }
 
     private class UptimeCellRenderer extends DefaultTableCellRenderer {
-
         @Override
         public Component getTableCellRendererComponent(final JTable table, final Object value,
                 final boolean isSelected, final boolean hasFocus, final int row, final int column) {
