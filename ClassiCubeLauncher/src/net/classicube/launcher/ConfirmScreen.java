@@ -1,26 +1,39 @@
 package net.classicube.launcher;
 
 import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.event.ItemEvent;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import javax.swing.JFrame;
+import java.awt.Frame;
 import javax.swing.border.EmptyBorder;
 
 public class ConfirmScreen extends javax.swing.JDialog {
 
-    public static boolean show(final JFrame parent, final String title, final String message, final Throwable ex) {
-        ConfirmScreen screen = new ConfirmScreen(parent, title, message, ex);
+    public static boolean show(final Dialog parent, final String title, final String message) {
+        ConfirmScreen screen = new ConfirmScreen(parent, title, message);
+        screen.setVisible(true);
+        return screen.isConfirmed;
+    }
+    
+    public static boolean show(final Frame parent, final String title, final String message) {
+        ConfirmScreen screen = new ConfirmScreen(parent, title, message);
         screen.setVisible(true);
         return screen.isConfirmed;
     }
     private boolean isConfirmed;
 
-    private ConfirmScreen(final JFrame parent, final String title, final String message, final Throwable ex) {
+    private ConfirmScreen(final Frame parent, final String title, final String message) {
         // set title, add border
         super(parent, title, true);
-
+        sharedInitCode(message);
+    }
+    
+    private ConfirmScreen(final Dialog parent, final String title, final String message) {
+        // set title, add border
+        super(parent, title, true);
+        sharedInitCode(message);
+    }
+    
+    private void sharedInitCode(final String message){
         // set background
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);
@@ -38,13 +51,13 @@ public class ConfirmScreen extends javax.swing.JDialog {
         getRootPane().setDefaultButton(bYes);
 
         // Show GridBagLayout who's boss.
-        this.imgErrorIcon.setImage(Resources.getErrorIcon());
+        this.imgErrorIcon.setImage(Resources.getWarningIcon());
         this.imgErrorIcon.setMinimumSize(new Dimension(64, 64));
         this.imgErrorIcon.setPreferredSize(new Dimension(64, 64));
         this.imgErrorIcon.setSize(new Dimension(64, 64));
 
         // Set windows size, pack, and center
-        this.setPreferredSize(new Dimension(450, 130));
+        this.setPreferredSize(new Dimension(400, 130));
         pack();
         setLocationRelativeTo(null);
     }
@@ -58,14 +71,24 @@ public class ConfirmScreen extends javax.swing.JDialog {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        lMessage = new javax.swing.JLabel();
-        bNo = new net.classicube.launcher.JNiceLookingButton();
         imgErrorIcon = new net.classicube.launcher.ImagePanel();
+        lMessage = new javax.swing.JLabel();
         bYes = new net.classicube.launcher.JNiceLookingButton();
+        bNo = new net.classicube.launcher.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setType(java.awt.Window.Type.UTILITY);
         getContentPane().setLayout(new java.awt.GridBagLayout());
+
+        imgErrorIcon.setMaximumSize(new java.awt.Dimension(64, 64));
+        imgErrorIcon.setMinimumSize(new java.awt.Dimension(64, 64));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 8);
+        getContentPane().add(imgErrorIcon, gridBagConstraints);
 
         lMessage.setForeground(new java.awt.Color(255, 255, 255));
         lMessage.setText("Someone set up us the bomb!");
@@ -75,7 +98,22 @@ public class ConfirmScreen extends javax.swing.JDialog {
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.weighty = 0.1;
         getContentPane().add(lMessage, gridBagConstraints);
+
+        bYes.setText("Yes");
+        bYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bYesActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        gridBagConstraints.weightx = 0.1;
+        getContentPane().add(bYes, gridBagConstraints);
 
         bNo.setText("No");
         bNo.addActionListener(new java.awt.event.ActionListener() {
@@ -88,28 +126,6 @@ public class ConfirmScreen extends javax.swing.JDialog {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bNo, gridBagConstraints);
-
-        imgErrorIcon.setMaximumSize(new java.awt.Dimension(64, 64));
-        imgErrorIcon.setMinimumSize(new java.awt.Dimension(64, 64));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 8);
-        getContentPane().add(imgErrorIcon, gridBagConstraints);
-
-        bYes.setText("Yes");
-        bYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bYesActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
-        getContentPane().add(bYes, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

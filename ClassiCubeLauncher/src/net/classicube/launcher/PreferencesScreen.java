@@ -120,37 +120,22 @@ final class PreferencesScreen extends javax.swing.JDialog {
     //                                                                                    FORGETTING
     // =============================================================================================
     private void bForgetUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetUsersActionPerformed
-        if (JOptionPane.showConfirmDialog(this,
-                "Really erase all stored user information?", "Warning",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+        if (ConfirmScreen.show(this, "Warning", "Really erase all stored user information?")) {
             SessionManager.getAccountManager().clear();
-            JOptionPane.showMessageDialog(this,
-                    "All stored user information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
             checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetUsersActionPerformed
 
     private void bForgetPasswordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetPasswordsActionPerformed
-        if (JOptionPane.showConfirmDialog(this,
-                "Really erase all stored passwords?", "Warning",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+        if (ConfirmScreen.show(this, "Warning", "Really erase all stored user passwords?")) {
             SessionManager.getAccountManager().clearPasswords();
-            JOptionPane.showMessageDialog(this,
-                    "All stored passwords erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
             checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetPasswordsActionPerformed
 
     private void bForgetServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServerActionPerformed
-        if (JOptionPane.showConfirmDialog(this,
-                "Really erase last-joined server?", "Warning",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {
+        if (ConfirmScreen.show(this, "Warning", "Really erase stored information about the last-joined server?")) {
             SessionManager.clearAllResumeInfo();
-            JOptionPane.showMessageDialog(this,
-                    "Stored server information erased.", "Notice", JOptionPane.PLAIN_MESSAGE);
             checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetServerActionPerformed
