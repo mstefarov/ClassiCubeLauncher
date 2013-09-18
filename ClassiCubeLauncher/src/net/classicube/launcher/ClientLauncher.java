@@ -1,14 +1,13 @@
 package net.classicube.launcher;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 
 // Handles launching the client.
 final public class ClientLauncher {
 
-    private static final String ClassPath = "client.jar;libs/*",
+    private static final String ClassPath = "client.jar" + File.pathSeparatorChar + "libs/*",
             ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
 
     public static void launchClient(ServerJoinInfo joinInfo) {
