@@ -27,6 +27,24 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
   <SubComponents>
+    <Component class="javax.swing.JCheckBox" name="xFullscreen">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Start the game in fullscreen"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Choose whether ClassiCube games should start in fullscreen mode.&lt;br&gt;&#xa;You can also toggle fullscreen mode in-game by pressing &lt;b&gt;F11&lt;/b&gt;.&lt;br&gt;&#xa;Default is OFF."/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="0" gridWidth="0" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JSeparator" name="jSeparator1">
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="1" gridWidth="0" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="8" insetsLeft="0" insetsBottom="8" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
     <Component class="javax.swing.JLabel" name="lUpdateMode">
       <Properties>
         <Property name="text" type="java.lang.String" value="Install game updates..."/>
@@ -47,6 +65,7 @@
           <ComponentRef name="rgUpdateMode"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Disable"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Disable&lt;/b&gt;: No game updates will ever be downloaded or installed."/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -60,6 +79,7 @@
           <ComponentRef name="rgUpdateMode"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Enable (notify me)"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Enable (notify me)&lt;/b&gt;: Game updates will be downloaded and installed.&lt;br&gt;&#xa;You will be notified when that happens, and you&apos;ll have an option to review changes in the latest update.&lt;br&gt;&#xa;This is the default option."/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -73,6 +93,7 @@
           <ComponentRef name="rgUpdateMode"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Enable (automatic)"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Enable (automatic)&lt;/b&gt;: Game updates will be installed automatically and silently."/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -80,7 +101,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JSeparator" name="jSeparator1">
+    <Component class="javax.swing.JSeparator" name="jSeparator2">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
@@ -94,6 +115,7 @@
     <Component class="javax.swing.JCheckBox" name="xRememberUsers">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remember usernames"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Choose whether the launcher should remember usernames of players who sign in.&lt;br&gt;&#xa;When enabled (default), most-recently-used name is filled in when the launcher starts,&lt;br&gt;&#xa;and names of other accounts are available from a drop-down menu. When disabled,&lt;br&gt;&#xa;you will have to re-enter both username and password every time you sign in."/>
       </Properties>
       <Events>
         <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="xRememberUsersItemStateChanged"/>
@@ -120,6 +142,7 @@
     <Component class="javax.swing.JCheckBox" name="xRememberPasswords">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remember passwords"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Choose whether the launcher should remember passwords of players who sign in.&lt;br&gt;&#xa;When enabled, selecting a previously-used username will fill in the password field.&lt;br&gt;&#xa;When disabled (default), you will have to re-enter the password every time you sign in.&lt;br&gt;&#xa;Note that entered passwords are stored on your PC in plain text."/>
       </Properties>
       <Events>
         <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="xRememberPasswordsItemStateChanged"/>
@@ -146,6 +169,7 @@
     <Component class="javax.swing.JCheckBox" name="xRememberServer">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remember last-joined server"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Choose whether the launcher should remember last-joined server.&lt;br&gt;&#xa;When enabled, the [Resume] button will become available, which will reconnect&lt;br&gt;&#xa;you to the most-recently-joined server using the same username/credentials as last time."/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -166,7 +190,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JSeparator" name="jSeparator2">
+    <Component class="javax.swing.JSeparator" name="jSeparator3">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
@@ -193,6 +217,9 @@
       </Constraints>
     </Component>
     <Component class="javax.swing.JTextField" name="tJavaArgs">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Command-line arguments to pass to the client&apos;s Java runtime.&lt;br&gt;&#xa;Don&apos;t mess with these unless you know exactly what you&apos;re doing!"/>
+      </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="1" gridY="11" gridWidth="0" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
@@ -218,6 +245,7 @@
         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
           <SpinnerModel initial="64" minimum="64" numberType="java.lang.Integer" stepSize="16" type="number"/>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The maximum amount of memory, in megabytes, that the game is allowed to use.&lt;br&gt;&#xa;Don&apos;t raise this amount unless your game keeps running out of memory on large maps.&lt;br&gt;&#xa;Default is 800 MB. Going any lower may cause lag and/or crashes."/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -225,7 +253,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="javax.swing.JSeparator" name="jSeparator3">
+    <Component class="javax.swing.JSeparator" name="jSeparator4">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
@@ -246,6 +274,7 @@
     <Component class="net.classicube.launcher.JNiceLookingButton" name="bDefaults">
       <Properties>
         <Property name="text" type="java.lang.String" value="Defaults"/>
+        <Property name="toolTipText" type="java.lang.String" value="Reset all preferences to their default values."/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bDefaultsActionPerformed"/>
@@ -296,23 +325,6 @@
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="2" gridY="12" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.1" weightY="0.0"/>
-        </Constraint>
-      </Constraints>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="xFullscreen">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Start the game in fullscreen"/>
-      </Properties>
-      <Constraints>
-        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-          <GridBagConstraints gridX="0" gridY="0" gridWidth="0" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="21" weightX="0.0" weightY="0.0"/>
-        </Constraint>
-      </Constraints>
-    </Component>
-    <Component class="javax.swing.JSeparator" name="jSeparator4">
-      <Constraints>
-        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-          <GridBagConstraints gridX="0" gridY="1" gridWidth="0" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="8" insetsLeft="0" insetsBottom="8" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
         </Constraint>
       </Constraints>
     </Component>

@@ -41,6 +41,9 @@ public class ErrorScreen extends javax.swing.JDialog {
             this.bDetails.setVisible(false);
         }
         this.detailsContainer.setVisible(false);
+        
+        // focus & highlight [Close]
+        getRootPane().setDefaultButton(bClose);
 
         // Show GridBagLayout who's boss.
         this.imgErrorIcon.setImage(Resources.getErrorIcon());
@@ -48,7 +51,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         this.imgErrorIcon.setPreferredSize(new Dimension(64, 64));
         this.imgErrorIcon.setSize(new Dimension(64, 64));
 
-        // Set initial size, and center
+        // Set windows size, pack, and center
         this.setPreferredSize(new Dimension(450, 130));
         pack();
         setLocationRelativeTo(null);
@@ -67,9 +70,9 @@ public class ErrorScreen extends javax.swing.JDialog {
         tDetails = new javax.swing.JTextArea();
         lMessage = new javax.swing.JLabel();
         bDetails = new net.classicube.launcher.JNiceLookingToggleButton();
-        bOK = new net.classicube.launcher.JNiceLookingButton();
+        bClose = new net.classicube.launcher.JNiceLookingButton();
         imgErrorIcon = new net.classicube.launcher.ImagePanel();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        javax.swing.Box.Filler filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setType(java.awt.Window.Type.UTILITY);
@@ -101,6 +104,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         getContentPane().add(lMessage, gridBagConstraints);
 
         bDetails.setText("+ Details");
+        bDetails.setToolTipText("Show technical details of this error.\nWhen reporting a bug, please include this information.");
         bDetails.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 bDetailsItemStateChanged(evt);
@@ -112,17 +116,17 @@ public class ErrorScreen extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bDetails, gridBagConstraints);
 
-        bOK.setText("Close");
-        bOK.addActionListener(new java.awt.event.ActionListener() {
+        bClose.setText("Close");
+        bClose.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bOKActionPerformed(evt);
+                bCloseActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
-        getContentPane().add(bOK, gridBagConstraints);
+        getContentPane().add(bClose, gridBagConstraints);
 
         imgErrorIcon.setMaximumSize(new java.awt.Dimension(64, 64));
         imgErrorIcon.setMinimumSize(new java.awt.Dimension(64, 64));
@@ -143,9 +147,9 @@ public class ErrorScreen extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void bOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bOKActionPerformed
+    private void bCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bCloseActionPerformed
         this.dispose();
-    }//GEN-LAST:event_bOKActionPerformed
+    }//GEN-LAST:event_bCloseActionPerformed
 
     private void bDetailsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bDetailsItemStateChanged
         if (evt.getStateChange() == ItemEvent.SELECTED) {
@@ -158,10 +162,9 @@ public class ErrorScreen extends javax.swing.JDialog {
         pack();
     }//GEN-LAST:event_bDetailsItemStateChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private net.classicube.launcher.JNiceLookingButton bClose;
     private net.classicube.launcher.JNiceLookingToggleButton bDetails;
-    private net.classicube.launcher.JNiceLookingButton bOK;
     private javax.swing.JScrollPane detailsContainer;
-    private javax.swing.Box.Filler filler2;
     private net.classicube.launcher.ImagePanel imgErrorIcon;
     private javax.swing.JLabel lMessage;
     private javax.swing.JTextArea tDetails;

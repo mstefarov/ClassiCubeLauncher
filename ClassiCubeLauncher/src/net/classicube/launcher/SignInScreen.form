@@ -91,9 +91,6 @@
       </Constraints>
     </Component>
     <Component class="javax.swing.JPasswordField" name="tPassword">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
-      </Properties>
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="tPasswordFocusGained"/>
       </Events>
@@ -116,6 +113,7 @@
     <Component class="net.classicube.launcher.JNiceLookingButton" name="bDirect">
       <Properties>
         <Property name="text" type="java.lang.String" value="Direct..."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Connect to a server directly, bypassing sign-in, using a direct-connect URL.&lt;br&gt;&#xa;Direct-connect URLs have the form: &lt;code&gt;mc://address:port/username/mppass&lt;/code&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bDirectActionPerformed"/>

@@ -63,6 +63,7 @@
     <Component class="net.classicube.launcher.JNiceLookingToggleButton" name="bDetails">
       <Properties>
         <Property name="text" type="java.lang.String" value="+ Details"/>
+        <Property name="toolTipText" type="java.lang.String" value="Show technical details of this error.&#xa;When reporting a bug, please include this information."/>
       </Properties>
       <Events>
         <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="bDetailsItemStateChanged"/>
@@ -73,12 +74,12 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bOK">
+    <Component class="net.classicube.launcher.JNiceLookingButton" name="bClose">
       <Properties>
         <Property name="text" type="java.lang.String" value="Close"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bOKActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bCloseActionPerformed"/>
       </Events>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -112,6 +113,8 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
         <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.HorizontalGlue"/>
       </AuxValues>
       <Constraints>

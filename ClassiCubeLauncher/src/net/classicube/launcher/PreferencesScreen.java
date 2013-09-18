@@ -205,32 +205,48 @@ final class PreferencesScreen extends javax.swing.JDialog {
         java.awt.GridBagConstraints gridBagConstraints;
 
         rgUpdateMode = new javax.swing.ButtonGroup();
+        xFullscreen = new javax.swing.JCheckBox();
+        jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JLabel lUpdateMode = new javax.swing.JLabel();
         rUpdateDisabled = new javax.swing.JRadioButton();
         rUpdateNotify = new javax.swing.JRadioButton();
         rUpdateAutomatic = new javax.swing.JRadioButton();
-        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator2 = new javax.swing.JSeparator();
         xRememberUsers = new javax.swing.JCheckBox();
         bForgetUsers = new net.classicube.launcher.JNiceLookingButton();
         xRememberPasswords = new javax.swing.JCheckBox();
         bForgetPasswords = new net.classicube.launcher.JNiceLookingButton();
         xRememberServer = new javax.swing.JCheckBox();
         bForgetServer = new net.classicube.launcher.JNiceLookingButton();
-        javax.swing.JSeparator jSeparator2 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator3 = new javax.swing.JSeparator();
         javax.swing.JLabel lParameters = new javax.swing.JLabel();
         tJavaArgs = new javax.swing.JTextField();
         javax.swing.JLabel lMemory = new javax.swing.JLabel();
         nMemory = new javax.swing.JSpinner();
-        javax.swing.JSeparator jSeparator3 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator4 = new javax.swing.JSeparator();
         bDefaults = new net.classicube.launcher.JNiceLookingButton();
         bSave = new net.classicube.launcher.JNiceLookingButton();
         bCancel = new net.classicube.launcher.JNiceLookingButton();
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
-        xFullscreen = new javax.swing.JCheckBox();
-        jSeparator4 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
+
+        xFullscreen.setText("Start the game in fullscreen");
+        xFullscreen.setToolTipText("<html>Choose whether ClassiCube games should start in fullscreen mode.<br>\nYou can also toggle fullscreen mode in-game by pressing <b>F11</b>.<br>\nDefault is OFF.");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(xFullscreen, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
+        getContentPane().add(jSeparator1, gridBagConstraints);
 
         lUpdateMode.setText("Install game updates...");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -243,6 +259,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
         rgUpdateMode.add(rUpdateDisabled);
         rUpdateDisabled.setText("Disable");
+        rUpdateDisabled.setToolTipText("<html><b>Disable</b>: No game updates will ever be downloaded or installed.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -253,6 +270,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
         rgUpdateMode.add(rUpdateNotify);
         rUpdateNotify.setText("Enable (notify me)");
+        rUpdateNotify.setToolTipText("<html><b>Enable (notify me)</b>: Game updates will be downloaded and installed.<br>\nYou will be notified when that happens, and you'll have an option to review changes in the latest update.<br>\nThis is the default option.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -263,6 +281,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
         rgUpdateMode.add(rUpdateAutomatic);
         rUpdateAutomatic.setText("Enable (automatic)");
+        rUpdateAutomatic.setToolTipText("<html><b>Enable (automatic)</b>: Game updates will be installed automatically and silently.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -276,9 +295,10 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
-        getContentPane().add(jSeparator1, gridBagConstraints);
+        getContentPane().add(jSeparator2, gridBagConstraints);
 
         xRememberUsers.setText("Remember usernames");
+        xRememberUsers.setToolTipText("<html>Choose whether the launcher should remember usernames of players who sign in.<br>\nWhen enabled (default), most-recently-used name is filled in when the launcher starts,<br>\nand names of other accounts are available from a drop-down menu. When disabled,<br>\nyou will have to re-enter both username and password every time you sign in.");
         xRememberUsers.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 xRememberUsersItemStateChanged(evt);
@@ -305,6 +325,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(bForgetUsers, gridBagConstraints);
 
         xRememberPasswords.setText("Remember passwords");
+        xRememberPasswords.setToolTipText("<html>Choose whether the launcher should remember passwords of players who sign in.<br>\nWhen enabled, selecting a previously-used username will fill in the password field.<br>\nWhen disabled (default), you will have to re-enter the password every time you sign in.<br>\nNote that entered passwords are stored on your PC in plain text.");
         xRememberPasswords.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 xRememberPasswordsItemStateChanged(evt);
@@ -331,6 +352,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(bForgetPasswords, gridBagConstraints);
 
         xRememberServer.setText("Remember last-joined server");
+        xRememberServer.setToolTipText("<html>Choose whether the launcher should remember last-joined server.<br>\nWhen enabled, the [Resume] button will become available, which will reconnect<br>\nyou to the most-recently-joined server using the same username/credentials as last time.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 9;
@@ -357,7 +379,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
-        getContentPane().add(jSeparator2, gridBagConstraints);
+        getContentPane().add(jSeparator3, gridBagConstraints);
 
         lParameters.setText("Java args");
         lParameters.setToolTipText("");
@@ -367,6 +389,8 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(lParameters, gridBagConstraints);
+
+        tJavaArgs.setToolTipText("<html>Command-line arguments to pass to the client's Java runtime.<br>\nDon't mess with these unless you know exactly what you're doing!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 11;
@@ -383,6 +407,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(lMemory, gridBagConstraints);
 
         nMemory.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(64), Integer.valueOf(64), null, Integer.valueOf(16)));
+        nMemory.setToolTipText("<html>The maximum amount of memory, in megabytes, that the game is allowed to use.<br>\nDon't raise this amount unless your game keeps running out of memory on large maps.<br>\nDefault is 800 MB. Going any lower may cause lag and/or crashes.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 12;
@@ -390,16 +415,17 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.weightx = 0.1;
         getContentPane().add(nMemory, gridBagConstraints);
 
-        jSeparator3.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
+        jSeparator4.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
-        getContentPane().add(jSeparator3, gridBagConstraints);
+        getContentPane().add(jSeparator4, gridBagConstraints);
 
         bDefaults.setText("Defaults");
+        bDefaults.setToolTipText("Reset all preferences to their default values.");
         bDefaults.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bDefaultsActionPerformed(evt);
@@ -441,21 +467,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.weightx = 0.1;
         getContentPane().add(filler1, gridBagConstraints);
 
-        xFullscreen.setText("Start the game in fullscreen");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(xFullscreen, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
-        getContentPane().add(jSeparator4, gridBagConstraints);
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -473,7 +484,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private net.classicube.launcher.JNiceLookingButton bForgetServer;
     private net.classicube.launcher.JNiceLookingButton bForgetUsers;
     private net.classicube.launcher.JNiceLookingButton bSave;
-    private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSpinner nMemory;
     private javax.swing.JRadioButton rUpdateAutomatic;
     private javax.swing.JRadioButton rUpdateDisabled;

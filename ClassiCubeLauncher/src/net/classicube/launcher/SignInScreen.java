@@ -11,7 +11,6 @@ import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -264,6 +263,9 @@ final class SignInScreen extends javax.swing.JFrame {
     private void enableResumeIfNeeded() {
         final ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
         bResume.setEnabled(resumeInfo != null);
+        if (resumeInfo != null) {
+            bResume.setToolTipText("<html>Re-join the last server (as <b>" + resumeInfo.playerName + "</b>)");
+        }
     }
 
     private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
@@ -486,7 +488,6 @@ final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(4, 0, 0, 0);
         getContentPane().add(cUsername, gridBagConstraints);
 
-        tPassword.setToolTipText("");
         tPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 tPasswordFocusGained(evt);
@@ -510,6 +511,7 @@ final class SignInScreen extends javax.swing.JFrame {
         getContentPane().add(progress, gridBagConstraints);
 
         bDirect.setText("Direct...");
+        bDirect.setToolTipText("<html>Connect to a server directly, bypassing sign-in, using a direct-connect URL.<br>\nDirect-connect URLs have the form: <code>mc://address:port/username/mppass</code>");
         bDirect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bDirectActionPerformed(evt);

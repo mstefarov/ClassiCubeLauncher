@@ -52,14 +52,14 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
             lNotice.setText("The game will start as soon as updates are complete.");
         } else {
             lNotice.setText("A client update is being installed.");
-            root.setDefaultButton(bContinue);
+            root.setDefaultButton(bPlay);
             this.desktop = (Desktop.isDesktopSupported() ? Desktop.getDesktop() : null);
             if (this.desktop != null && !this.desktop.isSupported(Desktop.Action.BROWSE)) {
                 this.desktop = null;
             }
         }
-        bContinue.setVisible(!auto);
-        bViewReleaseNotes.setVisible(!auto);
+        bPlay.setVisible(!auto);
+        bViewChanges.setVisible(!auto);
         pack();
     }
 
@@ -90,23 +90,23 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         }
 
         if (!updatesApplied || Prefs.getUpdateMode() == UpdateMode.AUTOMATIC) {
-            ClientLauncher.launchClient(this.joinInfo);
             dispose();
+            ClientLauncher.launchClient(this.joinInfo);
         } else {
             this.lNotice.setText(" ");
-            this.bContinue.setEnabled(true);
+            this.bPlay.setEnabled(true);
         }
     }
 
     // =============================================================================================
     //                                                                           GUI EVENT LISTENERS
     // =============================================================================================
-    private void bContinueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bContinueActionPerformed
-        ClientLauncher.launchClient(joinInfo);
+    private void bPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPlayActionPerformed
         dispose();
-    }//GEN-LAST:event_bContinueActionPerformed
+        ClientLauncher.launchClient(joinInfo);
+    }//GEN-LAST:event_bPlayActionPerformed
 
-    private void bViewReleaseNotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bViewReleaseNotesActionPerformed
+    private void bViewChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bViewChangesActionPerformed
         if (this.desktop != null) {
             try {
                 this.desktop.browse(new URI(RELEASE_NOTES_URL));
@@ -115,7 +115,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
                 JOptionPane.showInputDialog(this, "Release notes URL", RELEASE_NOTES_URL);
             }
         }
-    }//GEN-LAST:event_bViewReleaseNotesActionPerformed
+    }//GEN-LAST:event_bViewChangesActionPerformed
 
     // =============================================================================================
     //                                                                            GENERATED GUI CODE
@@ -128,25 +128,19 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        progress = new javax.swing.JProgressBar();
         lFileName = new javax.swing.JLabel();
         lStats = new javax.swing.JLabel();
+        progress = new javax.swing.JProgressBar();
         lNotice = new javax.swing.JLabel();
-        bContinue = new net.classicube.launcher.JNiceLookingButton();
-        bViewReleaseNotes = new net.classicube.launcher.JNiceLookingButton();
+        bViewChanges = new net.classicube.launcher.JNiceLookingButton();
+        bPlay = new net.classicube.launcher.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Game Update");
         getContentPane().setLayout(new java.awt.GridBagLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(progress, gridBagConstraints);
 
         lFileName.setForeground(new java.awt.Color(255, 255, 255));
-        lFileName.setText("<fileName>");
+        lFileName.setText("Preparing to update...");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -155,13 +149,19 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         getContentPane().add(lFileName, gridBagConstraints);
 
         lStats.setForeground(new java.awt.Color(255, 255, 255));
-        lStats.setText("<status>");
+        lStats.setText("...");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         getContentPane().add(lStats, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(progress, gridBagConstraints);
 
         lNotice.setForeground(new java.awt.Color(255, 255, 255));
         lNotice.setText("<notice>");
@@ -172,23 +172,11 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
         getContentPane().add(lNotice, gridBagConstraints);
 
-        bContinue.setText("Play >");
-        bContinue.setEnabled(false);
-        bContinue.addActionListener(new java.awt.event.ActionListener() {
+        bViewChanges.setText("View Changes");
+        bViewChanges.setToolTipText("Check out list of changes included in this update (opens a web browser).");
+        bViewChanges.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bContinueActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
-        getContentPane().add(bContinue, gridBagConstraints);
-
-        bViewReleaseNotes.setText("View Changes");
-        bViewReleaseNotes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bViewReleaseNotesActionPerformed(evt);
+                bViewChangesActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -196,13 +184,26 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 16);
-        getContentPane().add(bViewReleaseNotes, gridBagConstraints);
+        getContentPane().add(bViewChanges, gridBagConstraints);
+
+        bPlay.setText("Play >");
+        bPlay.setEnabled(false);
+        bPlay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bPlayActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        getContentPane().add(bPlay, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private net.classicube.launcher.JNiceLookingButton bContinue;
-    private net.classicube.launcher.JNiceLookingButton bViewReleaseNotes;
+    private net.classicube.launcher.JNiceLookingButton bPlay;
+    private net.classicube.launcher.JNiceLookingButton bViewChanges;
     private javax.swing.JLabel lFileName;
     private javax.swing.JLabel lNotice;
     private javax.swing.JLabel lStats;
