@@ -24,7 +24,7 @@ final class ClassiCubeNetSession extends GameSession {
         try {
             this.siteUri = new URI(HOMEPAGE_URL);
         } catch (final URISyntaxException ex) {
-            LogUtil.die("Cannot set siteUri", ex);
+            // this never happens
         }
     }
     // =============================================================================================

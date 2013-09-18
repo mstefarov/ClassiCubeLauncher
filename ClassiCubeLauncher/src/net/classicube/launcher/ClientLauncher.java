@@ -21,7 +21,8 @@ final public class ClientLauncher {
         try {
             nativePath = new File(PathUtil.getClientDir(), "natives").getCanonicalPath();
         } catch (final IOException ex) {
-            LogUtil.die( "Error finding natives path", ex);
+            ErrorScreen.show(null, "Could not launch the game",
+                    "Error finding the LWJGL native library path:<br>" + ex.getMessage(), ex);
             return;
         }
 
@@ -48,7 +49,8 @@ final public class ClientLauncher {
             //p.waitFor();
             System.exit(0);
         } catch (final Exception ex) {
-            LogUtil.die( "Error launching client", ex);
+            ErrorScreen.show(null, "Could not launch the game",
+                    "Error launching the client:<br>" + ex.getMessage(), ex);
         }
     }
 

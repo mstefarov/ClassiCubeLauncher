@@ -84,7 +84,7 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
             ClientUpdateTask.getInstance().get();
 
         } catch (final InterruptedException | ExecutionException ex) {
-            new ErrorScreen(this, ex).setVisible(true);
+            ErrorScreen.show(this, "Error updating", ex.getMessage(), ex);
             System.exit(1);
             return;
         }

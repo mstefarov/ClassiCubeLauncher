@@ -232,11 +232,11 @@ final class SignInScreen extends javax.swing.JFrame {
                         errorMsg = result.name();
                         break;
                 }
-                LogUtil.showWarning(errorMsg, "Could not sign in.");
+                ErrorScreen.show(this, "Could not sign in", errorMsg, null);
             }
         } catch (final InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
-            LogUtil.showError(ex.toString(), "Could not sign in.");
+            ErrorScreen.show(this, "Error signing in", ex.getMessage(), ex);
         }
         enableGUI();
     }
@@ -251,9 +251,9 @@ final class SignInScreen extends javax.swing.JFrame {
             final String trimmedInput = input.replaceAll("[\\r\\n\\s]", "");
             final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(trimmedInput);
             if (joinInfo == null) {
-                LogUtil.showWarning("Cannot join server directly: Unrecognized link format.", "Unrecognized link");
+                ErrorScreen.show(this, "Unrecognized link", "Cannot join server directly: Unrecognized link format.", null);
             } else if (joinInfo.signInNeeded) {
-                LogUtil.showWarning("Cannot join server directly: Sign in before using this URL.", "Not a direct link");
+                ErrorScreen.show(this, "Not a direct link", "Cannot join server directly: Sign in before using this URL.", null);
             } else {
                 dispose();
                 ClientUpdateScreen.createAndShow(joinInfo);

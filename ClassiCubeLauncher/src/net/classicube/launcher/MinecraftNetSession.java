@@ -19,7 +19,7 @@ final class MinecraftNetSession extends GameSession {
         try {
             siteUri = new URI(HOMEPAGE_URL);
         } catch (URISyntaxException ex) {
-            LogUtil.die("Cannot set siteUri", ex);
+            // never happens
         }
     }
     // =============================================================================================

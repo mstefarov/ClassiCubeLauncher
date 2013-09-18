@@ -9,24 +9,28 @@ import javax.swing.border.EmptyBorder;
 
 public class ErrorScreen extends javax.swing.JDialog {
 
-    public ErrorScreen(final JFrame parent, Throwable ex) {
+    public static void show(final JFrame parent, final String title, final String message, final Throwable ex) {
+        new ErrorScreen(parent, title, message, ex).setVisible(true);
+    }
+
+    private ErrorScreen(final JFrame parent, final String title, final String message, final Throwable ex) {
         // set title, add border
-        super(parent, "An error occured while updating", true);
+        super(parent, title, true);
         getRootPane().setBorder(new EmptyBorder(8, 8, 8, 8));
 
         initComponents();
 
         // fill in exception info (if available)
+        this.lMessage.setText("<html><b>" + message);
         if (ex != null) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             ex.printStackTrace(pw);
-            this.lMessage.setText("<html><b>" + ex.getMessage());
             this.tDetails.setText(sw.toString());
             this.tDetails.selectAll();
             this.tDetails.setCaretPosition(0);
         } else {
-            this.bDetails.setVisible(true);
+            this.bDetails.setVisible(false);
         }
         this.detailsContainer.setVisible(false);
 

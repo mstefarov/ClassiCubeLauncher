@@ -103,6 +103,15 @@ public final class ServerListScreen extends javax.swing.JFrame {
         getServerListTask.execute();
     }
 
+    private void enableGui(){
+        bChangeUser.setEnabled(true);
+        bPreferences.setEnabled(true);
+        tSearch.setEnabled(true);
+        serverTable.setEnabled(true);
+        tServerURL.setEnabled(true);
+        bConnect.setEnabled(true);
+    }
+    
     private void disableGui() {
         bChangeUser.setEnabled(false);
         bPreferences.setEnabled(false);
@@ -130,7 +139,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         } catch (InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading server list", ex);
-            LogUtil.showWarning(ex.toString(), "Problem loading server list");
+            ErrorScreen.show(this, "Could not load server list",
+                    "An error occured while loading the server list:<br>" + ex.getMessage(), ex);
             tSearch.setText("Could not load server list.");
         }
     }
@@ -192,7 +202,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
         final String trimmedInput = url.replaceAll("[\\r\\n\\s]", "");
         final ServerJoinInfo joinInfo = session.getDetailsFromUrl(trimmedInput);
         if (joinInfo == null) {
-            LogUtil.showWarning("Unrecognized server URL.", "Cannot connect to server");
+            ErrorScreen.show(this, "Cannot connect to given server",
+                    "Unrecognized server URL. Make sure that you are using the correct link.", null);
         } else if (joinInfo.passNeeded) {
             getServerDetailsTask = session.getServerDetailsAsync(trimmedInput);
             getServerDetailsTask.addPropertyChangeListener(
@@ -222,12 +233,12 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 final ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
                 joinServer(joinInfo);
             } else {
-                LogUtil.showError("Could not fetch server details.", "Error");
+                ErrorScreen.show(this, "Cannot connect", "There was a problem fetching server details.", null);
             }
         } catch (final InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
-            LogUtil.showWarning(ex.toString(), "Problem loading server details");
-            tSearch.setText("Could not load server list.");
+            ErrorScreen.show(this, "Error fetching server details", ex.getMessage(), ex);
+            enableGui();
         }
     }
 

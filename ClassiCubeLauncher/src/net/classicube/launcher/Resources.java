@@ -4,6 +4,7 @@ import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 // Static class that keeps track of loading (lazily) our resource files.
 // Currently just handles the 4 texture images for SignInScreen.
@@ -59,7 +60,8 @@ final class Resources {
         try {
             return ImageIO.read(imageUrl);
         } catch (final IOException ex) {
-            LogUtil.die("Error loading GUI resource " + fileName, ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage(),
+                    "Error loading \"" + fileName + "\"", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }

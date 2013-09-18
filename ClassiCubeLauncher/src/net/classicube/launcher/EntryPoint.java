@@ -17,7 +17,8 @@ public final class EntryPoint {
         // Create launcher's data dir
         final File launcherDataDir = SharedUpdaterCode.getLauncherDir();
         if (!launcherDataDir.exists() && !launcherDataDir.mkdirs()) {
-            LogUtil.die("Could not create launcher data dir.", null);
+            ErrorScreen.show(null, "Cannot start ClassiCube launcher",
+                    "Data directory for the launcher could not be created", null);
         }
 
         // initialize shared code
