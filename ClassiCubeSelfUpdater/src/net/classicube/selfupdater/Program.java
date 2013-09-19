@@ -2,7 +2,6 @@ package net.classicube.selfupdater;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +28,10 @@ public class Program {
         if (launcherNewJar.exists()) {
             replaceFile(launcherNewJar, launcherJar);
         } else if (!launcherJar.exists()) {
+            ProgressIndicator progressWindow = new ProgressIndicator();
+            progressWindow.setVisible(true);
             downloadLauncher();
+            progressWindow.dispose();
         }
 
         startLauncher(launcherJar);
