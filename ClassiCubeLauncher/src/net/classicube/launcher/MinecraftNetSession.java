@@ -30,7 +30,7 @@ final class MinecraftNetSession extends GameSession {
             MIGRATED_ACCOUNT_MESSAGE = "Your account has been migrated",
             WRONG_USER_OR_PASS_MESSAGE = "Oops, unknown username or password.",
             AUTH_TOKEN_PATTERN = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
-            LOGGED_IN_AS_PATTERN = "<span class=\"logged-in\">\\s*Logged in as ([a-zA-Z0-9_\\.]{2,16})",
+            LOGGED_IN_AS_PATTERN = "<span class=\"logged-in\">\\s*Logged in as (\\S+) ",
             COOKIE_NAME = "PLAY_SESSION";
     private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
             loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
