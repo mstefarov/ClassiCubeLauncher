@@ -10,10 +10,7 @@ ClassiCubeLauncher/build/*
 ClassiCubeLauncher/dist/*
 ClassiCubeSelfUpdater/build/*
 ClassiCubeSelfUpdater/dist/*
-HashGen/build/*
-HashGen/dist/*
 
 # local settings
 ClassiCubeLauncher/nbproject/private/*
 ClassiCubeSelfUpdater/nbproject/private/*
-HashGen/nbproject/private/*
