@@ -3,8 +3,8 @@ package net.classicube.launcher;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 // Static class that keeps track of loading (lazily) our resource files.
 // Currently just handles the 4 texture images for SignInScreen.
@@ -52,14 +52,14 @@ final class Resources {
         }
         return errorIcon;
     }
-    
+
     public static Image getWarningIcon() {
         if (warningIcon == null) {
             warningIcon = loadImage("/images/warningIcon.png");
         }
         return warningIcon;
     }
-    
+
     public static Image getInfoIcon() {
         if (infoIcon == null) {
             infoIcon = loadImage("/images/infoIcon.png");
@@ -76,8 +76,7 @@ final class Resources {
         try {
             return ImageIO.read(imageUrl);
         } catch (final IOException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(),
-                    "Error loading \"" + fileName + "\"", JOptionPane.ERROR_MESSAGE);
+            LogUtil.getLogger().log(Level.SEVERE, "Error loading resource: " + fileName, ex);
             return null;
         }
     }

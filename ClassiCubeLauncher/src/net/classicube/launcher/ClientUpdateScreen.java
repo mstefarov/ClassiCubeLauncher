@@ -1,12 +1,9 @@
 package net.classicube.launcher;
 
 import java.awt.Desktop;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 
@@ -103,19 +100,26 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
     // =============================================================================================
     private void bPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPlayActionPerformed
         dispose();
-        ClientLauncher.launchClient(joinInfo);
+        ClientLauncher.launchClient(this.joinInfo);
     }//GEN-LAST:event_bPlayActionPerformed
 
     private void bViewChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bViewChangesActionPerformed
         if (this.desktop != null) {
             try {
                 this.desktop.browse(new URI(RELEASE_NOTES_URL));
-            } catch (final URISyntaxException | IOException ex) {
+            } catch (final Exception ex) {
                 LogUtil.getLogger().log(Level.WARNING, "Error opening release notes URL", ex);
-                JOptionPane.showInputDialog(this, "Release notes URL", RELEASE_NOTES_URL);
+                showReleaseNotesUrl();
             }
+        } else {
+            showReleaseNotesUrl();
         }
     }//GEN-LAST:event_bViewChangesActionPerformed
+
+    void showReleaseNotesUrl() {
+        PromptScreen.show(this, "Release notes link",
+                "Here you can find a list of changes in this game update.", RELEASE_NOTES_URL);
+    }
 
     // =============================================================================================
     //                                                                            GENERATED GUI CODE

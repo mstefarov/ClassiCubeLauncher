@@ -12,7 +12,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.logging.Level;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingWorker.StateValue;
@@ -245,7 +244,11 @@ final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     private void bDirectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDirectActionPerformed
         final String prompt = "mc://";
-        final String input = JOptionPane.showInputDialog(this, "Connect to a server directly:", prompt);
+        final String input = PromptScreen.show(this, "Direct connect",
+                "You can connect to a server directly, bypassing sign-in,<br>"
+                + "if you have a direct-connect URL in the form:<br>"
+                + "<code>mc://address:port/username/mppass</code>",
+                prompt);
         if (input != null && !prompt.equals(input)) {
             final String trimmedInput = input.replaceAll("[\\r\\n\\s]", "");
             final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(trimmedInput);

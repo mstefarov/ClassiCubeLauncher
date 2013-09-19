@@ -3,7 +3,6 @@ package net.classicube.launcher;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;

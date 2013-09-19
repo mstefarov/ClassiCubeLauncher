@@ -6,7 +6,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-import javax.swing.JOptionPane;
 
 // Global logging class (to make life easier)
 final class LogUtil {
@@ -31,10 +30,5 @@ final class LogUtil {
 
     public static Logger getLogger() {
         return logger;
-    }
-
-    // Shows an informative modal dialog box
-    public static void showInfo(final String message, final String title) {
-        JOptionPane.showMessageDialog(null, message, "Info: " + title, JOptionPane.INFORMATION_MESSAGE);
     }
 }
