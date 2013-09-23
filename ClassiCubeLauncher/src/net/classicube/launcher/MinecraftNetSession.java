@@ -90,6 +90,8 @@ final class MinecraftNetSession extends GameSession {
                     clearCookies();
                     loginPage = HttpUtil.downloadString(LOGIN_URL);
                 }
+            }else{
+                restoredSession = false;
             }
 
             // Extract authenticityToken from the login page
@@ -143,10 +145,13 @@ final class MinecraftNetSession extends GameSession {
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
                 storeCookies();
+                LogUtil.getLogger().log(Level.WARNING,
+                        "Successfully signed in as {0} ({1})",
+                        new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
             } else {
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
-                throw new SignInException("Login failed: Unrecognized response served by minecraft.net");
+                throw new SignInException("Signing in failed: Unrecognized response served by minecraft.net");
             }
         }
     }

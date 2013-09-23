@@ -35,7 +35,7 @@ final class ClassiCubeNetSession extends GameSession {
             COOKIE_NAME = "session",
             WRONG_USERNAME_OR_PASS_MESSAGE = "Login failed (Username or password may be incorrect)",
             AUTH_TOKEN_PATTERN = "<input id=\"csrf_token\" name=\"csrf_token\" type=\"hidden\" value=\"(.+?)\">",
-            LOGGED_IN_AS_PATTERN = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})";
+            LOGGED_IN_AS_PATTERN = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})</a>";
     private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
             loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
 
@@ -52,6 +52,7 @@ final class ClassiCubeNetSession extends GameSession {
 
     // Asynchronously try signing in our user
     private class SignInWorker extends SignInTask {
+
         public SignInWorker(final boolean remember) {
             super(remember);
         }
@@ -95,8 +96,7 @@ final class ClassiCubeNetSession extends GameSession {
 
                 } else {
                     // If we're not supposed to reuse session, if old username
-                    // is different,
-                    // or if there is no play session cookie set - relog
+                    // is different, or if there is no play session cookie set - relog
                     LogUtil.getLogger().log(Level.INFO,
                             "Switching accounts from {0} to {1}",
                             new Object[]{actualPlayerName, account.playerName});
@@ -104,6 +104,8 @@ final class ClassiCubeNetSession extends GameSession {
                     clearCookies();
                     loginPage = HttpUtil.downloadString(LOGIN_URL);
                 }
+            } else {
+                restoredSession = false;
             }
 
             // Extract authenticityToken from the login page
@@ -155,6 +157,10 @@ final class ClassiCubeNetSession extends GameSession {
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
+                storeCookies();
+                LogUtil.getLogger().log(Level.WARNING,
+                        "Successfully signed in as {0} ({1})",
+                        new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
             } else {
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
@@ -170,25 +176,17 @@ final class ClassiCubeNetSession extends GameSession {
             throws BackingStoreException {
         LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.loadSessionCookie");
         clearCookies();
-        if (this.store.childrenNames().length > 0) {
-            if (remember) {
-                this.loadCookies();
-                final HttpCookie cookie = super.getCookie(COOKIE_NAME);
-                final String userToken = "username%3A" + account.signInUsername + "%00";
-                if (cookie != null && cookie.getValue().contains(userToken)) {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}", account.signInUsername);
-                    return true;
-                } else {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Discarded saved session (username mismatch).");
-                }
+        if (remember) {
+            this.loadCookies();
+            final HttpCookie cookie = super.getCookie(COOKIE_NAME);
+            if (cookie != null) {
+                LogUtil.getLogger().log(Level.FINE, "Loaded saved session.");
+                return true;
             } else {
-                LogUtil.getLogger().log(Level.FINE,
-                        "Discarded a saved session.");
+                LogUtil.getLogger().log(Level.FINE, "No session saved.");
             }
         } else {
-            LogUtil.getLogger().log(Level.FINE, "No session saved.");
+            LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
         }
         return false;
     }
@@ -203,6 +201,7 @@ final class ClassiCubeNetSession extends GameSession {
     }
 
     private class GetServerListWorker extends GetServerListTask {
+
         @Override
         protected ServerListEntry[] doInBackground()
                 throws Exception {
