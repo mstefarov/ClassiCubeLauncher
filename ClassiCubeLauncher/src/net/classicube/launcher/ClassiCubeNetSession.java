@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 final class ClassiCubeNetSession extends GameSession {
 
-    private static final String HOMEPAGE_URL = "http://classicube.net";
+    private static final String HOMEPAGE_URL = "http://www.classicube.net";
 
     public ClassiCubeNetSession() {
         super(GameServiceType.ClassiCubeNetService);
@@ -61,13 +61,7 @@ final class ClassiCubeNetSession extends GameSession {
         protected SignInResult doInBackground()
                 throws Exception {
             LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.SignInWorker");
-            boolean restoredSession = false;
-            try {
-                restoredSession = loadSessionCookie(this.remember);
-            } catch (final BackingStoreException ex) {
-                LogUtil.getLogger().log(Level.WARNING,
-                        "Error restoring session.", ex);
-            }
+            boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
 
             // "this.publish" can be used to send text status updates to the GUI
             // (not hooked up)
@@ -158,7 +152,7 @@ final class ClassiCubeNetSession extends GameSession {
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
                 storeCookies();
-                LogUtil.getLogger().log(Level.WARNING,
+                LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
@@ -169,27 +163,7 @@ final class ClassiCubeNetSession extends GameSession {
             }
         }
     }
-
-    //have not checked loadSessionCookie, presume it works fine (It remembers me)
-    // Tries to restore previous session (if possible)
-    private boolean loadSessionCookie(final boolean remember)
-            throws BackingStoreException {
-        LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.loadSessionCookie");
-        clearCookies();
-        if (remember) {
-            this.loadCookies();
-            final HttpCookie cookie = super.getCookie(COOKIE_NAME);
-            if (cookie != null) {
-                LogUtil.getLogger().log(Level.FINE, "Loaded saved session.");
-                return true;
-            } else {
-                LogUtil.getLogger().log(Level.FINE, "No session saved.");
-            }
-        } else {
-            LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
-        }
-        return false;
-    }
+    
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================

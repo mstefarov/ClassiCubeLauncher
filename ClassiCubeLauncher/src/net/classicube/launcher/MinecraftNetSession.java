@@ -52,12 +52,7 @@ final class MinecraftNetSession extends GameSession {
         @Override
         protected SignInResult doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.SignInWorker");
-            boolean restoredSession = false;
-            try {
-                restoredSession = loadSessionCookie(remember);
-            } catch (final BackingStoreException ex) {
-                LogUtil.getLogger().log(Level.WARNING, "Error restoring session", ex);
-            }
+            boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
 
             // "publish" can be used to send text status updates to the GUI (not hooked up)
             this.publish("Connecting to Minecraft.net");
@@ -72,8 +67,7 @@ final class MinecraftNetSession extends GameSession {
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
                 final String actualPlayerName = loginMatch.group(1);
-                if (remember && hasCookie(COOKIE_NAME)
-                        && actualPlayerName.equalsIgnoreCase(account.playerName)) {
+                if (remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account: reuse a previous session
                     account.playerName = actualPlayerName;
                     LogUtil.getLogger().log(Level.INFO, "Restored session for {0}", account.playerName);
@@ -145,7 +139,7 @@ final class MinecraftNetSession extends GameSession {
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
                 storeCookies();
-                LogUtil.getLogger().log(Level.WARNING,
+                LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
@@ -155,32 +149,7 @@ final class MinecraftNetSession extends GameSession {
             }
         }
     }
-
-    // Tries to restore previous session (if possible)
-    private boolean loadSessionCookie(final boolean remember)
-            throws BackingStoreException {
-        LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
-        this.clearCookies();
-        if (remember) {
-            this.loadCookies();
-            final HttpCookie cookie = super.getCookie(COOKIE_NAME);
-            if (cookie != null) {
-                final String userToken = "username%3A" + urlEncode(this.account.signInUsername) + "%00";
-                if (cookie.getValue().contains(userToken)) {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}", this.account.signInUsername);
-                    return true;
-                } else {
-                    LogUtil.getLogger().log(Level.FINE, "Discarded saved session (username mismatch)");
-                }
-            } else {
-                LogUtil.getLogger().log(Level.FINE, "No session saved.");
-            }
-        } else {
-            LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
-        }
-        return false;
-    }
+    
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================

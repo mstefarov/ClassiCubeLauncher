@@ -264,24 +264,38 @@ abstract class GameSession {
         }
     }
 
-    // Tries to find a cookie by name. Returns null if not found.
-    protected HttpCookie getCookie(final String name) {
+    // Checks whether a cookie with the given name is stored.
+    protected boolean hasCookie(final String name) {
         if (name == null) {
             throw new NullPointerException("name");
         }
         final List<HttpCookie> cookies = cookieJar.get(getSiteUri());
         for (final HttpCookie cookie : cookies) {
             if (cookie.getName().equals(name)) {
-                return cookie;
+                return true;
             }
         }
-        return null;
+        return false;
     }
+    
 
-    // Checks whether a cookie with the given name is stored.
-    protected boolean hasCookie(final String name) {
-        return (getCookie(name) != null);
+    // Tries to restore previous session (if possible)
+    protected final boolean loadSessionCookies(final boolean remember, String cookieName) {
+        clearCookies();
+        if (remember) {
+            this.loadCookies();
+            if (hasCookie(cookieName)) {
+                LogUtil.getLogger().log(Level.FINE, "Loaded saved session.");
+                return true;
+            } else {
+                LogUtil.getLogger().log(Level.FINE, "No session saved.");
+            }
+        } else {
+            LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
+        }
+        return false;
     }
+    
     // =============================================================================================
     //                                                                                         UTILS
     // =============================================================================================
