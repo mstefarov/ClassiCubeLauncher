@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 final class MinecraftNetSession extends GameSession {
+
     private static final String HOMEPAGE_URL = "http://minecraft.net";
 
     public MinecraftNetSession() {
@@ -50,7 +51,7 @@ final class MinecraftNetSession extends GameSession {
 
         @Override
         protected SignInResult doInBackground() throws Exception {
-            LogUtil.getLogger().log(Level.FINE, "MinecraftNetSignInWorker");
+            LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.SignInWorker");
             boolean restoredSession = false;
             try {
                 restoredSession = loadSessionCookie(remember);
@@ -158,14 +159,17 @@ final class MinecraftNetSession extends GameSession {
             if (remember) {
                 this.loadCookies();
                 final HttpCookie cookie = super.getCookie(COOKIE_NAME);
-                final String userToken = "username%3A" + this.account.signInUsername + "%00";
-                if (cookie != null && cookie.getValue().contains(userToken)) {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Loaded saved session for {0}", this.account.signInUsername);
-                    return true;
+                if (cookie != null) {
+                    final String userToken = "username%3A" + this.account.signInUsername + "%00";
+                    if (cookie.getValue().contains(userToken)) {
+                        LogUtil.getLogger().log(Level.FINE,
+                                "Loaded saved session for {0}", this.account.signInUsername);
+                        return true;
+                    } else {
+                        LogUtil.getLogger().log(Level.FINE, "Discarded saved session (username mismatch: {0})", cookie.getValue());
+                    }
                 } else {
-                    LogUtil.getLogger().log(Level.FINE,
-                            "Discarded saved session (username mismatch).");
+                    LogUtil.getLogger().log(Level.FINE, "No session cookie found.");
                 }
             } else {
                 LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");

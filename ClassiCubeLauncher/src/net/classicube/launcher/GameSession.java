@@ -60,6 +60,7 @@ abstract class GameSession {
 
     // Returns service type of this session
     public abstract GameServiceType getServiceType();
+    
 
     public static abstract class SignInTask
             extends SwingWorker<SignInResult, String> {

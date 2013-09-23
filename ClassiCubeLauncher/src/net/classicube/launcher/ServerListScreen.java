@@ -253,7 +253,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
         if (joinInfo.playerName == null || "".equals(joinInfo.playerName)) {
             joinInfo.playerName = session.getAccount().playerName;
         }
-        System.out.println(joinInfo.address + ":" + joinInfo.port + "/" + joinInfo.playerName + "/" + joinInfo.pass);
         dispose();
         ClientUpdateScreen.createAndShow(joinInfo);
     }
@@ -348,7 +347,6 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_bChangeUserActionPerformed
 
     private void tSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tSearchKeyReleased
-        //System.out.println(tSearch.getText());
         fillServerTable();
     }//GEN-LAST:event_tSearchKeyReleased
 

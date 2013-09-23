@@ -44,7 +44,7 @@ final public class ClientLauncher {
             //processBuilder.inheritIO();
 
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
-            processBuilder.start();
+            Process p = processBuilder.start();
             //p.waitFor();
             System.exit(0);
         } catch (final Exception ex) {

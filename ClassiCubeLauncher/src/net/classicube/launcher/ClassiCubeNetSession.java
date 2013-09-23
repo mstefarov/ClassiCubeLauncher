@@ -59,7 +59,7 @@ final class ClassiCubeNetSession extends GameSession {
         @Override
         protected SignInResult doInBackground()
                 throws Exception {
-            LogUtil.getLogger().log(Level.FINE, "ClassiCubeNet.SignInWorker");
+            LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.SignInWorker");
             boolean restoredSession = false;
             try {
                 restoredSession = loadSessionCookie(this.remember);
