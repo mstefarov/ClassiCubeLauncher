@@ -142,6 +142,7 @@ final class MinecraftNetSession extends GameSession {
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
+                storeCookies();
                 return SignInResult.SUCCESS;
             } else {
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
@@ -155,27 +156,23 @@ final class MinecraftNetSession extends GameSession {
             throws BackingStoreException {
         LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.loadSessionCookie");
         this.clearCookies();
-        if (this.store.childrenNames().length > 0) {
-            if (remember) {
-                this.loadCookies();
-                final HttpCookie cookie = super.getCookie(COOKIE_NAME);
-                if (cookie != null) {
-                    final String userToken = "username%3A" + this.account.signInUsername + "%00";
-                    if (cookie.getValue().contains(userToken)) {
-                        LogUtil.getLogger().log(Level.FINE,
-                                "Loaded saved session for {0}", this.account.signInUsername);
-                        return true;
-                    } else {
-                        LogUtil.getLogger().log(Level.FINE, "Discarded saved session (username mismatch: {0})", cookie.getValue());
-                    }
+        if (remember) {
+            this.loadCookies();
+            final HttpCookie cookie = super.getCookie(COOKIE_NAME);
+            if (cookie != null) {
+                final String userToken = "username%3A" + urlEncode(this.account.signInUsername) + "%00";
+                if (cookie.getValue().contains(userToken)) {
+                    LogUtil.getLogger().log(Level.FINE,
+                            "Loaded saved session for {0}", this.account.signInUsername);
+                    return true;
                 } else {
-                    LogUtil.getLogger().log(Level.FINE, "No session cookie found.");
+                    LogUtil.getLogger().log(Level.FINE, "Discarded saved session (username mismatch)");
                 }
             } else {
-                LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
+                LogUtil.getLogger().log(Level.FINE, "No session saved.");
             }
         } else {
-            LogUtil.getLogger().log(Level.FINE, "No session saved.");
+            LogUtil.getLogger().log(Level.FINE, "Discarded a saved session.");
         }
         return false;
     }

@@ -9,7 +9,6 @@ import java.util.prefs.Preferences;
 // Handles persistence/"remembering" for user account information.
 // SignInScreen keeps separate copies of AccountManagers for each GameServiceType.
 final class AccountManager {
-
     private final Preferences store;
     private final HashMap<String, UserAccount> accounts = new HashMap<>();
 
@@ -20,7 +19,7 @@ final class AccountManager {
             throw new NullPointerException("serviceName");
         }
         final Preferences baseNode = Preferences.userNodeForPackage(getClass());
-        this.store = baseNode.node("Accounts").node(serviceName);
+        this.store = baseNode.node(serviceName).node("Accounts");
     }
 
     // Loads all accounts from preferences
@@ -41,7 +40,7 @@ final class AccountManager {
 
     // Stores all accounts
     public void store() {
-        LogUtil.getLogger().log(Level.FINE, "store");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.store");
         this.clearStore();
         if (!Prefs.getRememberUsers()) {
             return;
@@ -53,13 +52,13 @@ final class AccountManager {
 
     // Erases all accounts
     public void clear() {
-        LogUtil.getLogger().log(Level.FINE, "clear");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.clear");
         this.accounts.clear();
         this.clearStore();
     }
 
     private void clearStore() {
-        LogUtil.getLogger().log(Level.FINE, "AccountManager.ClearStore");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.clearStore");
         try {
             for (final String accountName : this.store.childrenNames()) {
                 this.store.node(accountName.toLowerCase()).removeNode();
@@ -71,7 +70,7 @@ final class AccountManager {
 
     // Clears passwords (sets them to empty string) for all accounts
     public void clearPasswords() {
-        LogUtil.getLogger().log(Level.FINE, "clearPasswords");
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.clearPasswords");
         for (final UserAccount account : this.accounts.values()) {
             account.password = "";
         }
@@ -108,6 +107,7 @@ final class AccountManager {
 
     // Either creates a new UserAccount or retrieves an existing UserAccount for given username.
     public UserAccount onSignInBegin(final String username, final String password) {
+        LogUtil.getLogger().log(Level.FINE, "AccountManager.onSignInBegin");
         if (username == null) {
             throw new NullPointerException("username");
         }

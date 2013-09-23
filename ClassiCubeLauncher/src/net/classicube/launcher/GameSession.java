@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 // A new single-use GameService object is created for every session.
 abstract class GameSession {
 
-    protected Preferences store;
+    protected Preferences store, cookieStore;
 
     // constructor used by implementations
     protected GameSession(final String serviceName) {
@@ -30,8 +30,8 @@ abstract class GameSession {
             throw new NullPointerException("serviceName");
         }
         this.store = Preferences.userNodeForPackage(this.getClass())
-                .node("GameServices")
                 .node(serviceName);
+        this.cookieStore = this.store.node("Cookies");
     }
 
     // =============================================================================================
@@ -247,20 +247,20 @@ abstract class GameSession {
     // Stores all cookies to Preferences
     protected void storeCookies() {
         try {
-            this.store.clear();
+            this.cookieStore.clear();
         } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error storing session", ex);
         }
         for (final HttpCookie cookie : cookieJar.getCookies()) {
-            this.store.put(cookie.getName(), cookie.toString());
+            this.cookieStore.put(cookie.getName(), cookie.toString());
         }
     }
 
     // Loads all cookies from Preferences
     protected void loadCookies() {
         try {
-            for (final String cookieName : this.store.keys()) {
-                final HttpCookie newCookie = new HttpCookie(cookieName, store.get(cookieName, null));
+            for (final String cookieName : this.cookieStore.keys()) {
+                final HttpCookie newCookie = new HttpCookie(cookieName, cookieStore.get(cookieName, null));
                 cookieJar.add(getSiteUri(), newCookie);
             }
         } catch (final BackingStoreException ex) {
