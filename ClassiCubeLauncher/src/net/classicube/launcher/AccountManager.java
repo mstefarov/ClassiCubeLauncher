@@ -11,15 +11,13 @@ import java.util.prefs.Preferences;
 final class AccountManager {
     private final Preferences store;
     private final HashMap<String, UserAccount> accounts = new HashMap<>();
+    private static final String ACCOUNTS_NODE_NAME = "Accounts";
 
     // Creates a new account manager for specified service name
     // serviceName is used to separate storage of data from different services
-    public AccountManager(final String serviceName) {
-        if (serviceName == null) {
-            throw new NullPointerException("serviceName");
-        }
+    public AccountManager(final GameServiceType service) {
         final Preferences baseNode = Preferences.userNodeForPackage(getClass());
-        this.store = baseNode.node(serviceName).node("Accounts");
+        this.store = baseNode.node(service.name()).node(ACCOUNTS_NODE_NAME);
     }
 
     // Loads all accounts from preferences

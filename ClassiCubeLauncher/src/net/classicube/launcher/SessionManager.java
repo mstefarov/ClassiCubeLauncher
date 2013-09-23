@@ -10,7 +10,7 @@ final class SessionManager {
     private static AccountManager accountManager;
 
     public static GameSession selectService(final GameServiceType serviceType) {
-        accountManager = new AccountManager(serviceType.name());
+        accountManager = new AccountManager(serviceType);
         accountManager.load();
         Prefs.setSelectedGameService(serviceType);
         if (serviceType == GameServiceType.ClassiCubeNetService) {
@@ -31,10 +31,10 @@ final class SessionManager {
 
     public static void clearAllResumeInfo() {
         try {
-            Preferences servicesNode = Preferences.userNodeForPackage(SessionManager.class).node("GameServices");
-            Preferences ccNode = servicesNode.node("ClassiCubeNetSession");
+            Preferences servicesNode = Preferences.userNodeForPackage(SessionManager.class);
+            Preferences ccNode = servicesNode.node(GameServiceType.ClassiCubeNetService.name());
             ccNode.node(GameSession.RESUME_NODE_NAME).removeNode();
-            Preferences mcNode = servicesNode.node("MinecraftNetSession");
+            Preferences mcNode = servicesNode.node(GameServiceType.MinecraftNetService.name());
             mcNode.node(GameSession.RESUME_NODE_NAME).removeNode();
         } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error erasing resume info", ex);
@@ -43,10 +43,10 @@ final class SessionManager {
     
     public static boolean hasAnyResumeInfo(){
         try {
-            Preferences servicesNode = Preferences.userNodeForPackage(SessionManager.class).node("GameServices");
-            Preferences ccNode = servicesNode.node("ClassiCubeNetSession");
+            Preferences servicesNode = Preferences.userNodeForPackage(SessionManager.class);
+            Preferences ccNode = servicesNode.node(GameServiceType.ClassiCubeNetService.name());
             if(ccNode.nodeExists(GameSession.RESUME_NODE_NAME)) return true;
-            Preferences mcNode = servicesNode.node("MinecraftNetSession");
+            Preferences mcNode = servicesNode.node(GameServiceType.MinecraftNetService.name());
             if(mcNode.nodeExists(GameSession.RESUME_NODE_NAME)) return true;
             return false;
         } catch (final BackingStoreException ex) {

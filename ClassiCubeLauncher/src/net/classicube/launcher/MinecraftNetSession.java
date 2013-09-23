@@ -16,7 +16,7 @@ final class MinecraftNetSession extends GameSession {
     private static final String HOMEPAGE_URL = "http://minecraft.net";
 
     public MinecraftNetSession() {
-        super("MinecraftNetSession");
+        super(GameServiceType.MinecraftNetService);
         try {
             siteUri = new URI(HOMEPAGE_URL);
         } catch (URISyntaxException ex) {

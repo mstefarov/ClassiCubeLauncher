@@ -41,9 +41,9 @@ final class PreferencesScreen extends javax.swing.JDialog {
         AccountManager curManager = SessionManager.getAccountManager();
         AccountManager otherManager;
         if (SessionManager.getSession().getServiceType() == GameServiceType.ClassiCubeNetService) {
-            otherManager = new AccountManager("MinecraftNetService");
+            otherManager = new AccountManager(GameServiceType.MinecraftNetService);
         } else {
-            otherManager = new AccountManager("ClassiCubeNetService");
+            otherManager = new AccountManager(GameServiceType.ClassiCubeNetService);
         }
         boolean hasUsers = curManager.hasAccounts() || otherManager.hasAccounts();
         boolean hasPasswords = hasUsers && (curManager.hasPasswords() || otherManager.hasPasswords());

@@ -21,17 +21,13 @@ import org.apache.commons.lang3.StringEscapeUtils;
 // Base class for service-specific handlers.
 // A new single-use GameService object is created for every session.
 abstract class GameSession {
-
+    private static final String COOKIES_NODE_NAME = "Cookies";
     protected Preferences store, cookieStore;
 
     // constructor used by implementations
-    protected GameSession(final String serviceName) {
-        if (serviceName == null) {
-            throw new NullPointerException("serviceName");
-        }
-        this.store = Preferences.userNodeForPackage(this.getClass())
-                .node(serviceName);
-        this.cookieStore = this.store.node("Cookies");
+    protected GameSession(final GameServiceType service) {
+        this.store = Preferences.userNodeForPackage(this.getClass()).node(service.name());
+        this.cookieStore = this.store.node(COOKIES_NODE_NAME);
     }
 
     // =============================================================================================

@@ -20,7 +20,7 @@ final class ClassiCubeNetSession extends GameSession {
     private static final String HOMEPAGE_URL = "http://classicube.net";
 
     public ClassiCubeNetSession() {
-        super("ClassiCubeNetSession");
+        super(GameServiceType.ClassiCubeNetService);
         try {
             this.siteUri = new URI(HOMEPAGE_URL);
         } catch (final URISyntaxException ex) {
