@@ -2,6 +2,7 @@ package net.classicube.launcher;
 
 import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.InetAddress;
@@ -231,6 +232,7 @@ abstract class GameSession {
     // Initializes the cookie manager
     public static void init() {
         final CookieManager cm = new CookieManager();
+        cm.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         cookieJar = cm.getCookieStore();
         CookieManager.setDefault(cm);
     }
@@ -248,7 +250,7 @@ abstract class GameSession {
             LogUtil.getLogger().log(Level.SEVERE, "Error storing session", ex);
         }
         for (final HttpCookie cookie : cookieJar.getCookies()) {
-            this.cookieStore.put(cookie.getName(), cookie.toString());
+            this.cookieStore.put(cookie.getName(), cookie.getValue());
         }
     }
 
@@ -257,6 +259,7 @@ abstract class GameSession {
         try {
             for (final String cookieName : this.cookieStore.keys()) {
                 final HttpCookie newCookie = new HttpCookie(cookieName, cookieStore.get(cookieName, null));
+                newCookie.setPath("/");
                 cookieJar.add(getSiteUri(), newCookie);
             }
         } catch (final BackingStoreException ex) {

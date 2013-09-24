@@ -1,19 +1,17 @@
 package net.classicube.launcher;
 
-import java.net.HttpCookie;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 final class MinecraftNetSession extends GameSession {
 
-    private static final String HOMEPAGE_URL = "http://minecraft.net";
+    private static final String HOMEPAGE_URL = "http://minecraft.net/";
 
     public MinecraftNetSession() {
         super(GameServiceType.MinecraftNetService);
@@ -84,25 +82,23 @@ final class MinecraftNetSession extends GameSession {
                     clearCookies();
                     loginPage = HttpUtil.downloadString(LOGIN_URL);
                 }
-            }else{
-                restoredSession = false;
+            } else if (restoredSession) {
+                // Failed to restore session
+                LogUtil.getLogger().log(Level.WARNING,
+                        "Failed to restore session at Minecraft.net; retrying.");
+                HttpUtil.downloadString(LOGOUT_URL);
+                clearCookies();
+                storeCookies();
+                loginPage = HttpUtil.downloadString(LOGIN_URL);
             }
 
             // Extract authenticityToken from the login page
             final Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
             if (!authTokenMatch.find()) {
-                if (restoredSession) {
-                    // restoring session failed; log out and retry
-                    HttpUtil.downloadString(LOGOUT_URL);
-                    clearCookies();
-                    LogUtil.getLogger().log(Level.WARNING,
-                            "Unrecognized login form served by minecraft.net; retrying.");
-
-                } else {
-                    // something unexpected happened, panic!
-                    LogUtil.getLogger().log(Level.INFO, loginPage);
-                    throw new SignInException("Login failed: Unrecognized login form served by minecraft.net");
-                }
+                // We asked for a login form, got something different back. Panic.
+                LogUtil.getLogger().log(Level.INFO, loginPage);
+                throw new SignInException(
+                        "Login failed: Unrecognized login form served by Minecraft.net");
             }
 
             // Built up a login request
@@ -134,7 +130,8 @@ final class MinecraftNetSession extends GameSession {
                 return SignInResult.MIGRATED_ACCOUNT;
             }
 
-            // Confirm tha we are now logged in
+            // Confirm that we are now logged in
+            // TODO: handle challenge questions
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
@@ -144,12 +141,13 @@ final class MinecraftNetSession extends GameSession {
                         new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
             } else {
+                clearCookies();
+                storeCookies();
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
                 throw new SignInException("Signing in failed: Unrecognized response served by minecraft.net");
             }
         }
     }
-    
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================

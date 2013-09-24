@@ -46,6 +46,7 @@ final class HttpUtil {
     // Uploads a string using POST, then downloads the response.
     // Returns null and logs an error on failure.
     public static String uploadString(final String urlString, final String dataString) {
+        System.out.println((dataString==null?"GET ":"POST ") + urlString);
         HttpURLConnection connection = null;
         byte[] data = null;
         if (dataString != null) {
@@ -61,7 +62,7 @@ final class HttpUtil {
                     os.write(data);
                 }
             }
-
+            
             // Handle redirects
             final int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM

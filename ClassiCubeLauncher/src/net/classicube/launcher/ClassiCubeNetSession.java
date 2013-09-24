@@ -4,20 +4,23 @@ package net.classicube.launcher;
 import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
-import java.net.HttpCookie;
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
-import java.util.prefs.BackingStoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 final class ClassiCubeNetSession extends GameSession {
 
-    private static final String HOMEPAGE_URL = "http://www.classicube.net";
+    private static final String HOMEPAGE_URL = "http://www.classicube.net/";
 
     public ClassiCubeNetSession() {
         super(GameServiceType.ClassiCubeNetService);
@@ -96,28 +99,27 @@ final class ClassiCubeNetSession extends GameSession {
                             new Object[]{actualPlayerName, account.playerName});
                     HttpUtil.downloadString(LOGOUT_URL);
                     clearCookies();
+                    storeCookies();
                     loginPage = HttpUtil.downloadString(LOGIN_URL);
                 }
-            } else {
-                restoredSession = false;
+
+            } else if (restoredSession) {
+                // Failed to restore session
+                LogUtil.getLogger().log(Level.WARNING,
+                        "Failed to restore session at ClassiCube.net; retrying.");
+                HttpUtil.downloadString(LOGOUT_URL);
+                clearCookies();
+                storeCookies();
+                loginPage = HttpUtil.downloadString(LOGIN_URL);
             }
 
             // Extract authenticityToken from the login page
             final Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
             if (!authTokenMatch.find()) {
-                if (restoredSession) {
-                    // restoring session failed; log out and retry
-                    HttpUtil.downloadString(LOGOUT_URL);
-                    clearCookies();
-                    LogUtil.getLogger().log(Level.WARNING,
-                            "Unrecognized login form served by ClassiCube.net; retrying.");
-
-                } else {
-                    // something unexpected happened, panic!
-                    LogUtil.getLogger().log(Level.INFO, loginPage);
-                    throw new SignInException(
-                            "Login failed: Unrecognized login form served by ClassiCube");
-                }
+                // We asked for a login form, got something different back. Panic.
+                LogUtil.getLogger().log(Level.INFO, loginPage);
+                throw new SignInException(
+                        "Login failed: Unrecognized login form served by ClassiCube.net");
             }
 
             // Built up a login request
@@ -150,20 +152,24 @@ final class ClassiCubeNetSession extends GameSession {
             // Confirm that we are now logged in
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
+                // Signed in successfully
                 account.playerName = responseMatch.group(1);
                 storeCookies();
                 LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
+
             } else {
+                // Still not signed in. Something is wrong.
+                clearCookies();
+                storeCookies();
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
                 throw new SignInException(
                         "Login failed: Unrecognized response served by ClassiCube.net");
             }
         }
     }
-    
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================
