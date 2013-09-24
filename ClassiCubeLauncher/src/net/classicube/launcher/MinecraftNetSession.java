@@ -26,13 +26,21 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     private static final String LOGIN_URL = "https://minecraft.net/login",
             LOGOUT_URL = "http://minecraft.net/logout",
+            CHALLENGE_URL = "http://minecraft.net/challenge",
             MIGRATED_ACCOUNT_MESSAGE = "Your account has been migrated",
             WRONG_USER_OR_PASS_MESSAGE = "Oops, unknown username or password.",
+            CHALLENGE_FAILED_MESSAGE = "Could not confirm your identity",
+            CHALLENGE_PASSED_MESSAGE = "Security challenge passed",
             AUTH_TOKEN_PATTERN = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
             LOGGED_IN_AS_PATTERN = "<span class=\"logged-in\">\\s*Logged in as (\\S+) ",
-            COOKIE_NAME = "PLAY_SESSION";
+            COOKIE_NAME = "PLAY_SESSION",
+            CHALLENGE_MESSAGE = "To confirm your identity, please answer the question below",
+            CHALLENGE_QUESTION_PATTERN = "<label for=\"answer\">([^<]+)</label>",
+            CHALLENGE_QUESTION_ID_PATTERN = "<input type=\"hidden\" name=\"questionId\" value=\"(\\d+)\" />";
     private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
-            loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
+            loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN),
+            challengeQuestionRegex = Pattern.compile(CHALLENGE_QUESTION_PATTERN),
+            challengeQuestionIdRegex = Pattern.compile(CHALLENGE_QUESTION_ID_PATTERN);
 
     @Override
     public SignInTask signInAsync(final UserAccount account, final boolean remember) {
@@ -68,6 +76,9 @@ final class MinecraftNetSession extends GameSession {
                 if (remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account: reuse a previous session
                     account.playerName = actualPlayerName;
+                    if (loginPage.contains(CHALLENGE_MESSAGE)) {
+                        return handleChallengeQuestions(loginPage);
+                    }
                     LogUtil.getLogger().log(Level.INFO, "Restored session for {0}", account.playerName);
                     storeCookies();
                     return SignInResult.SUCCESS;
@@ -93,16 +104,15 @@ final class MinecraftNetSession extends GameSession {
             }
 
             // Extract authenticityToken from the login page
-            final Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
-            if (!authTokenMatch.find()) {
+            final Matcher loginAuthTokenMatch = authTokenRegex.matcher(loginPage);
+            if (!loginAuthTokenMatch.find()) {
                 // We asked for a login form, got something different back. Panic.
                 LogUtil.getLogger().log(Level.INFO, loginPage);
-                throw new SignInException(
-                        "Login failed: Unrecognized login form served by Minecraft.net");
+                throw new SignInException("Unrecognized login form served by Minecraft.net");
             }
 
             // Built up a login request
-            final String authToken = authTokenMatch.group(1);
+            final String authToken = loginAuthTokenMatch.group(1);
             final StringBuilder requestStr = new StringBuilder();
             requestStr.append("username=");
             requestStr.append(urlEncode(account.signInUsername));
@@ -118,7 +128,7 @@ final class MinecraftNetSession extends GameSession {
 
             // POST our data to the login handler
             this.publish("Signing in...");
-            final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
+            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -135,6 +145,9 @@ final class MinecraftNetSession extends GameSession {
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
+                if (loginResponse.contains(CHALLENGE_MESSAGE)) {
+                    return handleChallengeQuestions(loginResponse);
+                }
                 storeCookies();
                 LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
@@ -144,8 +157,48 @@ final class MinecraftNetSession extends GameSession {
                 clearCookies();
                 storeCookies();
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
-                throw new SignInException("Signing in failed: Unrecognized response served by minecraft.net");
+                throw new SignInException("Unrecognized response served by minecraft.net");
             }
+        }
+    }
+
+    SignInResult handleChallengeQuestions(String page) throws SignInException {
+        LogUtil.getLogger().log(Level.INFO, "");
+        final Matcher challengeMatch = challengeQuestionRegex.matcher(page);
+        final Matcher challengeAuthTokenMatch = authTokenRegex.matcher(page);
+        final Matcher challengeQuestionIdMatch = challengeQuestionIdRegex.matcher(page);
+        if (!challengeMatch.find() || !challengeAuthTokenMatch.find() || !challengeQuestionIdMatch.find()) {
+            LogUtil.getLogger().log(Level.INFO, page);
+            throw new SignInException("Could not parse challenge question.");
+        }
+        final String authToken = challengeAuthTokenMatch.group(1);
+        final String question = challengeMatch.group(1);
+        final int questionId = Integer.parseInt(challengeQuestionIdMatch.group(1));
+        String answer = PromptScreen.show(null, "Minecraft.net asks",
+                "<html>Since you are logging in from this computer for the first time,<br>"
+                + "Minecraft.net needs you to confirm your identity before you can continue.<br>"
+                + "This is to make sure that your account isn't used without your authorization."
+                + "<br><br><b>" + question, "");
+        if (answer == null) {
+            return SignInResult.CHALLENGE_FAILED;
+        }
+        final StringBuilder challengeRequestStr = new StringBuilder();
+        challengeRequestStr.append("answer=");
+        challengeRequestStr.append(urlEncode(answer));
+        challengeRequestStr.append("&authenticityToken=");
+        challengeRequestStr.append(urlEncode(authToken));
+        challengeRequestStr.append("&questionId=");
+        challengeRequestStr.append(questionId);
+        String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString());
+        if (response == null) {
+            return SignInResult.CONNECTION_ERROR;
+        } else if (response.contains(CHALLENGE_FAILED_MESSAGE)) {
+            return SignInResult.CHALLENGE_FAILED;
+        } else if (response.contains(CHALLENGE_PASSED_MESSAGE)) {
+            return SignInResult.SUCCESS;
+        } else {
+            throw new SignInException("Could not pass security question: "
+                    + "Unrecognized response served by minecraft.net");
         }
     }
     // =============================================================================================

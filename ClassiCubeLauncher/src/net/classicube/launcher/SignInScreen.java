@@ -214,22 +214,7 @@ final class SignInScreen extends javax.swing.JFrame {
                 new ServerListScreen().setVisible(true);
                 dispose();
             } else {
-                final String errorMsg;
-                switch (result) {
-                    case WRONG_USER_OR_PASS:
-                        errorMsg = "Wrong username or password.";
-                        break;
-                    case MIGRATED_ACCOUNT:
-                        errorMsg = "Your account has been migrated. "
-                                + "Use your Mojang account (email) to sign in.";
-                        break;
-                    case CONNECTION_ERROR:
-                        errorMsg = "Connection problem. The website may be down.";
-                        break;
-                    default:
-                        errorMsg = result.name();
-                        break;
-                }
+                final String errorMsg = SignInResult.getMessage(result);
                 ErrorScreen.show(this, "Could not sign in", errorMsg, null);
             }
         } catch (final Exception ex) {
