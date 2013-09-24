@@ -20,7 +20,6 @@ import javax.swing.SwingWorker;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 // Base class for service-specific handlers.
-// A new single-use GameService object is created for every session.
 abstract class GameSession {
     private static final String COOKIES_NODE_NAME = "Cookies";
     protected Preferences store, cookieStore;

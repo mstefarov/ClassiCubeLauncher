@@ -118,8 +118,7 @@ final class ClassiCubeNetSession extends GameSession {
             if (!authTokenMatch.find()) {
                 // We asked for a login form, got something different back. Panic.
                 LogUtil.getLogger().log(Level.INFO, loginPage);
-                throw new SignInException(
-                        "Login failed: Unrecognized login form served by ClassiCube.net");
+                throw new SignInException("Unrecognized login form served by ClassiCube.net");
             }
 
             // Built up a login request
@@ -165,8 +164,7 @@ final class ClassiCubeNetSession extends GameSession {
                 clearCookies();
                 storeCookies();
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
-                throw new SignInException(
-                        "Login failed: Unrecognized response served by ClassiCube.net");
+                throw new SignInException("Unrecognized response served by ClassiCube.net");
             }
         }
     }
