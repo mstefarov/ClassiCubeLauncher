@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import net.classicube.launcher.gui.PromptScreen;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;

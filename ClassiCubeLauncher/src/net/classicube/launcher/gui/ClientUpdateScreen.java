@@ -1,13 +1,20 @@
-package net.classicube.launcher;
+package net.classicube.launcher.gui;
 
+import net.classicube.launcher.gui.PromptScreen;
 import java.awt.Desktop;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
+import net.classicube.launcher.ClientLauncher;
+import net.classicube.launcher.ClientUpdateTask;
+import net.classicube.launcher.LogUtil;
+import net.classicube.launcher.Prefs;
+import net.classicube.launcher.ServerJoinInfo;
+import net.classicube.launcher.UpdateMode;
 
-final class ClientUpdateScreen extends javax.swing.JFrame {
+public final class ClientUpdateScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
@@ -136,8 +143,8 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         lStats = new javax.swing.JLabel();
         progress = new javax.swing.JProgressBar();
         lNotice = new javax.swing.JLabel();
-        bViewChanges = new net.classicube.launcher.JNiceLookingButton();
-        bPlay = new net.classicube.launcher.JNiceLookingButton();
+        bViewChanges = new net.classicube.launcher.gui.JNiceLookingButton();
+        bPlay = new net.classicube.launcher.gui.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Game Update");
@@ -206,8 +213,8 @@ final class ClientUpdateScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private net.classicube.launcher.JNiceLookingButton bPlay;
-    private net.classicube.launcher.JNiceLookingButton bViewChanges;
+    private net.classicube.launcher.gui.JNiceLookingButton bPlay;
+    private net.classicube.launcher.gui.JNiceLookingButton bViewChanges;
     private javax.swing.JLabel lFileName;
     private javax.swing.JLabel lNotice;
     private javax.swing.JLabel lStats;

@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-final class SessionManager {
+public final class SessionManager {
     private static GameSession activeSession;
     private static AccountManager accountManager;
 

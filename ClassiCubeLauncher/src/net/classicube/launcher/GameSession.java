@@ -20,7 +20,7 @@ import javax.swing.SwingWorker;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 // Base class for service-specific handlers.
-abstract class GameSession {
+public abstract class GameSession {
     private static final String COOKIES_NODE_NAME = "Cookies";
     protected Preferences store, cookieStore;
 
@@ -119,7 +119,7 @@ abstract class GameSession {
         return new GetServerDetailsTask(url);
     }
 
-    protected class GetServerDetailsTask
+    public class GetServerDetailsTask
             extends SwingWorker<Boolean, Boolean> {
 
         private ServerJoinInfo joinInfo;

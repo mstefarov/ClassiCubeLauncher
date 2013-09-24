@@ -60,7 +60,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingToggleButton" name="bDetails">
+    <Component class="net.classicube.launcher.gui.JNiceLookingToggleButton" name="bDetails">
       <Properties>
         <Property name="text" type="java.lang.String" value="+ Details"/>
         <Property name="toolTipText" type="java.lang.String" value="Show technical details of this error.&#xa;When reporting a bug, please include this information."/>
@@ -74,7 +74,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bClose">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bClose">
       <Properties>
         <Property name="text" type="java.lang.String" value="Close"/>
       </Properties>
@@ -87,7 +87,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Container class="net.classicube.launcher.ImagePanel" name="imgErrorIcon">
+    <Container class="net.classicube.launcher.gui.ImagePanel" name="imgErrorIcon">
       <Properties>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[64, 64]"/>

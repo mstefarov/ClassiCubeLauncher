@@ -2,7 +2,7 @@ package net.classicube.launcher;
 
 import java.util.prefs.Preferences;
 
-final class Prefs {
+public final class Prefs {
     // Key names
     private static String keyUpdateMode = "UpdateMode",
             keyFullscreen = "WindowSize",

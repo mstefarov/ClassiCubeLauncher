@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import net.classicube.launcher.gui.ErrorScreen;
 import java.io.File;
 import java.util.List;
 import java.util.logging.Level;

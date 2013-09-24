@@ -1,4 +1,4 @@
-package net.classicube.launcher;
+package net.classicube.launcher.gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -28,6 +28,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import net.classicube.launcher.GameServiceType;
+import net.classicube.launcher.GameSession;
+import net.classicube.launcher.LogUtil;
+import net.classicube.launcher.ServerJoinInfo;
+import net.classicube.launcher.ServerListEntry;
+import net.classicube.launcher.SessionManager;
 
 public final class ServerListScreen extends javax.swing.JFrame {
     // =============================================================================================
@@ -379,15 +385,15 @@ public final class ServerListScreen extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        bChangeUser = new net.classicube.launcher.JNiceLookingButton();
-        bPreferences = new net.classicube.launcher.JNiceLookingButton();
+        bChangeUser = new net.classicube.launcher.gui.JNiceLookingButton();
+        bPreferences = new net.classicube.launcher.gui.JNiceLookingButton();
         javax.swing.JSeparator separator1 = new javax.swing.JSeparator();
-        tSearch = new net.classicube.launcher.PlaceholderTextField();
+        tSearch = new net.classicube.launcher.gui.PlaceholderTextField();
         serverTableContainer = new javax.swing.JScrollPane();
         serverTable = new javax.swing.JTable();
         javax.swing.JSeparator separator2 = new javax.swing.JSeparator();
         tServerURL = new javax.swing.JTextField();
-        bConnect = new net.classicube.launcher.JNiceLookingButton();
+        bConnect = new net.classicube.launcher.gui.JNiceLookingButton();
         progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -540,13 +546,13 @@ public final class ServerListScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private net.classicube.launcher.JNiceLookingButton bChangeUser;
-    private net.classicube.launcher.JNiceLookingButton bConnect;
-    private net.classicube.launcher.JNiceLookingButton bPreferences;
+    private net.classicube.launcher.gui.JNiceLookingButton bChangeUser;
+    private net.classicube.launcher.gui.JNiceLookingButton bConnect;
+    private net.classicube.launcher.gui.JNiceLookingButton bPreferences;
     private javax.swing.JProgressBar progress;
     private javax.swing.JTable serverTable;
     private javax.swing.JScrollPane serverTableContainer;
-    private net.classicube.launcher.PlaceholderTextField tSearch;
+    private net.classicube.launcher.gui.PlaceholderTextField tSearch;
     private javax.swing.JTextField tServerURL;
     // End of variables declaration//GEN-END:variables
 }

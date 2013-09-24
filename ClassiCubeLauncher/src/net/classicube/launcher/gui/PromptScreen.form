@@ -26,7 +26,7 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
   <SubComponents>
-    <Container class="net.classicube.launcher.ImagePanel" name="imgErrorIcon">
+    <Container class="net.classicube.launcher.gui.ImagePanel" name="imgErrorIcon">
       <Properties>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[64, 64]"/>
@@ -58,7 +58,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bOK">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bOK">
       <Properties>
         <Property name="text" type="java.lang.String" value="OK"/>
       </Properties>
@@ -71,7 +71,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bNo">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bNo">
       <Properties>
         <Property name="text" type="java.lang.String" value="Cancel"/>
       </Properties>

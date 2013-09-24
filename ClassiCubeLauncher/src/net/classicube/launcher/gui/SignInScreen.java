@@ -1,4 +1,4 @@
-package net.classicube.launcher;
+package net.classicube.launcher.gui;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -20,10 +20,19 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import net.classicube.launcher.AccountManager;
+import net.classicube.launcher.GameServiceType;
+import net.classicube.launcher.GameSession;
+import net.classicube.launcher.LogUtil;
+import net.classicube.launcher.Prefs;
+import net.classicube.launcher.ServerJoinInfo;
+import net.classicube.launcher.SessionManager;
+import net.classicube.launcher.SignInResult;
+import net.classicube.launcher.UserAccount;
 
 // Sign-in screen! First thing the user sees.
 // Instantiated and first shown by EntryPoint.main
-final class SignInScreen extends javax.swing.JFrame {
+public final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
@@ -409,15 +418,15 @@ final class SignInScreen extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        bClassiCubeNet = new net.classicube.launcher.JNiceLookingToggleButton();
-        bMinecraftNet = new net.classicube.launcher.JNiceLookingToggleButton();
-        ipLogo = new net.classicube.launcher.ImagePanel();
+        bClassiCubeNet = new net.classicube.launcher.gui.JNiceLookingToggleButton();
+        bMinecraftNet = new net.classicube.launcher.gui.JNiceLookingToggleButton();
+        ipLogo = new net.classicube.launcher.gui.ImagePanel();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
         progress = new javax.swing.JProgressBar();
-        bDirect = new net.classicube.launcher.JNiceLookingButton();
-        bResume = new net.classicube.launcher.JNiceLookingButton();
-        bSignIn = new net.classicube.launcher.JNiceLookingButton();
+        bDirect = new net.classicube.launcher.gui.JNiceLookingButton();
+        bResume = new net.classicube.launcher.gui.JNiceLookingButton();
+        bSignIn = new net.classicube.launcher.gui.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClassiCube Launcher");
@@ -536,13 +545,13 @@ final class SignInScreen extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private net.classicube.launcher.JNiceLookingToggleButton bClassiCubeNet;
-    private net.classicube.launcher.JNiceLookingButton bDirect;
-    private net.classicube.launcher.JNiceLookingToggleButton bMinecraftNet;
-    private net.classicube.launcher.JNiceLookingButton bResume;
-    private net.classicube.launcher.JNiceLookingButton bSignIn;
+    private net.classicube.launcher.gui.JNiceLookingToggleButton bClassiCubeNet;
+    private net.classicube.launcher.gui.JNiceLookingButton bDirect;
+    private net.classicube.launcher.gui.JNiceLookingToggleButton bMinecraftNet;
+    private net.classicube.launcher.gui.JNiceLookingButton bResume;
+    private net.classicube.launcher.gui.JNiceLookingButton bSignIn;
     private javax.swing.JComboBox<String> cUsername;
-    private net.classicube.launcher.ImagePanel ipLogo;
+    private net.classicube.launcher.gui.ImagePanel ipLogo;
     private javax.swing.JProgressBar progress;
     private javax.swing.JPasswordField tPassword;
     // End of variables declaration//GEN-END:variables

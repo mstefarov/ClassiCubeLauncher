@@ -1,4 +1,4 @@
-package net.classicube.launcher;
+package net.classicube.launcher.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

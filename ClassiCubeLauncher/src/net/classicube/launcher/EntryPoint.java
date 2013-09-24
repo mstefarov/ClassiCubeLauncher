@@ -1,5 +1,7 @@
 package net.classicube.launcher;
 
+import net.classicube.launcher.gui.ErrorScreen;
+import net.classicube.launcher.gui.SignInScreen;
 import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel; // TODO investigate javax.swing.plaf.nimbus.NimbusLookAndFeel
 import java.awt.Color;
 import java.awt.Font;

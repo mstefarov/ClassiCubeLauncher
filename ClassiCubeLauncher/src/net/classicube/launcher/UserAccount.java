@@ -7,7 +7,7 @@ import java.util.prefs.Preferences;
 
 // Stores metadata about a user account.
 // Handled by AccountManager.
-final class UserAccount {
+public final class UserAccount {
 
     public String signInUsername;
     public String playerName;

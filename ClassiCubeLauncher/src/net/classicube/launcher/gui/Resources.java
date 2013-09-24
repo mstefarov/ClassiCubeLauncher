@@ -1,10 +1,11 @@
-package net.classicube.launcher;
+package net.classicube.launcher.gui;
 
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
+import net.classicube.launcher.LogUtil;
 
 // Static class that keeps track of loading (lazily) our resource files.
 // Currently just handles the 4 texture images for SignInScreen.

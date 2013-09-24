@@ -1,9 +1,9 @@
-package net.classicube.launcher;
+package net.classicube.launcher.gui;
 
 import java.awt.Graphics;
-import javax.swing.JToggleButton;
+import javax.swing.JButton;
 
-public class JNiceLookingToggleButton extends JToggleButton {
+public class JNiceLookingButton extends JButton {
 
     @Override
     protected void paintComponent(Graphics g) {

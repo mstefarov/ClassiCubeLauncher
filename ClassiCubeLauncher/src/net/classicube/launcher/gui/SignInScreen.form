@@ -28,7 +28,7 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
   <SubComponents>
-    <Component class="net.classicube.launcher.JNiceLookingToggleButton" name="bClassiCubeNet">
+    <Component class="net.classicube.launcher.gui.JNiceLookingToggleButton" name="bClassiCubeNet">
       <Properties>
         <Property name="text" type="java.lang.String" value="ClassiCube.net"/>
         <Property name="enabled" type="boolean" value="false"/>
@@ -42,7 +42,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingToggleButton" name="bMinecraftNet">
+    <Component class="net.classicube.launcher.gui.JNiceLookingToggleButton" name="bMinecraftNet">
       <Properties>
         <Property name="text" type="java.lang.String" value="Minecraft.net"/>
       </Properties>
@@ -55,7 +55,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Container class="net.classicube.launcher.ImagePanel" name="ipLogo">
+    <Container class="net.classicube.launcher.gui.ImagePanel" name="ipLogo">
       <Properties>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[250, 75]"/>
@@ -110,7 +110,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bDirect">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bDirect">
       <Properties>
         <Property name="text" type="java.lang.String" value="Direct..."/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Connect to a server directly, bypassing sign-in, using a direct-connect URL.&lt;br&gt;&#xa;Direct-connect URLs have the form: &lt;code&gt;mc://address:port/username/mppass&lt;/code&gt;"/>
@@ -124,7 +124,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bResume">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bResume">
       <Properties>
         <Property name="text" type="java.lang.String" value="Resume"/>
       </Properties>
@@ -137,7 +137,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bSignIn">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bSignIn">
       <Properties>
         <Property name="text" type="java.lang.String" value="Sign In &gt;"/>
       </Properties>

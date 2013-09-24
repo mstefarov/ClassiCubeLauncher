@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import net.classicube.launcher.gui.ErrorScreen;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.FileHandler;
@@ -8,7 +9,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 // Global logging class (to make life easier)
-final class LogUtil {
+public final class LogUtil {
 
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 

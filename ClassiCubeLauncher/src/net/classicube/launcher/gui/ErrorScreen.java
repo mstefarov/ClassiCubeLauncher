@@ -1,4 +1,4 @@
-package net.classicube.launcher;
+package net.classicube.launcher.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -69,9 +69,9 @@ public class ErrorScreen extends javax.swing.JDialog {
         detailsContainer = new javax.swing.JScrollPane();
         tDetails = new javax.swing.JTextArea();
         lMessage = new javax.swing.JLabel();
-        bDetails = new net.classicube.launcher.JNiceLookingToggleButton();
-        bClose = new net.classicube.launcher.JNiceLookingButton();
-        imgErrorIcon = new net.classicube.launcher.ImagePanel();
+        bDetails = new net.classicube.launcher.gui.JNiceLookingToggleButton();
+        bClose = new net.classicube.launcher.gui.JNiceLookingButton();
+        imgErrorIcon = new net.classicube.launcher.gui.ImagePanel();
         javax.swing.Box.Filler filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -162,10 +162,10 @@ public class ErrorScreen extends javax.swing.JDialog {
         pack();
     }//GEN-LAST:event_bDetailsItemStateChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private net.classicube.launcher.JNiceLookingButton bClose;
-    private net.classicube.launcher.JNiceLookingToggleButton bDetails;
+    private net.classicube.launcher.gui.JNiceLookingButton bClose;
+    private net.classicube.launcher.gui.JNiceLookingToggleButton bDetails;
     private javax.swing.JScrollPane detailsContainer;
-    private net.classicube.launcher.ImagePanel imgErrorIcon;
+    private net.classicube.launcher.gui.ImagePanel imgErrorIcon;
     private javax.swing.JLabel lMessage;
     private javax.swing.JTextArea tDetails;
     // End of variables declaration//GEN-END:variables

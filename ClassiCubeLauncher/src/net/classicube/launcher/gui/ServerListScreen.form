@@ -21,7 +21,7 @@
     <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,88,0,0,2,13"/>
   </AuxValues>
   <SubComponents>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bChangeUser">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bChangeUser">
       <Properties>
         <Property name="text" type="java.lang.String" value="&lt; Change User"/>
       </Properties>
@@ -34,7 +34,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bPreferences">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bPreferences">
       <Properties>
         <Property name="text" type="java.lang.String" value="Preferences"/>
       </Properties>
@@ -58,7 +58,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.PlaceholderTextField" name="tSearch">
+    <Component class="net.classicube.launcher.gui.PlaceholderTextField" name="tSearch">
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tSearchActionPerformed"/>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="tSearchFocusGained"/>
@@ -167,7 +167,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bConnect">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bConnect">
       <Properties>
         <Property name="text" type="java.lang.String" value="Connect &gt;"/>
       </Properties>
@@ -329,7 +329,7 @@
       </StatementProvider>
       <Parameters>
         <CodeExpression id="11_bChangeUser">
-          <CodeVariable name="bChangeUser" type="8194" declaredType="net.classicube.launcher.JNiceLookingButton"/>
+          <CodeVariable name="bChangeUser" type="8194" declaredType="net.classicube.launcher.gui.JNiceLookingButton"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
               <ComponentRef name="bChangeUser"/>
@@ -411,7 +411,7 @@
       </StatementProvider>
       <Parameters>
         <CodeExpression id="17_bPreferences">
-          <CodeVariable name="bPreferences" type="8194" declaredType="net.classicube.launcher.JNiceLookingButton"/>
+          <CodeVariable name="bPreferences" type="8194" declaredType="net.classicube.launcher.gui.JNiceLookingButton"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
               <ComponentRef name="bPreferences"/>
@@ -575,7 +575,7 @@
       </StatementProvider>
       <Parameters>
         <CodeExpression id="29_tSearch">
-          <CodeVariable name="tSearch" type="8194" declaredType="net.classicube.launcher.PlaceholderTextField"/>
+          <CodeVariable name="tSearch" type="8194" declaredType="net.classicube.launcher.gui.PlaceholderTextField"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
               <ComponentRef name="tSearch"/>
@@ -942,7 +942,7 @@
       </StatementProvider>
       <Parameters>
         <CodeExpression id="56_bConnect">
-          <CodeVariable name="bConnect" type="8194" declaredType="net.classicube.launcher.JNiceLookingButton"/>
+          <CodeVariable name="bConnect" type="8194" declaredType="net.classicube.launcher.gui.JNiceLookingButton"/>
           <ExpressionOrigin>
             <ExpressionProvider type="ComponentRef">
               <ComponentRef name="bConnect"/>

@@ -3,7 +3,7 @@ package net.classicube.launcher;
 import java.util.Locale;
 
 // Stores all metadata about a game server
-final class ServerListEntry {
+public final class ServerListEntry {
     // Basic info
     public String name;
     public String hash;

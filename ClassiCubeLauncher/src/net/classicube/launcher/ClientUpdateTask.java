@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import net.classicube.launcher.gui.ClientUpdateScreen;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -22,7 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
 
-final class ClientUpdateTask
+public final class ClientUpdateTask
         extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
 
     // =============================================================================================

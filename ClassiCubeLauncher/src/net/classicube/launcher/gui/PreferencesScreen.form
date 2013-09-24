@@ -126,7 +126,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bForgetUsers">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bForgetUsers">
       <Properties>
         <Property name="text" type="java.lang.String" value="Forget all users"/>
       </Properties>
@@ -153,7 +153,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bForgetPasswords">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bForgetPasswords">
       <Properties>
         <Property name="text" type="java.lang.String" value="Forget all passwords"/>
       </Properties>
@@ -177,7 +177,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bForgetServer">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bForgetServer">
       <Properties>
         <Property name="text" type="java.lang.String" value="Forget last server"/>
       </Properties>
@@ -271,7 +271,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bDefaults">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bDefaults">
       <Properties>
         <Property name="text" type="java.lang.String" value="Defaults"/>
         <Property name="toolTipText" type="java.lang.String" value="Reset all preferences to their default values."/>
@@ -285,7 +285,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bSave">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bSave">
       <Properties>
         <Property name="text" type="java.lang.String" value="Save"/>
       </Properties>
@@ -298,7 +298,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bCancel">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bCancel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Cancel"/>
       </Properties>

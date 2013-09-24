@@ -8,7 +8,7 @@ import java.util.prefs.Preferences;
 
 // Handles persistence/"remembering" for user account information.
 // SignInScreen keeps separate copies of AccountManagers for each GameServiceType.
-final class AccountManager {
+public final class AccountManager {
     private final Preferences store;
     private final HashMap<String, UserAccount> accounts = new HashMap<>();
     private static final String ACCOUNTS_NODE_NAME = "Accounts";

@@ -1,6 +1,6 @@
 package net.classicube.launcher;
 
-enum GameServiceType {
+public enum GameServiceType {
     MinecraftNetService,
     ClassiCubeNetService
 }

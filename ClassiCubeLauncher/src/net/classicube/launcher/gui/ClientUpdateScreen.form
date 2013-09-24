@@ -70,7 +70,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bViewChanges">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bViewChanges">
       <Properties>
         <Property name="text" type="java.lang.String" value="View Changes"/>
         <Property name="toolTipText" type="java.lang.String" value="Check out list of changes included in this update (opens a web browser)."/>
@@ -84,7 +84,7 @@
         </Constraint>
       </Constraints>
     </Component>
-    <Component class="net.classicube.launcher.JNiceLookingButton" name="bPlay">
+    <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bPlay">
       <Properties>
         <Property name="text" type="java.lang.String" value="Play &gt;"/>
         <Property name="enabled" type="boolean" value="false"/>
