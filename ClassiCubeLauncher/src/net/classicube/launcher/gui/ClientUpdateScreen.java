@@ -1,6 +1,5 @@
 package net.classicube.launcher.gui;
 
-import net.classicube.launcher.gui.PromptScreen;
 import java.awt.Desktop;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
@@ -89,7 +88,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
 
         } catch (final InterruptedException | ExecutionException ex) {
             ErrorScreen.show(this, "Error updating", ex.getMessage(), ex);
-            System.exit(1);
+            System.exit(3);
             return;
         }
 

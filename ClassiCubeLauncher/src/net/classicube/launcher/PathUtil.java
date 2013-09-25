@@ -15,10 +15,11 @@ import java.nio.file.StandardCopyOption;
 
 final class PathUtil {
 
-    private static final String CLIENT_DIR_NAME = ".net.classicube.client",
+    public static final String CLIENT_DIR_NAME = ".net.classicube.client",
             LOG_FILE_NAME = "launcher.log";
+    private static File clientPath;
 
-    public static File getClientDir() {
+    public synchronized static File getClientDir() {
         if (clientPath == null) {
             clientPath = new File(SharedUpdaterCode.getAppDataDir(), CLIENT_DIR_NAME);
         }
@@ -28,15 +29,8 @@ final class PathUtil {
         return clientPath;
     }
 
-    public static File getLogFile() {
-        if (logFilePath == null) {
-            logFilePath = new File(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_FILE_NAME);
-        }
-        return logFilePath;
-    }
-
     // Safely replace contents of destFile with sourceFile
-    public static void replaceFile(final File sourceFile, final File destFile)
+    public synchronized static void replaceFile(final File sourceFile, final File destFile)
             throws IOException {
         if (sourceFile == null) {
             throw new NullPointerException("sourceFile");
@@ -87,8 +81,8 @@ final class PathUtil {
             throw new NullPointerException("destDir");
         }
         if (sourceDir.isDirectory()) {
-            if (!destDir.exists()) {
-                destDir.mkdir();
+            if (!destDir.exists() && !destDir.mkdirs()) {
+                throw new IOException("Unable to create directory " + destDir);
             }
             final String files[] = sourceDir.list();
             for (final String file : files) {
@@ -110,9 +104,7 @@ final class PathUtil {
         if (destFile == null) {
             throw new NullPointerException("destFile");
         }
-        if (!destFile.exists()) {
-            destFile.createNewFile();
-        }
+        destFile.createNewFile();
 
         try (final FileChannel source = new FileInputStream(sourceFile).getChannel()) {
             try (final FileChannel destination = new FileOutputStream(destFile).getChannel()) {
@@ -120,6 +112,4 @@ final class PathUtil {
             }
         }
     }
-    private static File clientPath,
-            logFilePath;
 }

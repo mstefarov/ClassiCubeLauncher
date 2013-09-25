@@ -1,5 +1,6 @@
 package net.classicube.launcher;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.logging.Level;
@@ -68,8 +69,7 @@ public final class UserAccount {
     }
     private static final UserAccountDateComparator comparatorInstance = new UserAccountDateComparator();
 
-    private static class UserAccountDateComparator implements Comparator<UserAccount> {
-
+    private static class UserAccountDateComparator implements Comparator<UserAccount>, Serializable {
         @Override
         public int compare(final UserAccount o1, final UserAccount o2) {
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();

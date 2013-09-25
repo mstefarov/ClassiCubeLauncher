@@ -168,7 +168,7 @@ public final class TableColumnAdjuster
             width = Math.max(width, tableColumn.getPreferredWidth());
         }
 
-        columnSizes.put(tableColumn, new Integer(tableColumn.getWidth()));
+        columnSizes.put(tableColumn, tableColumn.getWidth());
         table.getTableHeader().setResizingColumn(tableColumn);
         tableColumn.setWidth(width);
     }
@@ -327,7 +327,6 @@ public final class TableColumnAdjuster
      *  Action to adjust or restore the width of a single column or all columns
      */
     class ColumnAction extends AbstractAction {
-
         private boolean isSelectedColumn;
         private boolean isAdjust;
 
@@ -339,7 +338,6 @@ public final class TableColumnAdjuster
         @Override
         public void actionPerformed(ActionEvent e) {
             //  Handle selected column(s) width change actions
-
             if (isSelectedColumn) {
                 int[] columns = table.getSelectedColumns();
 

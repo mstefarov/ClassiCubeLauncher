@@ -4,16 +4,11 @@ package net.classicube.launcher;
 import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
-import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -202,7 +197,7 @@ final class ClassiCubeNetSession extends GameSession {
                 info.uptime = row.getInt("players");
                 servers.add(info); //add it
             }
-            return servers.toArray(new ServerListEntry[0]); //return
+            return servers.toArray(new ServerListEntry[servers.size()]); //return
         }
     }
     // =============================================================================================

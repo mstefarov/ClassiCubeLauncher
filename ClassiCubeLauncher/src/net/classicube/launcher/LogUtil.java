@@ -14,10 +14,10 @@ public final class LogUtil {
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
 
     // Sets up logging to file (%AppData%/net.classicube.launcher/launcher.log)
-    public static void Init() {
+    public static void init() {
         logger.setLevel(Level.ALL);
 
-        final File logFile = PathUtil.getLogFile();
+        final File logFile = new File(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_FILE_NAME);
 
         try {
             final FileHandler handler = new FileHandler(logFile.getAbsolutePath());

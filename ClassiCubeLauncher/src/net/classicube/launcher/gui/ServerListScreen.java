@@ -303,20 +303,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // Prevent the server list JTable from permanently stealing keyboard focus
         ActionMap tableActions = serverTable.getActionMap();
-        tableActions.put("selectPreviousColumnCell", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-                manager.focusPreviousComponent();
-            }
-        });
-        tableActions.put("selectNextColumnCell", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-                manager.focusNextComponent();
-            }
-        });
+        tableActions.put("selectPreviousColumnCell", new TableFocusPreviousComponentAction());
+        tableActions.put("selectNextColumnCell", new TableFocusNextComponentAction());
 
         // Select contents of ServerURL field on-focus
         tServerURL.addFocusListener(new FocusListener() {
@@ -331,7 +319,23 @@ public final class ServerListScreen extends javax.swing.JFrame {
         });
     }
 
-    private class UptimeCellRenderer extends DefaultTableCellRenderer {
+    private static class TableFocusPreviousComponentAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+            manager.focusPreviousComponent();
+        }
+    }
+
+    private static class TableFocusNextComponentAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+            manager.focusNextComponent();
+        }
+    }
+
+    private static class UptimeCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(final JTable table, final Object value,
                 final boolean isSelected, final boolean hasFocus, final int row, final int column) {

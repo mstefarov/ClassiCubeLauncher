@@ -223,9 +223,10 @@ public final class ClientUpdateTask
                 return "<none>";
             }
             try (final InputStream is = zipFile.getInputStream(manifest)) {
-                final DigestInputStream dis = new DigestInputStream(is, digest);
-                while (dis.read(ioBuffer) != -1) {
-                    // DigestInputStream is doing its job, we just need to read through it.
+                try (final DigestInputStream dis = new DigestInputStream(is, digest)) {
+                    while (dis.read(ioBuffer) != -1) {
+                        // DigestInputStream is doing its job, we just need to read through it.
+                    }
                 }
             }
         }
@@ -302,8 +303,8 @@ public final class ClientUpdateTask
         LogUtil.getLogger().log(Level.INFO, "deployFile({0})", localName.getName());
         try {
             final File parentDir = localName.getCanonicalFile().getParentFile();
-            if (!parentDir.exists()) {
-                parentDir.mkdirs();
+            if (!parentDir.exists() && !parentDir.mkdirs()) {
+                throw new IOException("Unable to make directory " + parentDir);
             }
             PathUtil.replaceFile(processedFile, localName);
             if (localName.getName().endsWith("natives.jar")) {
@@ -323,8 +324,8 @@ public final class ClientUpdateTask
 
         File nativeFolder = new File(PathUtil.getClientDir(), "natives");
 
-        if (!nativeFolder.exists()) {
-            nativeFolder.mkdir();
+        if (!nativeFolder.exists() && !nativeFolder.mkdirs()) {
+            throw new IOException("Unable to make directory " + nativeFolder);
         }
 
         try (final JarFile jarFile = new JarFile(jarPath, true)) {
@@ -374,7 +375,7 @@ public final class ClientUpdateTask
             throw new NullPointerException("fileName");
         }
         final int overallProgress = -1; // between 0 and 15%
-        final String status = String.format("Checking for updates...", fileName);
+        final String status = "Checking for updates...";
         this.publish(new ProgressUpdate(fileName, status, overallProgress));
     }
 
@@ -405,7 +406,7 @@ public final class ClientUpdateTask
     private void signalUnpackProgress() {
         int overallProgress = (this.activeFileNumber * 100 + 100) / this.totalFiles;
         final String fileName = activeFile.localName.getName();
-        final String status = String.format("Unpacking...", fileName);
+        final String status = "Unpacking...";
         this.publish(new ProgressUpdate(fileName, status, overallProgress));
     }
 

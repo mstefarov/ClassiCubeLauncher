@@ -259,7 +259,7 @@ final class MinecraftNetSession extends GameSession {
                 servers.add(server);
             }
             // This list is heading off to ServerListScreen (not implemented yet)
-            return servers.toArray(new ServerListEntry[0]);
+            return servers.toArray(new ServerListEntry[servers.size()]);
         }
     }
 

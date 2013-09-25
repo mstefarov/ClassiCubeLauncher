@@ -98,7 +98,8 @@ public final class AccountManager {
 
     // Gets a list of all accounts, ordered by sign-in date, most recent first
     public UserAccount[] getAccountsBySignInDate() {
-        final UserAccount[] accountArray = this.accounts.values().toArray(new UserAccount[0]);
+        final UserAccount[] accountArray;
+        accountArray = this.accounts.values().toArray(new UserAccount[this.accounts.size()]);
         Arrays.sort(accountArray, UserAccount.getUptimeComparator());
         return accountArray;
     }

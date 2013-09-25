@@ -28,18 +28,18 @@ public class SharedUpdaterCode {
     private static File launcherPath,
             appDataPath;
 
-    public static File getLauncherDir() {
+    public static synchronized File getLauncherDir() throws IOException {
         if (launcherPath == null) {
             final File userDir = getAppDataDir();
             launcherPath = new File(userDir, LAUNCHER_DIR_NAME);
-            if (launcherPath.exists()) {
-                launcherPath.mkdir();
+            if (launcherPath.exists() && !launcherPath.mkdirs()) {
+                throw new IOException("Unable to create directory " + launcherPath);
             }
         }
         return launcherPath;
     }
 
-    public static File getAppDataDir() {
+    public static synchronized File getAppDataDir() {
         if (appDataPath == null) {
             final String home = System.getProperty("user.home", ".");
             final OperatingSystem os = OperatingSystem.detect();
@@ -111,7 +111,7 @@ public class SharedUpdaterCode {
         }
     }
 
-    private static InputStream makeLzmaInputStream(final Logger logger, final InputStream stream) {
+    private static synchronized InputStream makeLzmaInputStream(final Logger logger, final InputStream stream) {
         if (logger == null) {
             throw new NullPointerException("logger");
         }
@@ -127,7 +127,7 @@ public class SharedUpdaterCode {
                 constructor = lzmaClass.getDeclaredConstructor(InputStream.class);
             }
             return (InputStream) constructor.newInstance(stream);
-        } catch (final MalformedURLException | ClassNotFoundException | NoSuchMethodException |
+        } catch (final IOException | ClassNotFoundException | NoSuchMethodException |
                 SecurityException | InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException ex) {
             logger.log(Level.SEVERE, "Error creating LzmaInputStream", ex);

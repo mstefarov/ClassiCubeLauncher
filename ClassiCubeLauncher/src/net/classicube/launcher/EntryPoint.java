@@ -24,7 +24,7 @@ public final class EntryPoint {
         }
 
         // initialize shared code
-        LogUtil.Init();
+        LogUtil.init();
         GameSession.init();
 
         // set look-and-feel to Numbus
