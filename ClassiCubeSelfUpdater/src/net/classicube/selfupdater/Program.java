@@ -45,11 +45,6 @@ public class Program {
     }
 
     private static void downloadLauncher() {
-        if (!launcherJar.getParentFile().mkdirs()) {
-            final String message = "Error creating launcher's directory.<br>"
-                    + "Make sure that directory \"" + launcherJar.getParentFile() + "\" is writable.";
-            fatalError(message);
-        }
         final File lzmaJar = new File(launcherDir, SharedUpdaterCode.LZMA_JAR_NAME);
         if (!lzmaJar.exists()) {
             final File lzmaTempFile = downloadFile("lzma.jar");

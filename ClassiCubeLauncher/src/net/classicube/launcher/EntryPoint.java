@@ -6,6 +6,7 @@ import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel; // TODO investigate jav
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import javax.swing.UIDefaults;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -16,16 +17,19 @@ public final class EntryPoint {
     // This is also called by ClassiCubeSelfUpdater
 
     public static void main(final String[] args) {
-        // Create launcher's data dir
-        final File launcherDataDir = SharedUpdaterCode.getLauncherDir();
-        if (!launcherDataDir.exists() && !launcherDataDir.mkdirs()) {
-            ErrorScreen.show(null, "Cannot start ClassiCube launcher",
-                    "Data directory for the launcher could not be created", null);
+        // Create launcher's data dir and init logger
+        try {
+            SharedUpdaterCode.getLauncherDir();
+            LogUtil.init();
+        
+        } catch (IOException ex) {
+            ErrorScreen.show(null, "Error starting ClassiCube",
+                    "Could not create data directory for launcher.", ex);
+            System.exit(0);
         }
 
         // initialize shared code
-        LogUtil.init();
-        GameSession.init();
+        GameSession.initCookieHandling();
 
         // set look-and-feel to Numbus
         try {
@@ -48,7 +52,7 @@ public final class EntryPoint {
                     ret.put("nimbusSelectionBackground", ccBorder);
                     ret.put("Table.background", Color.WHITE);
                     ret.put("Table.background", Color.WHITE);
-                    ret.put("nimbusOrange", new Color(101,38,143));
+                    ret.put("nimbusOrange", new Color(101, 38, 143));
                     return ret;
                 }
             });

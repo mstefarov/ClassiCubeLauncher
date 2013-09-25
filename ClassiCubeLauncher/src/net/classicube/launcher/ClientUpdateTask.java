@@ -94,7 +94,7 @@ public final class ClientUpdateTask
         return true;
     }
 
-    private List<FileToDownload> findFilesToDownload() {
+    private List<FileToDownload> findFilesToDownload() throws IOException {
         final List<FileToDownload> files = new ArrayList<>();
 
         final File clientDir = PathUtil.getClientDir();
@@ -141,7 +141,7 @@ public final class ClientUpdateTask
     private MessageDigest digest;
     private final byte[] ioBuffer = new byte[64 * 1024];
 
-    private List<FileToDownload> pickFilesToDownload() {
+    private List<FileToDownload> pickFilesToDownload() throws IOException {
         List<FileToDownload> filesToDownload = new ArrayList<>();
         List<FileToDownload> localFiles = findFilesToDownload();
         HashMap<String, RemoteFile> remoteFiles = getRemoteIndex();

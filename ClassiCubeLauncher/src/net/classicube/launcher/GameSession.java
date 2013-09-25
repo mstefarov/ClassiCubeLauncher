@@ -229,7 +229,7 @@ public abstract class GameSession {
     private static CookieStore cookieJar;
 
     // Initializes the cookie manager
-    public static void init() {
+    public static void initCookieHandling() {
         final CookieManager cm = new CookieManager();
         cm.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         cookieJar = cm.getCookieStore();
