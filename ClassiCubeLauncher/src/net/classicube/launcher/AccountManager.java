@@ -6,8 +6,8 @@ import java.util.logging.Level;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-// Handles persistence/"remembering" for user account information.
-// SignInScreen keeps separate copies of AccountManagers for each GameServiceType.
+// Handles persistence/"remembering" of user account information for a given GameServiceType.
+// SessionManager creates an instance of AccountManager in SessionManager.selectService().
 public final class AccountManager {
     private final Preferences store;
     private final HashMap<String, UserAccount> accounts = new HashMap<>();
@@ -75,10 +75,12 @@ public final class AccountManager {
         this.store();
     }
 
+    // Returns true if there is at least one account stored.
     public boolean hasAccounts() {
         return !accounts.isEmpty();
     }
 
+    // Returns true if at least one account has a password stored.
     public boolean hasPasswords() {
         for (final UserAccount account : this.accounts.values()) {
             if (!account.password.isEmpty()) {
@@ -88,7 +90,7 @@ public final class AccountManager {
         return false;
     }
 
-    // Tries to find stored UserAccount data for given sign-in name
+    // Tries to find stored UserAccount data for given sign-in name (case-insensitive)
     public UserAccount findAccount(final String signInName) {
         if (signInName == null) {
             throw new NullPointerException("signInName");
@@ -105,8 +107,8 @@ public final class AccountManager {
     }
 
     // Either creates a new UserAccount or retrieves an existing UserAccount for given username.
+    // Called from SignInScreen, right after [Sign In] button is pressed.
     public UserAccount onSignInBegin(final String username, final String password) {
-        LogUtil.getLogger().log(Level.FINE, "AccountManager.onSignInBegin");
         if (username == null) {
             throw new NullPointerException("username");
         }

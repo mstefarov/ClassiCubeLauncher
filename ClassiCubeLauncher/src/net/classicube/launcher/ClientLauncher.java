@@ -5,17 +5,20 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 
-// Handles launching the client.
+// Handles launching the client process.
 final public class ClientLauncher {
 
     private static final String ClassPath = "client.jar" + File.pathSeparatorChar + "libs/*",
             ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
 
-    public static void launchClient(ServerJoinInfo joinInfo) {
+    public static void launchClient(final ServerJoinInfo joinInfo) {
+        if (joinInfo == null) {
+            throw new NullPointerException("joinInfo");
+        }
         LogUtil.getLogger().info("launchClient");
         SessionManager.getSession().storeResumeInfo(joinInfo);
 
-        final File java = getJavaPath();
+        final File java = PathUtil.getJavaPath();
 
         final String nativePath;
         try {
@@ -45,8 +48,8 @@ final public class ClientLauncher {
             processBuilder.inheritIO();
 
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
-            Process p = processBuilder.start();
-            p.waitFor();
+            final Process p = processBuilder.start();
+            //p.waitFor();
             System.exit(0);
         } catch (final Exception ex) {
             ErrorScreen.show(null, "Could not launch the game",
@@ -55,16 +58,18 @@ final public class ClientLauncher {
     }
 
     private static String concatStringsWSep(final List<String> strings, final String separator) {
+        if (strings == null) {
+            throw new NullPointerException("strings");
+        }
+        if (separator == null) {
+            throw new NullPointerException("separator");
+        }
         final StringBuilder sb = new StringBuilder();
         String sep = "";
-        for (String s : strings) {
+        for (final String s : strings) {
             sb.append(sep).append(s);
             sep = separator;
         }
         return sb.toString();
-    }
-
-    private static File getJavaPath() {
-        return new File(System.getProperty("java.home"), "bin/java");
     }
 }

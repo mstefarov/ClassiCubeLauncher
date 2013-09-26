@@ -1,4 +1,3 @@
-/*Java class Copyright (C) HeyMan7 <2013>*/
 package net.classicube.launcher;
 
 import com.grack.nanojson.JsonArray;
@@ -10,12 +9,13 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Provides all functionality specific to ClassiCube.net:
+// Signing in, parsing play links, getting server list, getting server details.
 final class ClassiCubeNetSession extends GameSession {
-
-    private static final String HOMEPAGE_URL = "http://www.classicube.net/";
 
     public ClassiCubeNetSession() {
         super(GameServiceType.ClassiCubeNetService);
@@ -37,8 +37,12 @@ final class ClassiCubeNetSession extends GameSession {
     private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
             loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
 
+    // Asynchronously try signing in our user
     @Override
     public SignInTask signInAsync(final UserAccount account, final boolean remember) {
+        if (account == null) {
+            throw new NullPointerException("account");
+        }
         this.account = account;
         return new SignInWorker(remember);
     }
@@ -48,7 +52,6 @@ final class ClassiCubeNetSession extends GameSession {
         return GameServiceType.ClassiCubeNetService;
     }
 
-    // Asynchronously try signing in our user
     private class SignInWorker extends SignInTask {
 
         public SignInWorker(final boolean remember) {
@@ -58,12 +61,9 @@ final class ClassiCubeNetSession extends GameSession {
         @Override
         protected SignInResult doInBackground()
                 throws Exception {
-            LogUtil.getLogger().log(Level.FINE, "ClassiCubeNetSession.SignInWorker");
+            final Logger logger = LogUtil.getLogger();
+            logger.log(Level.FINE, "ClassiCubeNetSession.SignInWorker");
             boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
-
-            // "this.publish" can be used to send text status updates to the GUI
-            // (not hooked up)
-            this.publish("Connecting to ClassiCube.net");
 
             // download the login page
             String loginPage = HttpUtil.downloadString(LOGIN_URL);
@@ -75,11 +75,11 @@ final class ClassiCubeNetSession extends GameSession {
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
                 final String actualPlayerName = loginMatch.group(1);
-                if (remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
+                if (this.remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account:
                     // reuse a previous session
                     account.playerName = actualPlayerName;
-                    LogUtil.getLogger().log(Level.INFO,
+                    logger.log(Level.INFO,
                             "Restored session for {0}", account.playerName);
                     storeCookies();
                     return SignInResult.SUCCESS;
@@ -87,7 +87,7 @@ final class ClassiCubeNetSession extends GameSession {
                 } else {
                     // If we're not supposed to reuse session, if old username
                     // is different, or if there is no play session cookie set - relog
-                    LogUtil.getLogger().log(Level.INFO,
+                    logger.log(Level.INFO,
                             "Switching accounts from {0} to {1}",
                             new Object[]{actualPlayerName, account.playerName});
                     HttpUtil.downloadString(LOGOUT_URL);
@@ -97,7 +97,7 @@ final class ClassiCubeNetSession extends GameSession {
 
             } else if (restoredSession) {
                 // Failed to restore session
-                LogUtil.getLogger().log(Level.WARNING,
+                logger.log(Level.WARNING,
                         "Failed to restore session at ClassiCube.net; retrying.");
                 HttpUtil.downloadString(LOGOUT_URL);
                 clearStoredSession();
@@ -108,7 +108,7 @@ final class ClassiCubeNetSession extends GameSession {
             final Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
             if (!authTokenMatch.find()) {
                 // We asked for a login form, got something different back. Panic.
-                LogUtil.getLogger().log(Level.INFO, loginPage);
+                logger.log(Level.INFO, loginPage);
                 throw new SignInException("Unrecognized login form served by ClassiCube.net");
             }
 
@@ -121,14 +121,13 @@ final class ClassiCubeNetSession extends GameSession {
             requestStr.append(urlEncode(account.password));
             requestStr.append("&csrf_token=");
             requestStr.append(urlEncode(authToken));
-            if (remember) {
+            if (this.remember) {
                 requestStr.append("&remember_me=true");
             }
             requestStr.append("&redirect=");
             requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            this.publish("Signing in...");
             final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
@@ -144,10 +143,10 @@ final class ClassiCubeNetSession extends GameSession {
             if (responseMatch.find()) {
                 // Signed in successfully
                 account.playerName = responseMatch.group(1);
-                if (remember) {
+                if (this.remember) {
                     storeSession();
                 }
-                LogUtil.getLogger().log(Level.INFO,
+                logger.log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
@@ -155,7 +154,7 @@ final class ClassiCubeNetSession extends GameSession {
             } else {
                 // Still not signed in. Something is wrong.
                 clearStoredSession();
-                LogUtil.getLogger().log(Level.INFO, loginResponse);
+                logger.log(Level.INFO, loginResponse);
                 throw new SignInException("Unrecognized response served by ClassiCube.net");
             }
         }
@@ -200,7 +199,6 @@ final class ClassiCubeNetSession extends GameSession {
     // =============================================================================================
     //                                                                              DETAILS-FROM-URL
     // =============================================================================================
-    // http://www.classicube.net/server/play/583c911d2f9f437af451a144b493d0cf
     private static final String PLAY_HASH_URL_PATTERN = "^http://" // scheme
             + "www.classicube.net/server/play/" // host+path
             + "([0-9a-fA-F]{28,32})/?" + // hash
@@ -259,7 +257,8 @@ final class ClassiCubeNetSession extends GameSession {
     //                                                                                           ETC
     // =============================================================================================
     private static final String SKIN_URL = "http://www.classicube.net/skins/",
-            PLAY_URL = "http://www.classicube.net/server/play/";
+            PLAY_URL = "http://www.classicube.net/server/play/",
+            HOMEPAGE_URL = "http://www.classicube.net/";
 
     @Override
     public String getSkinUrl() {
@@ -272,7 +271,10 @@ final class ClassiCubeNetSession extends GameSession {
     }
 
     @Override
-    public String getPlayUrl(String hash) {
+    public String getPlayUrl(final String hash) {
+        if (hash == null) {
+            throw new NullPointerException("hash");
+        }
         return PLAY_URL + hash;
     }
     private URI siteUri;

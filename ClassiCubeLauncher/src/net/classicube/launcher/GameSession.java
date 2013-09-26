@@ -85,6 +85,9 @@ public abstract class GameSession {
     protected static final Pattern appletParamRegex = Pattern.compile(appletParamPattern);
 
     protected ServerJoinInfo getDetailsFromDirectUrl(final String url) {
+        if (url == null) {
+            throw new NullPointerException("url");
+        }
         final ServerJoinInfo result = new ServerJoinInfo();
         final Matcher directUrlMatch = directUrlRegex.matcher(url);
         if (directUrlMatch.matches()) {
@@ -225,7 +228,7 @@ public abstract class GameSession {
         node.putBoolean("SignInNeeded", info.signInNeeded);
     }
     // =============================================================================================
-    //                                                                                       COOKIES
+    //                                                                          COOKIES AND SESSIONS
     // =============================================================================================
     private static CookieStore cookieJar;
 
@@ -241,7 +244,7 @@ public abstract class GameSession {
         try {
             cookieJar.removeAll();
             storeCookies();
-            Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
+            final Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
             lastUserNode.removeNode();
         } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error clearing stored session", ex);
@@ -250,7 +253,7 @@ public abstract class GameSession {
 
     protected void storeSession() {
         storeCookies();
-        Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
+        final Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
         getAccount().store(lastUserNode);
     }
 
@@ -281,19 +284,19 @@ public abstract class GameSession {
 
     private boolean passwordIsSame() {
         UserAccount lastSessionAccount = null;
-        Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
+        final Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
         if (lastUserNode != null) {
             try {
                 lastSessionAccount = new UserAccount(lastUserNode);
-            } catch (IllegalArgumentException ex) {
+            } catch (final IllegalArgumentException ex) {
                 LogUtil.getLogger().log(Level.WARNING, "Error loading last session information, will relog.", ex);
             }
         }
-        String newPassword = getAccount().password;
+        final String newPassword = getAccount().password;
         if (lastSessionAccount == null) {
             return false;
         } else {
-            String oldPassword = lastSessionAccount.password;
+            final String oldPassword = lastSessionAccount.password;
             return newPassword.equals(oldPassword);
         }
     }
@@ -313,7 +316,10 @@ public abstract class GameSession {
     }
 
     // Tries to restore previous session (if possible)
-    protected final boolean loadSessionCookies(final boolean remember, String cookieName) {
+    protected final boolean loadSessionCookies(final boolean remember, final String cookieName) {
+        if (cookieName == null) {
+            throw new NullPointerException("cookieName");
+        }
         cookieJar.removeAll();
         if (remember && passwordIsSame()) {
             this.loadCookies();

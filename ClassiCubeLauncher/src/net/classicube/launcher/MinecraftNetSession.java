@@ -10,9 +10,9 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Provides all functionality specific to Minecraft.net:
+// Signing in, parsing play links, getting server list, getting server details.
 final class MinecraftNetSession extends GameSession {
-
-    private static final String HOMEPAGE_URL = "http://minecraft.net/";
 
     public MinecraftNetSession() {
         super(GameServiceType.MinecraftNetService);
@@ -45,6 +45,9 @@ final class MinecraftNetSession extends GameSession {
 
     @Override
     public SignInTask signInAsync(final UserAccount account, final boolean remember) {
+        if (account == null) {
+            throw new NullPointerException("account");
+        }
         this.account = account;
         return new SignInWorker(remember);
     }
@@ -61,9 +64,6 @@ final class MinecraftNetSession extends GameSession {
             LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.SignInWorker");
             boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
 
-            // "publish" can be used to send text status updates to the GUI (not hooked up)
-            this.publish("Connecting to Minecraft.net");
-
             // download the login page
             String loginPage = HttpUtil.downloadString(LOGIN_URL);
             if (loginPage == null) {
@@ -76,13 +76,13 @@ final class MinecraftNetSession extends GameSession {
                 final String actualPlayerName = loginMatch.group(1);
                 if (remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account: reuse a previous session
-                    account.playerName = actualPlayerName;
                     if (loginPage.contains(CHALLENGE_MESSAGE)) {
                         SignInResult result = handleChallengeQuestions(loginPage);
                         if (result != SignInResult.SUCCESS) {
                             return result;
                         }
                     }
+                    account.playerName = actualPlayerName; // correct capitalization (if needed)
                     LogUtil.getLogger().log(Level.INFO, "Restored session for {0}", account.playerName);
                     storeCookies();
                     return SignInResult.SUCCESS;
@@ -130,7 +130,6 @@ final class MinecraftNetSession extends GameSession {
             requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            this.publish("Signing in...");
             String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
@@ -144,7 +143,6 @@ final class MinecraftNetSession extends GameSession {
             }
 
             // Confirm that we are now logged in
-            // TODO: handle challenge questions
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
@@ -169,8 +167,12 @@ final class MinecraftNetSession extends GameSession {
         }
     }
 
-    SignInResult handleChallengeQuestions(String page) throws SignInException {
-        LogUtil.getLogger().log(Level.INFO, "");
+    SignInResult handleChallengeQuestions(final String page)
+            throws SignInException {
+        if (page == null) {
+            throw new NullPointerException("page");
+        }
+        LogUtil.getLogger().log(Level.FINE, "Minecraft.net asked a challenge question.");
         final Matcher challengeMatch = challengeQuestionRegex.matcher(page);
         final Matcher challengeAuthTokenMatch = authTokenRegex.matcher(page);
         final Matcher challengeQuestionIdMatch = challengeQuestionIdRegex.matcher(page);
@@ -196,7 +198,7 @@ final class MinecraftNetSession extends GameSession {
         challengeRequestStr.append(urlEncode(authToken));
         challengeRequestStr.append("&questionId=");
         challengeRequestStr.append(questionId);
-        String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString());
+        final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString());
         if (response == null) {
             return SignInResult.CONNECTION_ERROR;
         } else if (response.contains(CHALLENGE_FAILED_MESSAGE)) {
@@ -350,7 +352,8 @@ final class MinecraftNetSession extends GameSession {
     //                                                                                           ETC
     // =============================================================================================
     private static final String SKIN_URL = "http://s3.amazonaws.com/MinecraftSkins/",
-            PLAY_URL = "http://minecraft.net/classic/play/";
+            PLAY_URL = "http://minecraft.net/classic/play/",
+            HOMEPAGE_URL = "http://minecraft.net/";
 
     @Override
     public String getSkinUrl() {

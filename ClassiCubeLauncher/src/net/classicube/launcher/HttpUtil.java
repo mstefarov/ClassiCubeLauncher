@@ -49,9 +49,11 @@ final class HttpUtil {
         LogUtil.getLogger().log(Level.FINE, "{0} {1}",
                 new Object[]{dataString == null ? "GET" : "POST", urlString});
         HttpURLConnection connection = null;
-        byte[] data = null;
+        final byte[] data;
         if (dataString != null) {
             data = dataString.getBytes();
+        } else {
+            data = null;
         }
 
         try {

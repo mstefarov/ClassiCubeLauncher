@@ -28,7 +28,7 @@ public final class ServerListEntry {
 
     public static String toCountryName(final String countryCode) {
         if (countryCode == null) {
-            throw new NullPointerException("s");
+            throw new NullPointerException("countryCode");
         }
         final Locale l = new Locale("EN", countryCode);
         return l.getDisplayCountry();

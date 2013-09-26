@@ -24,8 +24,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
 
-// TODO: download resource files for client from
-// https://github.com/andrewphorn/ClassiCube-Client/blob/master/src/main/java/com/mojang/minecraft/ResourceDownloadThread.java#L100-L107
+// Handles downloading and deployment of client updates,
+// as well as resource files used by the client.
 public final class ClientUpdateTask
         extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
 
@@ -53,11 +53,11 @@ public final class ClientUpdateTask
         }
 
         this.digest = MessageDigest.getInstance("SHA1");
-        Logger logger = LogUtil.getLogger();
+        final Logger logger = LogUtil.getLogger();
 
         // step 1: build up file list
         logger.log(Level.INFO, "Checking for updates.");
-        List<FileToDownload> files = pickBinariesToDownload();
+        final List<FileToDownload> files = pickBinariesToDownload();
         files.addAll(pickResourcesToDownload());
 
         if (files.isEmpty()) {
@@ -94,11 +94,13 @@ public final class ClientUpdateTask
         }
 
         verifyFiles(files);
-
         return true;
     }
 
     private static String listFileNames(final List<FileToDownload> files) {
+        if (files == null) {
+            throw new NullPointerException("files");
+        }
         final StringBuilder sb = new StringBuilder();
         String sep = "";
         for (final FileToDownload s : files) {
@@ -121,14 +123,16 @@ public final class ClientUpdateTask
         "sound/step/stone2.ogg", "sound/step/stone3.ogg", "sound/step/stone4.ogg",
         "sound/step/wood1.ogg", "sound/step/wood2.ogg", "sound/step/wood3.ogg",
         "sound/step/wood4.ogg"};
-    private final static String RESOURCE_DOWNLOAD_URL = "http://s3.amazonaws.com/MinecraftResources/";
+    public static final String FILE_INDEX_URL = "http://www.classicube.net/static/client/version",
+            RESOURCE_DOWNLOAD_URL = "http://s3.amazonaws.com/MinecraftResources/";
 
-    private List<FileToDownload> pickResourcesToDownload() throws IOException {
+    private List<FileToDownload> pickResourcesToDownload()
+            throws IOException {
         final List<FileToDownload> files = new ArrayList<>();
 
         final File resDir = new File(PathUtil.getClientDir(), "resources");
-        for (String resFileName : resourceFiles) {
-            File resFile = new File(resDir, resFileName);
+        for (final String resFileName : resourceFiles) {
+            final File resFile = new File(resDir, resFileName);
             if (!resFile.exists()) {
                 files.add(new FileToDownload(RESOURCE_DOWNLOAD_URL, resFileName, resFile));
             }
@@ -136,14 +140,15 @@ public final class ClientUpdateTask
         return files;
     }
 
-    private List<FileToDownload> pickBinariesToDownload() throws IOException {
-        List<FileToDownload> filesToDownload = new ArrayList<>();
-        List<FileToDownload> localFiles = listBinaries();
-        HashMap<String, RemoteFile> remoteFiles = getRemoteIndex();
+    private List<FileToDownload> pickBinariesToDownload()
+            throws IOException {
+        final List<FileToDownload> filesToDownload = new ArrayList<>();
+        final List<FileToDownload> localFiles = listBinaries();
+        final HashMap<String, RemoteFile> remoteFiles = getRemoteIndex();
 
-        for (FileToDownload localFile : localFiles) {
+        for (final FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
-            RemoteFile remoteFile = remoteFiles.get(localFile.remoteUrl);
+            final RemoteFile remoteFile = remoteFiles.get(localFile.remoteUrl);
             boolean isLzma = localFile.localName.getName().equals(SharedUpdaterCode.LZMA_JAR_NAME);
             boolean download = false;
             if (!localFile.localName.exists()) {
@@ -159,7 +164,7 @@ public final class ClientUpdateTask
             } else if (!isLzma) {
                 if (remoteFile != null) {
                     try {
-                        String localHash = computeLocalHash(localFile.localName);
+                        final String localHash = computeLocalHash(localFile.localName);
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
@@ -167,7 +172,7 @@ public final class ClientUpdateTask
                                     new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
                             download = true;
                         }
-                    } catch (IOException ex) {
+                    } catch (final IOException ex) {
                         LogUtil.getLogger().log(Level.SEVERE,
                                 "Error computing hash of a local file", ex);
                     }
@@ -184,7 +189,8 @@ public final class ClientUpdateTask
         return filesToDownload;
     }
 
-    private List<FileToDownload> listBinaries() throws IOException {
+    private List<FileToDownload> listBinaries()
+            throws IOException {
         final List<FileToDownload> files = new ArrayList<>();
 
         final File clientDir = PathUtil.getClientDir();
@@ -217,20 +223,20 @@ public final class ClientUpdateTask
     }
 
     private HashMap<String, RemoteFile> getRemoteIndex() {
-        String hashIndex = HttpUtil.downloadString("http://www.classicube.net/static/client/version");
-        HashMap<String, RemoteFile> remoteFiles = new HashMap<>();
+        final String hashIndex = HttpUtil.downloadString(FILE_INDEX_URL);
+        final HashMap<String, RemoteFile> remoteFiles = new HashMap<>();
 
         // special treatment for LZMA
-        RemoteFile lzmaFile = new RemoteFile();
+        final RemoteFile lzmaFile = new RemoteFile();
         lzmaFile.name = SharedUpdaterCode.LZMA_JAR_NAME;
         lzmaFile.length = 7187;
         lzmaFile.hash = "N/A";
         remoteFiles.put(lzmaFile.name.toLowerCase(), lzmaFile);
 
         // the rest of the files
-        for (String line : hashIndex.split("\\r?\\n")) {
-            String[] components = line.split(" ");
-            RemoteFile file = new RemoteFile();
+        for (final String line : hashIndex.split("\\r?\\n")) {
+            final String[] components = line.split(" ");
+            final RemoteFile file = new RemoteFile();
             file.name = components[0];
             file.length = Long.parseLong(components[1]);
             file.hash = components[2].toLowerCase();
@@ -244,8 +250,8 @@ public final class ClientUpdateTask
         if (clientJar == null) {
             throw new NullPointerException("clientJar");
         }
-        try (ZipFile zipFile = new ZipFile(clientJar)) {
-            ZipEntry manifest = zipFile.getEntry("META-INF/MANIFEST.MF");
+        try (final ZipFile zipFile = new ZipFile(clientJar)) {
+            final ZipEntry manifest = zipFile.getEntry("META-INF/MANIFEST.MF");
             if (manifest == null) {
                 return "<none>";
             }
@@ -262,8 +268,11 @@ public final class ClientUpdateTask
         return padLeft(hashString, '0', 40);
     }
 
-    private static String padLeft(String s, char c, int n) {
-        StringBuilder sb = new StringBuilder();
+    private static String padLeft(final String s, final char c, final int n) {
+        if (s == null) {
+            throw new NullPointerException("s");
+        }
+        final StringBuilder sb = new StringBuilder();
         for (int toPrepend = n - s.length(); toPrepend > 0; toPrepend--) {
             sb.append(c);
         }
@@ -355,7 +364,7 @@ public final class ClientUpdateTask
         }
         LogUtil.getLogger().log(Level.FINE, "extractNatives({0})", jarPath.getName());
 
-        File nativeFolder = new File(PathUtil.getClientDir(), "natives");
+        final File nativeFolder = new File(PathUtil.getClientDir(), "natives");
 
         if (!nativeFolder.exists() && !nativeFolder.mkdirs()) {
             throw new IOException("Unable to make directory " + nativeFolder);
@@ -413,7 +422,7 @@ public final class ClientUpdateTask
     }
 
     private void signalDownloadProgress() {
-        int overallProgress = (this.activeFileNumber * 100) / totalFiles;
+        final int overallProgress = (this.activeFileNumber * 100) / totalFiles;
         final String fileName = activeFile.localName.getName();
         final String status = "Preparing to download...";
         this.publish(new ProgressUpdate(fileName, status, overallProgress));
@@ -467,8 +476,11 @@ public final class ClientUpdateTask
         }
     }
 
-    private void verifyFiles(List<FileToDownload> files) {
-        for (FileToDownload file : files) {
+    private void verifyFiles(final List<FileToDownload> files) {
+        if (files == null) {
+            throw new NullPointerException("files");
+        }
+        for (final FileToDownload file : files) {
             if (!file.localName.exists()) {
                 throw new RuntimeException("Update process failed: ");
             }
@@ -502,12 +514,18 @@ public final class ClientUpdateTask
     public final static class ProgressUpdate {
 
         public String fileName;
-        public String status;
+        public String statusString;
         public int progress;
 
-        public ProgressUpdate(final String action, final String status, final int progress) {
-            this.fileName = action;
-            this.status = status;
+        public ProgressUpdate(final String fileName, final String statusString, final int progress) {
+            if (fileName == null) {
+                throw new NullPointerException("fileName");
+            }
+            if (statusString == null) {
+                throw new NullPointerException("statusString");
+            }
+            this.fileName = fileName;
+            this.statusString = statusString;
             this.progress = progress;
         }
     }

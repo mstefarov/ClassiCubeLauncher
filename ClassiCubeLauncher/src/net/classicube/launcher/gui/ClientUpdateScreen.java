@@ -77,7 +77,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
             this.progress.setValue(dl.progress);
         }
         this.lFileName.setText(dl.fileName);
-        this.lStats.setText(dl.status);
+        this.lStats.setText(dl.statusString);
     }
 
     public void onUpdateDone(final boolean updatesApplied) {

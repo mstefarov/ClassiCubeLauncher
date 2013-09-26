@@ -5,7 +5,6 @@ import net.classicube.launcher.gui.SignInScreen;
 import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel; // TODO investigate javax.swing.plaf.nimbus.NimbusLookAndFeel
 import java.awt.Color;
 import java.awt.Font;
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import javax.swing.UIDefaults;
@@ -21,8 +20,8 @@ public final class EntryPoint {
         try {
             SharedUpdaterCode.getLauncherDir();
             LogUtil.init();
-        
-        } catch (IOException ex) {
+
+        } catch (final IOException ex) {
             ErrorScreen.show(null, "Error starting ClassiCube",
                     "Could not create data directory for launcher.", ex);
             System.exit(0);
@@ -36,10 +35,10 @@ public final class EntryPoint {
             UIManager.setLookAndFeel(new NimbusLookAndFeel() {
                 @Override
                 public UIDefaults getDefaults() {
-                    Color ccLight = new Color(153, 128, 173);
-                    Color ccBorder = new Color(97, 81, 110);
-                    UIDefaults ret = super.getDefaults();
-                    Font font = new Font(Font.SANS_SERIF, Font.BOLD, 13);
+                    final Color ccLight = new Color(153, 128, 173);
+                    final Color ccBorder = new Color(97, 81, 110);
+                    final UIDefaults ret = super.getDefaults();
+                    final Font font = new Font(Font.SANS_SERIF, Font.BOLD, 13);
                     ret.put("Button.font", font);
                     ret.put("ToggleButton.font", font);
                     ret.put("Button.textForeground", Color.WHITE);

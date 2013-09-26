@@ -37,7 +37,7 @@ public final class UserAccount {
         this.playerName = prefs.get("PlayerName", null);
         if (Prefs.getRememberPasswords()) {
             this.password = prefs.get("Password", "");
-        }else{
+        } else {
             this.password = "";
         }
         final long dateTicks = prefs.getLong("SignInDate", 0);
@@ -69,7 +69,8 @@ public final class UserAccount {
     }
     private static final UserAccountDateComparator comparatorInstance = new UserAccountDateComparator();
 
-    private static class UserAccountDateComparator implements Comparator<UserAccount>, Serializable {
+    private static class UserAccountDateComparator
+            implements Comparator<UserAccount>, Serializable {
         @Override
         public int compare(final UserAccount o1, final UserAccount o2) {
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();
