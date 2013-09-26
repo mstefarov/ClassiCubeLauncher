@@ -45,7 +45,7 @@ final public class ClientLauncher {
                     SessionManager.getSession().getSkinUrl(),
                     Boolean.toString(Prefs.getFullscreen()));
             processBuilder.directory(PathUtil.getClientDir());
-            processBuilder.inheritIO();
+            //processBuilder.inheritIO();
 
             LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
             final Process p = processBuilder.start();
