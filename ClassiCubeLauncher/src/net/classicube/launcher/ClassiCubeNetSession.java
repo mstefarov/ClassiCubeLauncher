@@ -208,10 +208,11 @@ final class ClassiCubeNetSession extends GameSession {
             + "www.classicube.net/server/play/" // host+path
             + "([0-9a-fA-F]{28,32})/?" + // hash
             "(\\?override=(true|1))?$"; // override
-    private static final String IP_PORT_URL_PATTERN = "^https?://" // scheme
+    private static final String IP_PORT_URL_PATTERN = "^http://" // scheme
             + "www.classicube.net/server/play/?" // host+path
             + "\\?ip=(localhost|(\\d{1,3}\\.){3}\\d{1,3}|([a-zA-Z0-9\\-]+\\.)+([a-zA-Z0-9\\-]+))" // host/IP
-            + "&port=(\\d{1,5})$"; // port
+            + "&port=(\\d{1,5})" // port
+            + "(&mppass=(.+))?$"; // optional mppass
     private static final Pattern playHashUrlRegex = Pattern.compile(PLAY_HASH_URL_PATTERN),
             ipPortUrlRegex = Pattern.compile(IP_PORT_URL_PATTERN);
 
@@ -238,7 +239,8 @@ final class ClassiCubeNetSession extends GameSession {
         final Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
         if (ipPortUrlMatch.matches()) {
             final ServerJoinInfo result = new ServerJoinInfo();
-            result.signInNeeded = true;
+            String mppass = ipPortUrlMatch.group(7);
+            result.signInNeeded = (mppass != null);
             try {
                 result.address = InetAddress.getByName(ipPortUrlMatch.group(1));
             } catch (final UnknownHostException ex) {
