@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -23,6 +24,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
 
+// TODO: download resource files for client from
+// https://github.com/andrewphorn/ClassiCube-Client/blob/master/src/main/java/com/mojang/minecraft/ResourceDownloadThread.java#L100-L107
 public final class ClientUpdateTask
         extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
 
@@ -54,7 +57,8 @@ public final class ClientUpdateTask
 
         // step 1: build up file list
         logger.log(Level.INFO, "Checking for updates.");
-        List<FileToDownload> files = pickFilesToDownload();
+        List<FileToDownload> files = pickBinariesToDownload();
+        files.addAll(pickResourcesToDownload());
 
         if (files.isEmpty()) {
             logger.log(Level.INFO, "No updates needed.");
@@ -94,38 +98,6 @@ public final class ClientUpdateTask
         return true;
     }
 
-    private List<FileToDownload> findFilesToDownload() throws IOException {
-        final List<FileToDownload> files = new ArrayList<>();
-
-        final File clientDir = PathUtil.getClientDir();
-        final File launcherDir = SharedUpdaterCode.getLauncherDir();
-
-        files.add(new FileToDownload(
-                "lzma.jar",
-                new File(launcherDir, "lzma.jar")));
-
-        files.add(new FileToDownload(
-                "launcher.jar.pack.lzma",
-                new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
-
-        files.add(new FileToDownload(
-                "client.jar.pack.lzma",
-                new File(clientDir, "client.jar")));
-
-        files.add(new FileToDownload(
-                "lwjgl.jar.pack.lzma",
-                new File(clientDir, "libs/lwjgl.jar")));
-        files.add(new FileToDownload(
-                "lwjgl_util.jar.pack.lzma",
-                new File(clientDir, "libs/lwjgl_util.jar")));
-        files.add(new FileToDownload(
-                "jinput.jar.pack.lzma",
-                new File(clientDir, "libs/jinput.jar")));
-        files.add(pickNativeDownload());
-
-        return files;
-    }
-
     private static String listFileNames(final List<FileToDownload> files) {
         final StringBuilder sb = new StringBuilder();
         String sep = "";
@@ -140,10 +112,33 @@ public final class ClientUpdateTask
     // =============================================================================================
     private MessageDigest digest;
     private final byte[] ioBuffer = new byte[64 * 1024];
+    private final static String[] resourceFiles = new String[]{
+        "music/calm1.ogg", "music/calm2.ogg", "music/calm3.ogg",
+        "newmusic/hal1.ogg", "newmusic/hal2.ogg", "newmusic/hal3.ogg", "newmusic/hal4.ogg",
+        "sound/step/grass1.ogg", "sound/step/grass2.ogg", "sound/step/grass3.ogg",
+        "sound/step/grass4.ogg", "sound/step/gravel1.ogg", "sound/step/gravel2.ogg",
+        "sound/step/gravel3.ogg", "sound/step/gravel4.ogg", "sound/step/stone1.ogg",
+        "sound/step/stone2.ogg", "sound/step/stone3.ogg", "sound/step/stone4.ogg",
+        "sound/step/wood1.ogg", "sound/step/wood2.ogg", "sound/step/wood3.ogg",
+        "sound/step/wood4.ogg"};
+    private final static String RESOURCE_DOWNLOAD_URL = "http://s3.amazonaws.com/MinecraftResources/";
 
-    private List<FileToDownload> pickFilesToDownload() throws IOException {
+    private List<FileToDownload> pickResourcesToDownload() throws IOException {
+        final List<FileToDownload> files = new ArrayList<>();
+
+        final File resDir = new File(PathUtil.getClientDir(), "resources");
+        for (String resFileName : resourceFiles) {
+            File resFile = new File(resDir, resFileName);
+            if (!resFile.exists()) {
+                files.add(new FileToDownload(RESOURCE_DOWNLOAD_URL, resFileName, resFile));
+            }
+        }
+        return files;
+    }
+
+    private List<FileToDownload> pickBinariesToDownload() throws IOException {
         List<FileToDownload> filesToDownload = new ArrayList<>();
-        List<FileToDownload> localFiles = findFilesToDownload();
+        List<FileToDownload> localFiles = listBinaries();
         HashMap<String, RemoteFile> remoteFiles = getRemoteIndex();
 
         for (FileToDownload localFile : localFiles) {
@@ -189,6 +184,38 @@ public final class ClientUpdateTask
         return filesToDownload;
     }
 
+    private List<FileToDownload> listBinaries() throws IOException {
+        final List<FileToDownload> files = new ArrayList<>();
+
+        final File clientDir = PathUtil.getClientDir();
+        final File launcherDir = SharedUpdaterCode.getLauncherDir();
+
+        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+                "lzma.jar",
+                new File(launcherDir, "lzma.jar")));
+
+        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+                "launcher.jar.pack.lzma",
+                new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
+
+        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+                "client.jar.pack.lzma",
+                new File(clientDir, "client.jar")));
+
+        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+                "lwjgl.jar.pack.lzma",
+                new File(clientDir, "libs/lwjgl.jar")));
+        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+                "lwjgl_util.jar.pack.lzma",
+                new File(clientDir, "libs/lwjgl_util.jar")));
+        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+                "jinput.jar.pack.lzma",
+                new File(clientDir, "libs/jinput.jar")));
+        files.add(pickNativeDownload());
+
+        return files;
+    }
+
     private HashMap<String, RemoteFile> getRemoteIndex() {
         String hashIndex = HttpUtil.downloadString("http://www.classicube.net/static/client/version");
         HashMap<String, RemoteFile> remoteFiles = new HashMap<>();
@@ -232,13 +259,13 @@ public final class ClientUpdateTask
         }
         final byte[] localHashBytes = digest.digest();
         final String hashString = new BigInteger(1, localHashBytes).toString(16);
-        return padLeft(hashString, 40);
+        return padLeft(hashString, '0', 40);
     }
 
-    private static String padLeft(String s, int n) {
+    private static String padLeft(String s, char c, int n) {
         StringBuilder sb = new StringBuilder();
         for (int toPrepend = n - s.length(); toPrepend > 0; toPrepend--) {
-            sb.append('0');
+            sb.append(c);
         }
         sb.append(s);
         return sb.toString();
@@ -265,7 +292,7 @@ public final class ClientUpdateTask
         final String remoteName = osName + "_natives.jar";
         final File localPath = new File(PathUtil.getClientDir(),
                 "natives/" + osName + "_natives.jar");
-        return new FileToDownload(remoteName, localPath);
+        return new FileToDownload(SharedUpdaterCode.BASE_URL, remoteName, localPath);
     }
 
     private File downloadFile(final FileToDownload file)
@@ -274,7 +301,13 @@ public final class ClientUpdateTask
             throw new NullPointerException("file");
         }
         final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
-        final URL website = new URL(SharedUpdaterCode.BASE_URL + file.remoteUrl);
+        final URL website = new URL(file.baseUrl + file.remoteUrl);
+
+        if (file.remoteLength == 0) {
+            final URLConnection connection = website.openConnection();
+            file.remoteLength = connection.getContentLength();
+        }
+        signalDownloadPercent(0, file.remoteLength);
 
         try (final InputStream siteIn = website.openStream()) {
             try (final FileOutputStream fileOut = new FileOutputStream(tempFile)) {
@@ -447,11 +480,13 @@ public final class ClientUpdateTask
     // =============================================================================================
     private final static class FileToDownload {
 
+        public final String baseUrl;
         public final String remoteUrl;
         public final File localName;
         public long remoteLength;
 
-        public FileToDownload(final String remoteName, final File localName) {
+        public FileToDownload(final String baseUrl, final String remoteName, final File localName) {
+            this.baseUrl = baseUrl;
             this.remoteUrl = remoteName;
             this.localName = localName;
         }
