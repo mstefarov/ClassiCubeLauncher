@@ -10,7 +10,10 @@ import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import javax.swing.JOptionPane;
 
 public class Program {
@@ -31,6 +34,8 @@ public class Program {
         }
         launcherJar = new File(launcherDir, LAUNCHER_JAR_NAME);
         final File newLauncherJar = new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME);
+        
+        initLogging();
 
         if (newLauncherJar.exists()) {
             replaceFile(newLauncherJar, launcherJar);
@@ -42,6 +47,18 @@ public class Program {
         }
 
         startLauncher(launcherJar);
+    }
+
+    private static void initLogging() {
+        logger.setLevel(Level.ALL);
+        final File logFile = new File(launcherDir, "selfupdater.log");
+        try {
+            final FileHandler handler = new FileHandler(logFile.getAbsolutePath());
+            handler.setFormatter(new SimpleFormatter());
+            logger.addHandler(handler);
+        } catch (final IOException | SecurityException ex) {
+            fatalError("Could not create log file.");
+        }
     }
 
     private static void downloadLauncher() {
@@ -61,26 +78,26 @@ public class Program {
         }
     }
 
-    private static void startLauncher(File launcherJar) {
+    private static void startLauncher(final File launcherJar) {
         try {
             final Class<?> lpClass = loadLauncher(launcherJar);
             final Method entryPoint = lpClass.getMethod(LauncherEntryMethod, String[].class);
             entryPoint.invoke(null, (Object) new String[0]);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             final String message = "Could not start the ClassiCube launcher. Details:<br>" + ex;
             fatalError(message);
         }
     }
 
     // Load the entry point from launcher's jar
-    private static Class<?> loadLauncher(File launcherJar)
+    private static Class<?> loadLauncher(final File launcherJar)
             throws IOException, ClassNotFoundException {
         final URL[] urls = {new URL("jar:file:" + launcherJar + "!/")};
         final URLClassLoader loader = URLClassLoader.newInstance(urls);
         return loader.loadClass(LauncherEntryClass);
     }
 
-    private static File downloadFile(String remoteName) {
+    private static File downloadFile(final String remoteName) {
         try {
             final File tempFile = File.createTempFile(remoteName, ".downloaded");
             final URL website = new URL(SharedUpdaterCode.BASE_URL + remoteName);
@@ -99,7 +116,7 @@ public class Program {
     }
 
     // Replace contents of destFile with sourceFile
-    private static void replaceFile(File sourceFile, File destFile) {
+    private static void replaceFile(final File sourceFile, final File destFile) {
         try {
             destFile.createNewFile();
 
@@ -110,7 +127,7 @@ public class Program {
             }
 
             sourceFile.delete();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             final String message = String.format(
                     "Error deploying launcher component \"%s\". Details:<br>%s",
                     new Object[]{destFile.getName(), ex});
