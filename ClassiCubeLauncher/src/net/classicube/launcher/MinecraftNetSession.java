@@ -78,7 +78,10 @@ final class MinecraftNetSession extends GameSession {
                     // If player is already logged in with the right account: reuse a previous session
                     account.playerName = actualPlayerName;
                     if (loginPage.contains(CHALLENGE_MESSAGE)) {
-                        return handleChallengeQuestions(loginPage);
+                        SignInResult result = handleChallengeQuestions(loginPage);
+                        if (result != SignInResult.SUCCESS) {
+                            return result;
+                        }
                     }
                     LogUtil.getLogger().log(Level.INFO, "Restored session for {0}", account.playerName);
                     storeCookies();
@@ -91,7 +94,7 @@ final class MinecraftNetSession extends GameSession {
                             "Switching accounts from {0} to {1}",
                             new Object[]{actualPlayerName, account.playerName});
                     HttpUtil.downloadString(LOGOUT_URL);
-                    clearCookies();
+                    clearStoredSession();
                     loginPage = HttpUtil.downloadString(LOGIN_URL);
                 }
             } else if (restoredSession) {
@@ -99,8 +102,7 @@ final class MinecraftNetSession extends GameSession {
                 LogUtil.getLogger().log(Level.WARNING,
                         "Failed to restore session at Minecraft.net; retrying.");
                 HttpUtil.downloadString(LOGOUT_URL);
-                clearCookies();
-                storeCookies();
+                clearStoredSession();
                 loginPage = HttpUtil.downloadString(LOGIN_URL);
             }
 
@@ -147,16 +149,20 @@ final class MinecraftNetSession extends GameSession {
             if (responseMatch.find()) {
                 account.playerName = responseMatch.group(1);
                 if (loginResponse.contains(CHALLENGE_MESSAGE)) {
-                    return handleChallengeQuestions(loginResponse);
+                    SignInResult result = handleChallengeQuestions(loginResponse);
+                    if (result != SignInResult.SUCCESS) {
+                        return result;
+                    }
                 }
-                storeCookies();
+                if (remember) {
+                    storeSession();
+                }
                 LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
             } else {
-                clearCookies();
-                storeCookies();
+                clearStoredSession();
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
                 throw new SignInException("Unrecognized response served by minecraft.net");
             }

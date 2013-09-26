@@ -21,7 +21,9 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 // Base class for service-specific handlers.
 public abstract class GameSession {
+
     private static final String COOKIES_NODE_NAME = "Cookies";
+    private static final String LAST_SESSION_NODE_NAME = "LastSession";
     protected Preferences store, cookieStore;
 
     // constructor used by implementations
@@ -56,7 +58,6 @@ public abstract class GameSession {
 
     // Returns service type of this session
     public abstract GameServiceType getServiceType();
-    
 
     public static abstract class SignInTask
             extends SwingWorker<SignInResult, String> {
@@ -236,20 +237,32 @@ public abstract class GameSession {
         CookieManager.setDefault(cm);
     }
 
-    // Clears all stored cookies
-    protected void clearCookies() {
-        cookieJar.removeAll();
+    protected void clearStoredSession() {
+        try {
+            cookieJar.removeAll();
+            storeCookies();
+            Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
+            lastUserNode.removeNode();
+        } catch (final BackingStoreException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error clearing stored session", ex);
+        }
+    }
+
+    protected void storeSession() {
+        storeCookies();
+        Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
+        getAccount().store(lastUserNode);
     }
 
     // Stores all cookies to Preferences
     protected void storeCookies() {
         try {
             this.cookieStore.clear();
+            for (final HttpCookie cookie : cookieJar.getCookies()) {
+                this.cookieStore.put(cookie.getName(), cookie.getValue());
+            }
         } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error storing session", ex);
-        }
-        for (final HttpCookie cookie : cookieJar.getCookies()) {
-            this.cookieStore.put(cookie.getName(), cookie.getValue());
         }
     }
 
@@ -266,8 +279,27 @@ public abstract class GameSession {
         }
     }
 
+    private boolean passwordIsSame() {
+        UserAccount lastSessionAccount = null;
+        Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
+        if (lastUserNode != null) {
+            try {
+                lastSessionAccount = new UserAccount(lastUserNode);
+            } catch (IllegalArgumentException ex) {
+                LogUtil.getLogger().log(Level.WARNING, "Error loading last session information, will relog.", ex);
+            }
+        }
+        String newPassword = getAccount().password;
+        if (lastSessionAccount == null) {
+            return false;
+        } else {
+            String oldPassword = lastSessionAccount.password;
+            return newPassword.equals(oldPassword);
+        }
+    }
+
     // Checks whether a cookie with the given name is stored.
-    protected boolean hasCookie(final String name) {
+    private boolean hasCookie(final String name) {
         if (name == null) {
             throw new NullPointerException("name");
         }
@@ -279,12 +311,11 @@ public abstract class GameSession {
         }
         return false;
     }
-    
 
     // Tries to restore previous session (if possible)
     protected final boolean loadSessionCookies(final boolean remember, String cookieName) {
-        clearCookies();
-        if (remember) {
+        cookieJar.removeAll();
+        if (remember && passwordIsSame()) {
             this.loadCookies();
             if (hasCookie(cookieName)) {
                 LogUtil.getLogger().log(Level.FINE, "Loaded saved session.");
@@ -297,7 +328,6 @@ public abstract class GameSession {
         }
         return false;
     }
-    
     // =============================================================================================
     //                                                                                         UTILS
     // =============================================================================================

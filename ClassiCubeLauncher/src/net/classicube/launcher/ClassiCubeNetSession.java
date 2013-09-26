@@ -75,9 +75,7 @@ final class ClassiCubeNetSession extends GameSession {
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
                 final String actualPlayerName = loginMatch.group(1);
-                if (remember
-                        && hasCookie(COOKIE_NAME)
-                        && actualPlayerName.equalsIgnoreCase(account.playerName)) {
+                if (remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account:
                     // reuse a previous session
                     account.playerName = actualPlayerName;
@@ -93,8 +91,7 @@ final class ClassiCubeNetSession extends GameSession {
                             "Switching accounts from {0} to {1}",
                             new Object[]{actualPlayerName, account.playerName});
                     HttpUtil.downloadString(LOGOUT_URL);
-                    clearCookies();
-                    storeCookies();
+                    clearStoredSession();
                     loginPage = HttpUtil.downloadString(LOGIN_URL);
                 }
 
@@ -103,8 +100,7 @@ final class ClassiCubeNetSession extends GameSession {
                 LogUtil.getLogger().log(Level.WARNING,
                         "Failed to restore session at ClassiCube.net; retrying.");
                 HttpUtil.downloadString(LOGOUT_URL);
-                clearCookies();
-                storeCookies();
+                clearStoredSession();
                 loginPage = HttpUtil.downloadString(LOGIN_URL);
             }
 
@@ -148,7 +144,9 @@ final class ClassiCubeNetSession extends GameSession {
             if (responseMatch.find()) {
                 // Signed in successfully
                 account.playerName = responseMatch.group(1);
-                storeCookies();
+                if (remember) {
+                    storeSession();
+                }
                 LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
@@ -156,8 +154,7 @@ final class ClassiCubeNetSession extends GameSession {
 
             } else {
                 // Still not signed in. Something is wrong.
-                clearCookies();
-                storeCookies();
+                clearStoredSession();
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
                 throw new SignInException("Unrecognized response served by ClassiCube.net");
             }
@@ -239,8 +236,8 @@ final class ClassiCubeNetSession extends GameSession {
         final Matcher ipPortUrlMatch = ipPortUrlRegex.matcher(url);
         if (ipPortUrlMatch.matches()) {
             final ServerJoinInfo result = new ServerJoinInfo();
-            String mppass = ipPortUrlMatch.group(7);
-            result.signInNeeded = (mppass != null);
+            result.pass = ipPortUrlMatch.group(7);
+            result.signInNeeded = (result.pass != null);
             try {
                 result.address = InetAddress.getByName(ipPortUrlMatch.group(1));
             } catch (final UnknownHostException ex) {
