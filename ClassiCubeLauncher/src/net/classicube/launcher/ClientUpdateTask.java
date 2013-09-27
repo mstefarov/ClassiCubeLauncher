@@ -48,10 +48,6 @@ public final class ClientUpdateTask
     @Override
     protected Boolean doInBackground()
             throws Exception {
-        if (Prefs.getUpdateMode() == UpdateMode.DISABLED) {
-            return true;
-        }
-
         this.digest = MessageDigest.getInstance("SHA1");
         final Logger logger = LogUtil.getLogger();
 
@@ -145,6 +141,7 @@ public final class ClientUpdateTask
         final List<FileToDownload> filesToDownload = new ArrayList<>();
         final List<FileToDownload> localFiles = listBinaries();
         final HashMap<String, RemoteFile> remoteFiles = getRemoteIndex();
+        final boolean updateExistingFiles = (Prefs.getUpdateMode() != UpdateMode.DISABLED);
 
         for (final FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
@@ -161,7 +158,7 @@ public final class ClientUpdateTask
                 } else {
                     throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" does not exist.");
                 }
-            } else if (!isLzma) {
+            } else if (updateExistingFiles && !isLzma) {
                 if (remoteFile != null) {
                     try {
                         final String localHash = computeLocalHash(localFile.localName);

@@ -30,13 +30,9 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
         if (joinInfo == null) {
             throw new NullPointerException("info");
         }
-        if (Prefs.getUpdateMode() != UpdateMode.DISABLED) {
-            ClientUpdateScreen sc = new ClientUpdateScreen(joinInfo);
-            sc.setVisible(true);
-            ClientUpdateTask.getInstance().registerUpdateScreen(sc);
-        } else {
-            ClientLauncher.launchClient(joinInfo);
-        }
+        ClientUpdateScreen sc = new ClientUpdateScreen(joinInfo);
+        sc.setVisible(true);
+        ClientUpdateTask.getInstance().registerUpdateScreen(sc);
     }
 
     private ClientUpdateScreen(final ServerJoinInfo joinInfo) {
@@ -50,19 +46,25 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
         setLocationRelativeTo(null);
 
         // tweak the UI for auto/notify preference
-        final boolean auto = (Prefs.getUpdateMode() == UpdateMode.AUTOMATIC);
-        if (auto) {
-            lNotice.setText("The game will start as soon as updates are complete.");
-        } else {
-            lNotice.setText("A client update is being installed.");
-            root.setDefaultButton(bPlay);
-            this.desktop = (Desktop.isDesktopSupported() ? Desktop.getDesktop() : null);
-            if (this.desktop != null && !this.desktop.isSupported(Desktop.Action.BROWSE)) {
-                this.desktop = null;
-            }
+        boolean manualAdvance = false;
+        switch (Prefs.getUpdateMode()) {
+            case AUTOMATIC:
+                lNotice.setText("The game will start as soon as updates are complete.");
+                break;
+            case NOTIFY:
+                lNotice.setText("Please wait: a game update is being installed.");
+                root.setDefaultButton(bPlay);
+                this.desktop = (Desktop.isDesktopSupported() ? Desktop.getDesktop() : null);
+                if (this.desktop != null && !this.desktop.isSupported(Desktop.Action.BROWSE)) {
+                    this.desktop = null;
+                }
+                manualAdvance = true;
+                break;
+            case DISABLED:
+                lNotice.setText("The game will start as soon as required files are downloaded.");
         }
-        bPlay.setVisible(!auto);
-        bViewChanges.setVisible(!auto);
+        bPlay.setVisible(manualAdvance);
+        bViewChanges.setVisible(manualAdvance);
         pack();
     }
 
@@ -87,7 +89,9 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
             ClientUpdateTask.getInstance().get();
 
         } catch (final InterruptedException | ExecutionException ex) {
-            ErrorScreen.show(this, "Error updating", ex.getMessage(), ex);
+            ErrorScreen.show(this, "Error updating",
+                    "The game cannot be started because an error occured during the download/update process.",
+                    ex);
             System.exit(3);
             return;
         }
@@ -171,6 +175,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.1;
         getContentPane().add(progress, gridBagConstraints);
 
         lNotice.setForeground(new java.awt.Color(255, 255, 255));
