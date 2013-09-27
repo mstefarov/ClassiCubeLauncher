@@ -10,7 +10,7 @@
   <downloadUrl>http://java.com/download</downloadUrl>
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
-  <manifest></manifest>
+  <manifest>wrapper.manifest</manifest>
   <icon>cc-icon-256.ico</icon>
   <jre>
     <path></path>
@@ -19,4 +19,16 @@
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
   </jre>
+  <versionInfo>
+    <fileVersion>13.9.26.0</fileVersion>
+    <txtFileVersion>Build 4 (2013-09-26)</txtFileVersion>
+    <fileDescription>Game launcher for ClassiCube client</fileDescription>
+    <copyright>ClassiCube.net</copyright>
+    <productVersion>13.9.26.0</productVersion>
+    <txtProductVersion>Build 4 (2013-09-26)</txtProductVersion>
+    <productName>ClassiCube Launcher</productName>
+    <companyName>ClassiCube.net</companyName>
+    <internalName>ClassiCube Launcher</internalName>
+    <originalFilename>ClassiCube.exe</originalFilename>
+  </versionInfo>
 </launch4jConfig>
