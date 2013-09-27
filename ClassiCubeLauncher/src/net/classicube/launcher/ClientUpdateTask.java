@@ -199,7 +199,7 @@ public final class ClientUpdateTask
 
         files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "launcher.jar.pack.lzma",
-                new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
+                new File(launcherDir, "launcher.jar")));
 
         files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "client.jar.pack.lzma",
@@ -332,7 +332,7 @@ public final class ClientUpdateTask
     // =============================================================================================
     //                                                                      POST-DOWNLOAD PROCESSING
     // =============================================================================================
-    private void deployFile(final File processedFile, final File localName) {
+    private void deployFile(final File processedFile, File localName) {
         if (processedFile == null) {
             throw new NullPointerException("processedFile");
         }
@@ -341,11 +341,19 @@ public final class ClientUpdateTask
         }
         LogUtil.getLogger().log(Level.INFO, "deployFile({0})", localName.getName());
         try {
+            // special handling for client.jar
+            if (localName.getName().equalsIgnoreCase("launcher.jar")) {
+                localName = new File(SharedUpdaterCode.getLauncherDir(),
+                        SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME);
+            }
+
             final File parentDir = localName.getCanonicalFile().getParentFile();
             if (!parentDir.exists() && !parentDir.mkdirs()) {
                 throw new IOException("Unable to make directory " + parentDir);
             }
             PathUtil.replaceFile(processedFile, localName);
+
+            // special handling for natives
             if (localName.getName().endsWith("natives.jar")) {
                 extractNatives(localName);
             }
