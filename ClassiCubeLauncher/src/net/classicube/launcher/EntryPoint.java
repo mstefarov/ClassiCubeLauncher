@@ -16,6 +16,8 @@ public final class EntryPoint {
     // This is also called by ClassiCubeSelfUpdater
 
     public static void main(final String[] args) {
+        System.setProperty("java.net.preferIPv4Stack" , "true");
+        
         // Create launcher's data dir and init logger
         try {
             SharedUpdaterCode.getLauncherDir();
