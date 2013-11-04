@@ -11,14 +11,16 @@ public final class Prefs {
             keyRememberServer = "RememberServer",
             keyJavaArgs = "JavaArgs",
             keyMaxMemory = "MaxMemory",
-            keySelectedGameService = "SelectedGameService";
+            keySelectedGameService = "SelectedGameService",
+            keyDebugMode = "DebugMode";
     
     // Defaults
     public final static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
     public final static boolean FullscreenDefault = false,
             RememberUsersDefault = true,
             RememberPasswordsDefault = true,
-            RememberServerDefault = true;
+            RememberServerDefault = true,
+            DebugModeDefault = false;
     public final static String JavaArgsDefault = "-Dorg.lwjgl.util.Debug=true "
             + "-Dsun.java2d.noddraw=true "
             + "-Dsun.awt.noerasebackground=true "
@@ -61,6 +63,10 @@ public final class Prefs {
         return getPrefs().getInt(keyMaxMemory, MaxMemoryDefault);
     }
 
+    public static boolean getDebugMode() {
+        return getPrefs().getBoolean(keyDebugMode, DebugModeDefault);
+    }
+    
     public static GameServiceType getSelectedGameService() {
         try {
             final String val = getPrefs().get(keySelectedGameService, SelectedGameServiceDefault.name());
@@ -97,6 +103,10 @@ public final class Prefs {
 
     public static void setMaxMemory(final int val) {
         getPrefs().putInt(keyMaxMemory, val);
+    }
+
+    public static void setDebugMode(final boolean val) {
+        getPrefs().putBoolean(keyDebugMode, val);
     }
 
     public static void setSelectedGameService(final GameServiceType val) {

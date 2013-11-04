@@ -70,6 +70,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         xRememberServer.setSelected(Prefs.getRememberServer());
         tJavaArgs.setText(Prefs.getJavaArgs());
         nMemory.setValue(Prefs.getMaxMemory());
+        xDebugMode.setSelected(Prefs.getDebugMode());
     }
 
     private void loadUpdateMode(final UpdateMode val) {
@@ -96,6 +97,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         xRememberServer.setSelected(Prefs.RememberServerDefault);
         tJavaArgs.setText(Prefs.JavaArgsDefault);
         nMemory.setValue(Prefs.MaxMemoryDefault);
+        xDebugMode.setSelected(Prefs.DebugModeDefault);
     }
 
     private void storePreferences() {
@@ -106,6 +108,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         Prefs.setRememberServer(xRememberServer.isSelected());
         Prefs.setJavaArgs(tJavaArgs.getText());
         Prefs.setMaxMemory((int) nMemory.getValue());
+        Prefs.setDebugMode(xDebugMode.isSelected());
     }
 
     private UpdateMode storeUpdateMode() {
@@ -217,6 +220,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         bSave = new net.classicube.launcher.gui.JNiceLookingButton();
         bCancel = new net.classicube.launcher.gui.JNiceLookingButton();
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        xDebugMode = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -241,7 +245,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(lUpdateMode, gridBagConstraints);
@@ -252,7 +256,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         getContentPane().add(rUpdateDisabled, gridBagConstraints);
@@ -263,7 +267,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         getContentPane().add(rUpdateNotify, gridBagConstraints);
@@ -274,7 +278,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         getContentPane().add(rUpdateAutomatic, gridBagConstraints);
@@ -309,7 +313,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 7;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bForgetUsers, gridBagConstraints);
 
@@ -336,7 +340,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 8;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bForgetPasswords, gridBagConstraints);
 
@@ -359,7 +363,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 9;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bForgetServer, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -456,6 +460,14 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.weightx = 0.1;
         getContentPane().add(filler1, gridBagConstraints);
 
+        xDebugMode.setText("Debug mode");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        getContentPane().add(xDebugMode, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -480,6 +492,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private javax.swing.JRadioButton rUpdateNotify;
     private javax.swing.ButtonGroup rgUpdateMode;
     private javax.swing.JTextField tJavaArgs;
+    private javax.swing.JCheckBox xDebugMode;
     private javax.swing.JCheckBox xFullscreen;
     private javax.swing.JCheckBox xRememberPasswords;
     private javax.swing.JCheckBox xRememberServer;
