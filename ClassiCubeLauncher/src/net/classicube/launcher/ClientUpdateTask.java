@@ -89,6 +89,7 @@ public final class ClientUpdateTask
             logger.log(Level.INFO, "Updates applied.");
         }
 
+        // confirm that all required files have been downloaded and deployed
         verifyFiles(files);
         return true;
     }
@@ -142,6 +143,11 @@ public final class ClientUpdateTask
         final List<FileToDownload> localFiles = listBinaries();
         final HashMap<String, RemoteFile> remoteFiles = getRemoteIndex();
         final boolean updateExistingFiles = (Prefs.getUpdateMode() != UpdateMode.DISABLED);
+
+        // Getting remote file index failed. Abort update.
+        if (remoteFiles == null) {
+            return localFiles;
+        }
 
         for (final FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
@@ -219,9 +225,15 @@ public final class ClientUpdateTask
         return files;
     }
 
+    // get a list of files available from CC.net
     private HashMap<String, RemoteFile> getRemoteIndex() {
         final String hashIndex = HttpUtil.downloadString(FILE_INDEX_URL);
         final HashMap<String, RemoteFile> remoteFiles = new HashMap<>();
+
+        // if getting the list failed, don't panic. Abort update instead.
+        if (hashIndex == null) {
+            return null;
+        }
 
         // special treatment for LZMA
         final RemoteFile lzmaFile = new RemoteFile();
