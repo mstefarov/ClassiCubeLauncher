@@ -27,17 +27,17 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     private static final String LOGIN_URL = "https://minecraft.net/login",
             LOGOUT_URL = "http://minecraft.net/logout",
-            CHALLENGE_URL = "http://minecraft.net/challenge",
+            CHALLENGE_URL = "https://minecraft.net/challenge",
             MIGRATED_ACCOUNT_MESSAGE = "Your account has been migrated",
             WRONG_USER_OR_PASS_MESSAGE = "Oops, unknown username or password.",
             CHALLENGE_FAILED_MESSAGE = "Could not confirm your identity",
             CHALLENGE_PASSED_MESSAGE = "Security challenge passed",
-            AUTH_TOKEN_PATTERN = "<input type=\"hidden\" name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
+            AUTH_TOKEN_PATTERN = "name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
             LOGGED_IN_AS_PATTERN = "<span class=\"logged-in\">\\s*Logged in as (\\S+) ",
             COOKIE_NAME = "PLAY_SESSION",
             CHALLENGE_MESSAGE = "To confirm your identity, please answer the question below",
             CHALLENGE_QUESTION_PATTERN = "<label for=\"answer\">([^<]+)</label>",
-            CHALLENGE_QUESTION_ID_PATTERN = "<input type=\"hidden\" name=\"questionId\" value=\"(\\d+)\" />";
+            CHALLENGE_QUESTION_ID_PATTERN = "name=\"questionId\" value=\"(\\d+)\" />";
     private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
             loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN),
             challengeQuestionRegex = Pattern.compile(CHALLENGE_QUESTION_PATTERN),
