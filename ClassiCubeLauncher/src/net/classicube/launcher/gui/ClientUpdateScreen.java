@@ -18,8 +18,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
 
-    private static final String RELEASE_NOTES_URL =
-            "https://github.com/andrewphorn/ClassiCube-Client/commits/master";
+    private static final String RELEASE_NOTES_URL = "http://www.classicube.net/forum/viewpost/ir/latest";
     private Desktop desktop;
     private final ServerJoinInfo joinInfo;
 
