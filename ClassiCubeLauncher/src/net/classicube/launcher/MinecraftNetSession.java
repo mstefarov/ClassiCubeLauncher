@@ -206,6 +206,7 @@ final class MinecraftNetSession extends GameSession {
         } else if (response.contains(CHALLENGE_PASSED_MESSAGE)) {
             return SignInResult.SUCCESS;
         } else {
+            LogUtil.getLogger().log(Level.INFO, response);
             throw new SignInException("Could not pass security question: "
                     + "Unrecognized response served by minecraft.net");
         }
