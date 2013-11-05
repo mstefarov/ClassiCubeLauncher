@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import javax.swing.UIDefaults;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager;
+import net.classicube.launcher.gui.DebugWindow;
 
 // Contains initialization code for the whole launcher
 public final class EntryPoint {
@@ -59,6 +60,10 @@ public final class EntryPoint {
             });
         } catch (final UnsupportedLookAndFeelException ex) {
             LogUtil.getLogger().log(Level.WARNING, "Error configuring GUI style", ex);
+        }
+        
+        if(Prefs.getDebugMode()){
+            DebugWindow.Show();
         }
 
         // display the form
