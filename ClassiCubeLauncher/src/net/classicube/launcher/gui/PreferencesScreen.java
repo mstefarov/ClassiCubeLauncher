@@ -461,6 +461,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(filler1, gridBagConstraints);
 
         xDebugMode.setText("Debug mode");
+        xDebugMode.setToolTipText("Enables debug console (requires launcher restart).");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 12;
