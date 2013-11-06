@@ -30,6 +30,15 @@ public class DebugWindow extends javax.swing.JFrame {
         System.setErr(printStream);
     }
 
+    public static void setWindowTitle(final String newTitle) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                instance.setTitle("ClassiCube Log - " + newTitle);
+            }
+        });
+    }
+
     private static class TextAreaOutputStream extends OutputStream {
 
         private final JTextArea textArea;
@@ -91,8 +100,10 @@ public class DebugWindow extends javax.swing.JFrame {
         tConsole.setColumns(80);
         tConsole.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
         tConsole.setForeground(new java.awt.Color(204, 204, 204));
+        tConsole.setLineWrap(true);
         tConsole.setRows(20);
         tConsole.setTabSize(4);
+        tConsole.setWrapStyleWord(true);
         tConsole.setBorder(null);
         tConsole.setCaretColor(new java.awt.Color(255, 255, 255));
         jScrollPane1.setViewportView(tConsole);
