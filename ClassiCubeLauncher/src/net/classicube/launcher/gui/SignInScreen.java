@@ -13,7 +13,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.logging.Level;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -39,7 +38,6 @@ public final class SignInScreen extends javax.swing.JFrame {
 
     private AccountManager accountManager;
     private final ImagePanel bgPanel;
-    private JToggleButton buttonToDisableOnSignIn;
     private UsernameOrPasswordChangedListener fieldChangeListener;
     private GameSession.SignInTask signInTask;
 
@@ -83,7 +81,8 @@ public final class SignInScreen extends javax.swing.JFrame {
         bDirect.setEnabled(false);
         bResume.setEnabled(false);
         bSignIn.setEnabled(false);
-        buttonToDisableOnSignIn.setEnabled(false);
+        bPreferences.setEnabled(false);
+        bChangeService.setEnabled(false);
 
         progress.setVisible(true);
         pack();
@@ -96,41 +95,22 @@ public final class SignInScreen extends javax.swing.JFrame {
         bDirect.setEnabled(true);
         enableResumeIfNeeded();
         checkIfSignInAllowed();
-        buttonToDisableOnSignIn.setEnabled(true);
+        bPreferences.setEnabled(true);
+        bChangeService.setEnabled(true);
 
         progress.setVisible(false);
         pack();
     }
-
-    // =============================================================================================
-    //                                                      MINECRAFT / CLASSICUBE SERVICE SWITCHING
-    // =============================================================================================
-    private void bMinecraftNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bMinecraftNetItemStateChanged
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.getLogger().log(Level.INFO, "[Minecraft.Net]");
-            selectMinecraftNet();
-        }
-    }//GEN-LAST:event_bMinecraftNetItemStateChanged
-
-    private void bClassiCubeNetItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_bClassiCubeNetItemStateChanged
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            LogUtil.getLogger().log(Level.INFO, "[ClassiCube.Net]");
-            selectClassiCubeNet();
-        }
-    }//GEN-LAST:event_bClassiCubeNetItemStateChanged
 
     void selectClassiCubeNet() {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectClassiCube");
         bgPanel.setImage(Resources.getClassiCubeBackground());
         bgPanel.setGradientColor(new Color(124, 104, 141));
         ipLogo.setImage(Resources.getClassiCubeLogo());
-        bMinecraftNet.setEnabled(true);
-        bMinecraftNet.setSelected(false);
-        bClassiCubeNet.setEnabled(false);
-        buttonToDisableOnSignIn = bMinecraftNet;
+
+        bChangeService.setText("Switch to Minecraft.net");
         SessionManager.selectService(GameServiceType.ClassiCubeNetService);
         onAfterServiceChanged();
-
     }
 
     void selectMinecraftNet() {
@@ -138,10 +118,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         bgPanel.setImage(Resources.getMinecraftNetBackground());
         ipLogo.setImage(Resources.getMinecraftNetLogo());
         bgPanel.setGradientColor(new Color(36, 36, 36));
-        bClassiCubeNet.setEnabled(true);
-        bClassiCubeNet.setSelected(false);
-        bMinecraftNet.setEnabled(false);
-        buttonToDisableOnSignIn = bClassiCubeNet;
+        bChangeService.setText("Switch to ClassiCube");
         SessionManager.selectService(GameServiceType.MinecraftNetService);
         onAfterServiceChanged();
     }
@@ -192,15 +169,15 @@ public final class SignInScreen extends javax.swing.JFrame {
         // Get ready to handle the task completion
         signInTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
-            @Override
-            public void propertyChange(final PropertyChangeEvent evt) {
-                if ("state".equals(evt.getPropertyName())) {
-                    if (evt.getNewValue().equals(StateValue.DONE)) {
-                        onSignInDone(signInTask);
+                    @Override
+                    public void propertyChange(final PropertyChangeEvent evt) {
+                        if ("state".equals(evt.getPropertyName())) {
+                            if (evt.getNewValue().equals(StateValue.DONE)) {
+                                onSignInDone(signInTask);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
 
         // Gray everything out and show a progress bar
         disableGUI();
@@ -237,6 +214,7 @@ public final class SignInScreen extends javax.swing.JFrame {
     //                                                                     DIRECT-CONNECT AND RESUME
     // =============================================================================================
     private void bDirectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDirectActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[Direct]");
         final String prompt = "mc://";
         final String input = PromptScreen.show(this, "Direct connect",
                 "You can connect to a server directly, bypassing sign-in,<br>"
@@ -266,6 +244,7 @@ public final class SignInScreen extends javax.swing.JFrame {
     }
 
     private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[Resume]");
         final ServerJoinInfo joinInfo = SessionManager.getSession().loadResumeInfo();
         dispose();
         ClientUpdateScreen.createAndShow(joinInfo);
@@ -407,6 +386,21 @@ public final class SignInScreen extends javax.swing.JFrame {
         bSignIn.setEnabled(enableSignIn);
     }
 
+    private void bChangeServiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bChangeServiceActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[{0}]", bChangeService.getText());
+        // pick the other game service
+        if (Prefs.getSelectedGameService() == GameServiceType.ClassiCubeNetService) {
+            selectMinecraftNet();
+        } else {
+            selectClassiCubeNet();
+        }
+    }//GEN-LAST:event_bChangeServiceActionPerformed
+
+    private void bPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPreferencesActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[Preferences]");
+        new PreferencesScreen(this).setVisible(true);
+    }//GEN-LAST:event_bPreferencesActionPerformed
+
     // =============================================================================================
     //                                                                            GENERATED GUI CODE
     // =============================================================================================
@@ -418,8 +412,6 @@ public final class SignInScreen extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        bClassiCubeNet = new net.classicube.launcher.gui.JNiceLookingToggleButton();
-        bMinecraftNet = new net.classicube.launcher.gui.JNiceLookingToggleButton();
         ipLogo = new net.classicube.launcher.gui.ImagePanel();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
@@ -427,47 +419,22 @@ public final class SignInScreen extends javax.swing.JFrame {
         bDirect = new net.classicube.launcher.gui.JNiceLookingButton();
         bResume = new net.classicube.launcher.gui.JNiceLookingButton();
         bSignIn = new net.classicube.launcher.gui.JNiceLookingButton();
+        bChangeService = new net.classicube.launcher.gui.JNiceLookingButton();
+        bPreferences = new net.classicube.launcher.gui.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClassiCube Launcher");
         setBackground(new java.awt.Color(153, 128, 173));
         setName("ClassiCube Launcher"); // NOI18N
+        setPreferredSize(new java.awt.Dimension(320, 270));
         getContentPane().setLayout(new java.awt.GridBagLayout());
-
-        bClassiCubeNet.setText("ClassiCube.net");
-        bClassiCubeNet.setEnabled(false);
-        bClassiCubeNet.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                bClassiCubeNetItemStateChanged(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
-        getContentPane().add(bClassiCubeNet, gridBagConstraints);
-
-        bMinecraftNet.setText("Minecraft.net");
-        bMinecraftNet.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                bMinecraftNetItemStateChanged(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_END;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
-        getContentPane().add(bMinecraftNet, gridBagConstraints);
 
         ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.weighty = 0.1;
         getContentPane().add(ipLogo, gridBagConstraints);
 
         cUsername.setEditable(true);
@@ -517,6 +484,8 @@ public final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
         getContentPane().add(bDirect, gridBagConstraints);
 
         bResume.setText("Resume");
@@ -528,6 +497,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bResume, gridBagConstraints);
 
         bSignIn.setText("Sign In >");
@@ -539,15 +509,45 @@ public final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 0.1;
         getContentPane().add(bSignIn, gridBagConstraints);
+
+        bChangeService.setText("Switch to ServiceName");
+        bChangeService.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bChangeServiceActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
+        getContentPane().add(bChangeService, gridBagConstraints);
+
+        bPreferences.setText("Preferences");
+        bPreferences.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bPreferencesActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        getContentPane().add(bPreferences, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private net.classicube.launcher.gui.JNiceLookingToggleButton bClassiCubeNet;
+    private net.classicube.launcher.gui.JNiceLookingButton bChangeService;
     private net.classicube.launcher.gui.JNiceLookingButton bDirect;
-    private net.classicube.launcher.gui.JNiceLookingToggleButton bMinecraftNet;
+    private net.classicube.launcher.gui.JNiceLookingButton bPreferences;
     private net.classicube.launcher.gui.JNiceLookingButton bResume;
     private net.classicube.launcher.gui.JNiceLookingButton bSignIn;
     private javax.swing.JComboBox<String> cUsername;
