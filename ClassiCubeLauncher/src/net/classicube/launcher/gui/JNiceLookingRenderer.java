@@ -53,7 +53,7 @@ class JNiceLookingRenderer {
         }
 
         // Paint background
-        RoundRectangle2D roundBorder = new RoundRectangle2D.Float(1, 1, size.width - 3, size.height - 3, 4, 4);
+        RoundRectangle2D roundBorder = new RoundRectangle2D.Float(1, 1, size.width - 3, size.height - 3, 2, 2);
         GradientPaint gp = new GradientPaint(
                 0, 0, ccGradientTop,
                 0, button.getHeight(), ccGradientBottom);
