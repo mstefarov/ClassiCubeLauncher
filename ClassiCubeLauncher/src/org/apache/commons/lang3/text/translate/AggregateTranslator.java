@@ -18,7 +18,6 @@ package org.apache.commons.lang3.text.translate;
 
 import java.io.IOException;
 import java.io.Writer;
-
 import org.apache.commons.lang3.ArrayUtils;
 
 /**

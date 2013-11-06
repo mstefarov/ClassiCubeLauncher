@@ -1,16 +1,16 @@
 package net.classicube.launcher;
 
-import net.classicube.launcher.gui.ErrorScreen;
-import net.classicube.launcher.gui.SignInScreen;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.util.logging.Level;
 import javax.swing.UIDefaults;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import net.classicube.launcher.gui.DebugWindow;
+import net.classicube.launcher.gui.ErrorScreen;
+import net.classicube.launcher.gui.SignInScreen;
 
 // Contains initialization code for the whole launcher
 public final class EntryPoint {
@@ -63,7 +63,7 @@ public final class EntryPoint {
         }
         
         if(Prefs.getDebugMode()){
-            DebugWindow.Show();
+            DebugWindow.showWindow();
             DebugWindow.setWindowTitle("Launcher Running");
         }
 

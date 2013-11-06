@@ -1,14 +1,13 @@
 package net.classicube.launcher;
 
-import net.classicube.launcher.gui.ErrorScreen;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.classicube.launcher.gui.DebugWindow;
+import net.classicube.launcher.gui.ErrorScreen;
 
 // Handles launching the client process.
 final public class ClientLauncher {
@@ -69,10 +68,10 @@ final public class ClientLauncher {
                             try {
                                 Scanner input = new Scanner(p.getInputStream());
                                 while (true) {
-                                    DebugWindow.WriteLine(input.nextLine());
+                                    DebugWindow.writeLine(input.nextLine());
                                 }
                             } catch (NoSuchElementException ex) {
-                                DebugWindow.WriteLine("(client closed)");
+                                DebugWindow.writeLine("(client closed)");
                                 DebugWindow.setWindowTitle("Client Closed");
                             }
                         }

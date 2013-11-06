@@ -1,6 +1,5 @@
 package net.classicube.launcher;
 
-import net.classicube.launcher.gui.PromptScreen;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,6 +8,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.classicube.launcher.gui.PromptScreen;
 
 // Provides all functionality specific to Minecraft.net:
 // Signing in, parsing play links, getting server list, getting server details.

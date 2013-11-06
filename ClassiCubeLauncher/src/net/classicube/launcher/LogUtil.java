@@ -1,12 +1,12 @@
 package net.classicube.launcher;
 
-import net.classicube.launcher.gui.ErrorScreen;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import net.classicube.launcher.gui.ErrorScreen;
 
 // Global logging class (to make life easier)
 public final class LogUtil {

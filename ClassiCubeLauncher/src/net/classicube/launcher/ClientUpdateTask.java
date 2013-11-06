@@ -1,6 +1,5 @@
 package net.classicube.launcher;
 
-import net.classicube.launcher.gui.ClientUpdateScreen;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -23,6 +22,7 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
+import net.classicube.launcher.gui.ClientUpdateScreen;
 
 // Handles downloading and deployment of client updates,
 // as well as resource files used by the client.

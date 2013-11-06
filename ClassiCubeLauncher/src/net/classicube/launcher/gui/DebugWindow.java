@@ -3,7 +3,6 @@ package net.classicube.launcher.gui;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Scanner;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
@@ -11,12 +10,12 @@ public class DebugWindow extends javax.swing.JFrame {
 
     static DebugWindow instance;
 
-    public static void Show() {
+    public static void showWindow() {
         instance = new DebugWindow();
         instance.setVisible(true);
     }
 
-    public static synchronized void WriteLine(String str) {
+    public static synchronized void writeLine(String str) {
         instance.printStream.println(str);
     }
 
@@ -112,7 +111,6 @@ public class DebugWindow extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea tConsole;
