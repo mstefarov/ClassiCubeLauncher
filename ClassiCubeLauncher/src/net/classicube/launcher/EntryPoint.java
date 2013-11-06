@@ -64,6 +64,7 @@ public final class EntryPoint {
         
         if(Prefs.getDebugMode()){
             DebugWindow.Show();
+            DebugWindow.setWindowTitle("Launcher Running");
         }
 
         // display the form

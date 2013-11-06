@@ -50,14 +50,19 @@ final public class ClientLauncher {
                     SessionManager.getSession().getSkinUrl(),
                     Boolean.toString(Prefs.getFullscreen()));
             processBuilder.directory(PathUtil.getClientDir());
-            LogUtil.getLogger().log(Level.INFO, concatStringsWSep(processBuilder.command(), " "));
+
+            // log the command used to launch client
+            String cmdLineToLog = concatStringsWSep(processBuilder.command(), " ");
+            cmdLineToLog = cmdLineToLog.replace(joinInfo.pass, "########"); // sanitize mppass
+            LogUtil.getLogger().log(Level.INFO, cmdLineToLog);
 
             if (Prefs.getDebugMode()) {
                 processBuilder.redirectErrorStream(true);
                 try {
                     final Process p = processBuilder.start();
+                    DebugWindow.setWindowTitle("Game Running");
 
-                    // capture stdin, redirect to stdout
+                    // capture output from the client, redirect to DebugWindow
                     new Thread() {
                         @Override
                         public void run() {
@@ -68,6 +73,7 @@ final public class ClientLauncher {
                                 }
                             } catch (NoSuchElementException ex) {
                                 DebugWindow.WriteLine("(client closed)");
+                                DebugWindow.setWindowTitle("Client Closed");
                             }
                         }
                     }.start();
