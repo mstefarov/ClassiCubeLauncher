@@ -24,6 +24,7 @@ public abstract class GameSession {
 
     private static final String COOKIES_NODE_NAME = "Cookies";
     private static final String LAST_SESSION_NODE_NAME = "LastSession";
+    private static final String BLANK_MPPASS = "00000000000000000000000000000000";
     protected Preferences store, cookieStore;
 
     // constructor used by implementations
@@ -108,10 +109,10 @@ public abstract class GameSession {
             }
             result.playerName = directUrlMatch.group(7);
             final String mppass = directUrlMatch.group(9);
-            if (mppass != null) {
+            if (mppass != null && mppass.length() > 0) {
                 result.pass = mppass;
             } else {
-                result.pass = "";
+                result.pass = BLANK_MPPASS;
             }
             return result;
         }
@@ -202,7 +203,7 @@ public abstract class GameSession {
             return null;
         }
         info.port = node.getInt("Port", 0);
-        info.pass = node.get("Pass", null);
+        info.pass = node.get("Pass", BLANK_MPPASS);
         info.override = node.getBoolean("Override", false);
         info.signInNeeded = node.getBoolean("SignInNeeded", true);
         if (info.playerName == null || info.port == 0) {
@@ -223,7 +224,7 @@ public abstract class GameSession {
         node.put("Hash", (info.hash != null ? info.hash : ""));
         node.put("Address", info.address.getHostAddress());
         node.putInt("Port", info.port);
-        node.put("Pass", (info.pass != null ? info.pass : ""));
+        node.put("Pass", (info.pass != null ? info.pass : BLANK_MPPASS));
         node.putBoolean("Override", info.override);
         node.putBoolean("SignInNeeded", info.signInNeeded);
     }
