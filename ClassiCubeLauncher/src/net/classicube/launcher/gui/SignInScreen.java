@@ -265,7 +265,8 @@ public final class SignInScreen extends javax.swing.JFrame {
         // Allow pressing <Enter> to sign in, while in the password textbox
         tPassword.addKeyListener(new PasswordEnterListener());
 
-        // Selects all text in the username field on-focus
+        // Selects all text in the username field on-focus,
+        // and fills in the password field for known usernames
         usernameEditor.addFocusListener(new UsernameFocusListener());
     }
 
@@ -299,9 +300,16 @@ public final class SignInScreen extends javax.swing.JFrame {
 
         @Override
         public void focusLost(final FocusEvent e) {
+            final String selectedUsername = (String) cUsername.getSelectedItem();
+            if (selectedUsername != null && Prefs.getRememberPasswords()) {
+                final UserAccount curAccount = accountManager.findAccount(selectedUsername);
+                if (curAccount != null) {
+                    tPassword.setText(curAccount.password);
+                }
+            }
         }
     }
-
+    
     // Allows pressing <Enter> to sign in, while in the password textbox
     class PasswordEnterListener implements KeyListener {
 
@@ -362,6 +370,7 @@ public final class SignInScreen extends javax.swing.JFrame {
                 realPasswordLength = doc.getLength();
             } else {
                 realUsernameLength = doc.getLength();
+                    tPassword.setText("");
             }
             checkIfSignInAllowed();
         }
