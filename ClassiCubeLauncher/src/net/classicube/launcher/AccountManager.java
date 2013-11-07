@@ -3,12 +3,14 @@ package net.classicube.launcher;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 // Handles persistence/"remembering" of user account information for a given GameServiceType.
 // SessionManager creates an instance of AccountManager in SessionManager.selectService().
 public final class AccountManager {
+
     private final Preferences store;
     private final HashMap<String, UserAccount> accounts = new HashMap<>();
     private static final String ACCOUNTS_NODE_NAME = "Accounts";
@@ -27,11 +29,17 @@ public final class AccountManager {
         }
         try {
             for (final String accountName : this.store.childrenNames()) {
-                final UserAccount acct = new UserAccount(this.store.node(accountName));
-                this.accounts.put(acct.signInUsername.toLowerCase(), acct);
+                Preferences accountNode = this.store.node(accountName);
+                try {
+                    final UserAccount acct = new UserAccount(accountNode);
+                    this.accounts.put(acct.signInUsername.toLowerCase(), acct);
+                } catch (final IllegalArgumentException ex) {
+                    LogUtil.getLogger().log(Level.SEVERE, "Error loading an account", ex);
+                    accountNode.removeNode();
+                }
             }
             LogUtil.getLogger().log(Level.FINE, "Loaded {0} accounts", this.accounts.size());
-        } catch (final BackingStoreException | IllegalArgumentException ex) {
+        } catch (BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading accounts", ex);
         }
     }

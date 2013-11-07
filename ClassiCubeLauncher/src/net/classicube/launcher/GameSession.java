@@ -285,11 +285,16 @@ public abstract class GameSession {
 
     private boolean passwordIsSame() {
         UserAccount lastSessionAccount = null;
-        final Preferences lastUserNode = this.store.node(LAST_SESSION_NODE_NAME);
-        if (lastUserNode != null) {
+        final Preferences lastSessionNode = this.store.node(LAST_SESSION_NODE_NAME);
+        if (lastSessionNode != null) {
             try {
-                lastSessionAccount = new UserAccount(lastUserNode);
+                lastSessionAccount = new UserAccount(lastSessionNode);
             } catch (final IllegalArgumentException ex) {
+                try {
+                    lastSessionNode.removeNode();
+                } catch (BackingStoreException ex1) {
+                    LogUtil.getLogger().log(Level.SEVERE, "Error deleting lastSessionNode", ex1);
+                }
                 LogUtil.getLogger().log(Level.WARNING, "Error loading last session information, will relog.", ex);
             }
         }
