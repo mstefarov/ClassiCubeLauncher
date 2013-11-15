@@ -62,7 +62,8 @@ final class MinecraftNetSession extends GameSession {
         @Override
         protected SignInResult doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "MinecraftNetSession.SignInWorker");
-            boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
+            final boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
+            boolean relogRequired = false;
 
             // download the login page
             String loginPage = HttpUtil.downloadString(LOGIN_URL);
@@ -73,34 +74,51 @@ final class MinecraftNetSession extends GameSession {
             // See if we're already logged in
             final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
             if (loginMatch.find()) {
+                // We ARE signed in! Check the username...
                 final String actualPlayerName = loginMatch.group(1);
-                if (remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
-                    // If player is already logged in with the right account: reuse a previous session
+                final boolean nameEquals = actualPlayerName.equalsIgnoreCase(account.playerName);
+                if (remember && nameEquals) {
+                    // If we are already signed into the right account,
+                    // and we are allowed to reuse sessions...
+
+                    // Check for presence of a challenge question
                     if (loginPage.contains(CHALLENGE_MESSAGE)) {
                         SignInResult result = handleChallengeQuestions(loginPage);
                         if (result != SignInResult.SUCCESS) {
+                            // if challenge was not completed successfully, abort
                             return result;
                         }
                     }
-                    account.playerName = actualPlayerName; // correct capitalization (if needed)
+
+                    // Session restored successfully, we are done.
+                    account.playerName = actualPlayerName; // correct stored-name capitalization (if needed)
                     LogUtil.getLogger().log(Level.INFO, "Restored session for {0}", account.playerName);
                     storeCookies();
                     return SignInResult.SUCCESS;
 
                 } else {
-                    // If we're not supposed to reuse session, if old username is different,
-                    // or if there is no play session cookie set - relog
-                    LogUtil.getLogger().log(Level.INFO,
-                            "Switching accounts from {0} to {1}",
-                            new Object[]{actualPlayerName, account.playerName});
-                    HttpUtil.downloadString(LOGOUT_URL);
-                    clearStoredSession();
-                    loginPage = HttpUtil.downloadString(LOGIN_URL);
+                    // Either the restored session was for a different user...
+                    if (!nameEquals) {
+                        LogUtil.getLogger().log(Level.INFO,
+                                "Switching accounts from {0} to {1}",
+                                new Object[]{actualPlayerName, account.playerName});
+                    } else {
+                        // ...or we are not allowed to restore sessions at all...
+                        LogUtil.getLogger().log(Level.INFO,
+                                "Unable to reuse old session; signing in anew.");
+                    }
+                    relogRequired = true;
                 }
+
             } else if (restoredSession) {
-                // Failed to restore session
+                // ...or the saved session did not work (perhaps it expired).
                 LogUtil.getLogger().log(Level.WARNING,
                         "Failed to restore session at Minecraft.net; retrying.");
+                relogRequired = true;
+            }
+
+            // If needed: log out, clear cookies, and prepare to sign in again.
+            if (relogRequired) {
                 HttpUtil.downloadString(LOGOUT_URL);
                 clearStoredSession();
                 loginPage = HttpUtil.downloadString(LOGIN_URL);
@@ -109,12 +127,12 @@ final class MinecraftNetSession extends GameSession {
             // Extract authenticityToken from the login page
             final Matcher loginAuthTokenMatch = authTokenRegex.matcher(loginPage);
             if (!loginAuthTokenMatch.find()) {
-                // We asked for a login form, got something different back. Panic.
+                // We asked for a login form, but we received something different. Panic!
                 LogUtil.getLogger().log(Level.INFO, loginPage);
                 throw new SignInException("Unrecognized login form served by Minecraft.net");
             }
 
-            // Built up a login request
+            // Build up the login request
             final String authToken = loginAuthTokenMatch.group(1);
             final StringBuilder requestStr = new StringBuilder();
             requestStr.append("username=");
@@ -145,21 +163,31 @@ final class MinecraftNetSession extends GameSession {
             // Confirm that we are now logged in
             final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
             if (responseMatch.find()) {
-                account.playerName = responseMatch.group(1);
+                // ...yes, we are signed in!
+                LogUtil.getLogger().log(Level.INFO,
+                        "Successfully signed in as {0} ({1})",
+                        new Object[]{account.signInUsername, account.playerName});
+                
+                // Check for presence of a challenge question
                 if (loginResponse.contains(CHALLENGE_MESSAGE)) {
                     SignInResult result = handleChallengeQuestions(loginResponse);
                     if (result != SignInResult.SUCCESS) {
                         return result;
                     }
                 }
+                
+                // For Mojang accounts, the sign-in name (email) is different from the in-game name (player name).
+                // Minecraft.net pages will display the *player name* after signing in.
+                account.playerName = responseMatch.group(1);
+
+                // If allowed, remember session (cookies and account info) until next time.
                 if (remember) {
                     storeSession();
                 }
-                LogUtil.getLogger().log(Level.INFO,
-                        "Successfully signed in as {0} ({1})",
-                        new Object[]{account.signInUsername, account.playerName});
                 return SignInResult.SUCCESS;
+
             } else {
+                // ...no, we did not sign in. And we don't know why. Panic!
                 clearStoredSession();
                 LogUtil.getLogger().log(Level.INFO, loginResponse);
                 throw new SignInException("Unrecognized response served by minecraft.net");
@@ -173,6 +201,8 @@ final class MinecraftNetSession extends GameSession {
             throw new NullPointerException("page");
         }
         LogUtil.getLogger().log(Level.FINE, "Minecraft.net asked a challenge question.");
+        
+        // Locate the question text, and other form data, on the page
         final Matcher challengeMatch = challengeQuestionRegex.matcher(page);
         final Matcher challengeAuthTokenMatch = authTokenRegex.matcher(page);
         final Matcher challengeQuestionIdMatch = challengeQuestionIdRegex.matcher(page);
@@ -183,14 +213,19 @@ final class MinecraftNetSession extends GameSession {
         final String authToken = challengeAuthTokenMatch.group(1);
         final String question = challengeMatch.group(1);
         final int questionId = Integer.parseInt(challengeQuestionIdMatch.group(1));
+        
+        // Ask user to answer the question
         String answer = PromptScreen.show(null, "Minecraft.net asks",
                 "<html>Since you are logging in from this computer for the first time,<br>"
                 + "Minecraft.net needs you to confirm your identity before you can continue.<br>"
                 + "This is to make sure that your account isn't used without your authorization."
                 + "<br><br><b>" + question, "");
         if (answer == null) {
+            // If player gave no answer, or closed the window, abort signing in.
             return SignInResult.CHALLENGE_FAILED;
         }
+        
+        // POST player's answer, auth token, and question ID to Minecraft.net
         final StringBuilder challengeRequestStr = new StringBuilder();
         challengeRequestStr.append("answer=");
         challengeRequestStr.append(urlEncode(answer));
@@ -199,13 +234,21 @@ final class MinecraftNetSession extends GameSession {
         challengeRequestStr.append("&questionId=");
         challengeRequestStr.append(questionId);
         final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString());
+        
+        // Parse the response
         if (response == null) {
             return SignInResult.CONNECTION_ERROR;
+            
         } else if (response.contains(CHALLENGE_FAILED_MESSAGE)) {
+            // Player answered the question incorrectly. Abort.
             return SignInResult.CHALLENGE_FAILED;
+            
         } else if (response.contains(CHALLENGE_PASSED_MESSAGE)) {
+            // Question was answered correctly. Success!
             return SignInResult.SUCCESS;
+            
         } else {
+            // We failed, and we don't know why. Panic!
             LogUtil.getLogger().log(Level.INFO, response);
             throw new SignInException("Could not pass security question: "
                     + "Unrecognized response served by minecraft.net");
