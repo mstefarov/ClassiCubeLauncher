@@ -40,12 +40,12 @@ final class HttpUtil {
     // Downloads a string using GET.
     // Returns null and logs an error on failure.
     public static String downloadString(final String urlString) {
-        return uploadString(urlString, null);
+        return uploadString(urlString, null, true);
     }
 
     // Uploads a string using POST, then downloads the response.
     // Returns null and logs an error on failure.
-    public static String uploadString(final String urlString, final String dataString) {
+    public static String uploadString(final String urlString, final String dataString, final boolean followRedirect) {
         LogUtil.getLogger().log(Level.FINE, "{0} {1}",
                 new Object[]{dataString == null ? "GET" : "POST", urlString});
         HttpURLConnection connection = null;
@@ -70,8 +70,13 @@ final class HttpUtil {
             final int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-                final String redirectUrl = connection.getHeaderField("location");
-                return downloadString(redirectUrl);
+                if (followRedirect) {
+                    final String redirectUrl = connection.getHeaderField("location");
+                    return downloadString(redirectUrl);
+                } else {
+                    LogUtil.getLogger().log(Level.FINE, "Redirected ({0}) to {1} (not following)",
+                            new Object[]{responseCode, urlString});
+                }
             }
 
             // Read response

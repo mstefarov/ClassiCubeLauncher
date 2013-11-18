@@ -128,7 +128,7 @@ final class ClassiCubeNetSession extends GameSession {
             requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
+            final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString(), true);
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }

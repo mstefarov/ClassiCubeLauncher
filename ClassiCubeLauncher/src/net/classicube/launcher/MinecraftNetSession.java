@@ -26,7 +26,7 @@ final class MinecraftNetSession extends GameSession {
     //                                                                                       SIGN-IN
     // =============================================================================================
     private static final String LOGIN_URL = "https://minecraft.net/login",
-            LOGOUT_URL = "http://minecraft.net/logout",
+            LOGOUT_URL = "https://minecraft.net/logout",
             CHALLENGE_URL = "https://minecraft.net/challenge",
             MIGRATED_ACCOUNT_MESSAGE = "Your account has been migrated",
             WRONG_USER_OR_PASS_MESSAGE = "Oops, unknown username or password.",
@@ -119,7 +119,7 @@ final class MinecraftNetSession extends GameSession {
 
             // If needed: log out, clear cookies, and prepare to sign in again.
             if (relogRequired) {
-                HttpUtil.downloadString(LOGOUT_URL);
+                HttpUtil.uploadString(LOGOUT_URL, null, false);
                 clearStoredSession();
                 loginPage = HttpUtil.downloadString(LOGIN_URL);
             }
@@ -148,7 +148,7 @@ final class MinecraftNetSession extends GameSession {
             requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
+            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString(), true);
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -167,7 +167,7 @@ final class MinecraftNetSession extends GameSession {
                 LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
-                
+
                 // Check for presence of a challenge question
                 if (loginResponse.contains(CHALLENGE_MESSAGE)) {
                     SignInResult result = handleChallengeQuestions(loginResponse);
@@ -175,7 +175,7 @@ final class MinecraftNetSession extends GameSession {
                         return result;
                     }
                 }
-                
+
                 // For Mojang accounts, the sign-in name (email) is different from the in-game name (player name).
                 // Minecraft.net pages will display the *player name* after signing in.
                 account.playerName = responseMatch.group(1);
@@ -201,7 +201,7 @@ final class MinecraftNetSession extends GameSession {
             throw new NullPointerException("page");
         }
         LogUtil.getLogger().log(Level.FINE, "Minecraft.net asked a challenge question.");
-        
+
         // Locate the question text, and other form data, on the page
         final Matcher challengeMatch = challengeQuestionRegex.matcher(page);
         final Matcher challengeAuthTokenMatch = authTokenRegex.matcher(page);
@@ -213,7 +213,7 @@ final class MinecraftNetSession extends GameSession {
         final String authToken = challengeAuthTokenMatch.group(1);
         final String question = challengeMatch.group(1);
         final int questionId = Integer.parseInt(challengeQuestionIdMatch.group(1));
-        
+
         // Ask user to answer the question
         String answer = PromptScreen.show(null, "Minecraft.net asks",
                 "<html>Since you are logging in from this computer for the first time,<br>"
@@ -224,7 +224,7 @@ final class MinecraftNetSession extends GameSession {
             // If player gave no answer, or closed the window, abort signing in.
             return SignInResult.CHALLENGE_FAILED;
         }
-        
+
         // POST player's answer, auth token, and question ID to Minecraft.net
         final StringBuilder challengeRequestStr = new StringBuilder();
         challengeRequestStr.append("answer=");
@@ -233,20 +233,20 @@ final class MinecraftNetSession extends GameSession {
         challengeRequestStr.append(urlEncode(authToken));
         challengeRequestStr.append("&questionId=");
         challengeRequestStr.append(questionId);
-        final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString());
-        
+        final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString(), true);
+
         // Parse the response
         if (response == null) {
             return SignInResult.CONNECTION_ERROR;
-            
+
         } else if (response.contains(CHALLENGE_FAILED_MESSAGE)) {
             // Player answered the question incorrectly. Abort.
             return SignInResult.CHALLENGE_FAILED;
-            
+
         } else if (response.contains(CHALLENGE_PASSED_MESSAGE)) {
             // Question was answered correctly. Success!
             return SignInResult.SUCCESS;
-            
+
         } else {
             // We failed, and we don't know why. Panic!
             LogUtil.getLogger().log(Level.INFO, response);
