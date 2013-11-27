@@ -119,7 +119,7 @@ final class MinecraftNetSession extends GameSession {
 
             // If needed: log out, clear cookies, and prepare to sign in again.
             if (relogRequired) {
-                HttpUtil.uploadString(LOGOUT_URL, null, false);
+                HttpUtil.downloadString(LOGOUT_URL);
                 clearStoredSession();
                 loginPage = HttpUtil.downloadString(LOGIN_URL);
             }
@@ -148,7 +148,7 @@ final class MinecraftNetSession extends GameSession {
             requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString(), true);
+            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -233,7 +233,7 @@ final class MinecraftNetSession extends GameSession {
         challengeRequestStr.append(urlEncode(authToken));
         challengeRequestStr.append("&questionId=");
         challengeRequestStr.append(questionId);
-        final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString(), true);
+        final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString());
 
         // Parse the response
         if (response == null) {

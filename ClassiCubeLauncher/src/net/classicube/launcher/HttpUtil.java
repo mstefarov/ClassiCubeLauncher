@@ -13,6 +13,7 @@ import java.util.logging.Level;
 
 final class HttpUtil {
 
+    private static final int MaxRedirects = 3;
     private static final String UserAgent = "ClassiCube Launcher";
 
     public static HttpURLConnection makeHttpConnection(final String urlString, final byte[] postData)
@@ -40,12 +41,16 @@ final class HttpUtil {
     // Downloads a string using GET.
     // Returns null and logs an error on failure.
     public static String downloadString(final String urlString) {
-        return uploadString(urlString, null, true);
+        return uploadString(urlString, null, MaxRedirects);
     }
-
+    
     // Uploads a string using POST, then downloads the response.
     // Returns null and logs an error on failure.
-    public static String uploadString(final String urlString, final String dataString, final boolean followRedirect) {
+    public static String uploadString(final String urlString, final String dataString) {
+        return uploadString(urlString, dataString, MaxRedirects);
+    }
+
+    private static String uploadString(final String urlString, final String dataString, final int followRedirects) {
         LogUtil.getLogger().log(Level.FINE, "{0} {1}",
                 new Object[]{dataString == null ? "GET" : "POST", urlString});
         HttpURLConnection connection = null;
@@ -70,9 +75,9 @@ final class HttpUtil {
             final int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-                if (followRedirect) {
+                if (followRedirects > 0) {
                     final String redirectUrl = connection.getHeaderField("location");
-                    return downloadString(redirectUrl);
+                    return uploadString(redirectUrl, null, followRedirects - 1);
                 } else {
                     LogUtil.getLogger().log(Level.FINE, "Redirected ({0}) to {1} (not following)",
                             new Object[]{responseCode, urlString});
