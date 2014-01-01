@@ -244,6 +244,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 joinServer(joinInfo);
             } else {
                 ErrorScreen.show(this, "Cannot connect", "There was a problem fetching server details.", null);
+                enableGui();
             }
         } catch (final InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
