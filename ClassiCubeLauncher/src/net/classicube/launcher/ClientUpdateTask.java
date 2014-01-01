@@ -111,17 +111,34 @@ public final class ClientUpdateTask
     // =============================================================================================
     private MessageDigest digest;
     private final byte[] ioBuffer = new byte[64 * 1024];
-    private final static String[] resourceFiles = new String[]{
-        "music/calm1.ogg", "music/calm2.ogg", "music/calm3.ogg",
-        "newmusic/hal1.ogg", "newmusic/hal2.ogg", "newmusic/hal3.ogg", "newmusic/hal4.ogg",
-        "sound/step/grass1.ogg", "sound/step/grass2.ogg", "sound/step/grass3.ogg",
-        "sound/step/grass4.ogg", "sound/step/gravel1.ogg", "sound/step/gravel2.ogg",
-        "sound/step/gravel3.ogg", "sound/step/gravel4.ogg", "sound/step/stone1.ogg",
-        "sound/step/stone2.ogg", "sound/step/stone3.ogg", "sound/step/stone4.ogg",
-        "sound/step/wood1.ogg", "sound/step/wood2.ogg", "sound/step/wood3.ogg",
-        "sound/step/wood4.ogg"};
+    private final static String[] resourceFiles = new String[]{ "music/calm1.ogg", "music/calm2.ogg", "music/calm3.ogg",
+                                "newmusic/hal1.ogg", "newmusic/hal2.ogg", "newmusic/hal3.ogg", "newmusic/hal4.ogg",
+                                "sound3/step/grass1.ogg", "sound3/step/grass2.ogg", "sound3/step/grass3.ogg",
+                                "sound3/step/grass4.ogg", "sound3/step/grass5.ogg", "sound3/step/grass6.ogg", 
+                                "sound3/step/gravel1.ogg", "sound3/step/gravel2.ogg", "sound3/step/gravel3.ogg", 
+                                "sound3/step/gravel4.ogg", "sound3/step/stone1.ogg", "sound3/step/stone2.ogg", 
+                                "sound3/step/stone3.ogg", "sound3/step/stone4.ogg", "sound3/step/stone5.ogg", 
+                                "sound3/step/stone6.ogg", "sound3/step/wood1.ogg", "sound3/step/wood2.ogg", 
+                                "sound3/step/wood3.ogg", "sound3/step/wood4.ogg", "sound3/step/wood5.ogg", 
+                                "sound3/step/wood6.ogg", "sound3/step/cloth1.ogg", "sound3/step/cloth2.ogg",
+                                "sound3/step/cloth3.ogg", "sound3/step/cloth4.ogg", "sound3/step/sand1.ogg",
+                                "sound3/step/sand2.ogg", "sound3/step/sand3.ogg", "sound3/step/sand4.ogg",
+                                "sound3/step/sand5.ogg", "sound3/step/snow1.ogg", "sound3/step/snow2.ogg",
+                                "sound3/step/snow3.ogg", "sound3/step/snow4.ogg", "sound3/step/ladder1.ogg",
+                                "sound3/step/ladder2.ogg", "sound3/step/ladder3.ogg", "sound3/step/ladder4.ogg",
+                                "sound3/step/ladder5.ogg", "sound3/dig/grass1.ogg", "sound3/dig/grass2.ogg",
+                                "sound3/dig/grass3.ogg", "sound3/dig/grass4.ogg", "sound3/dig/gravel1.ogg", 
+                                "sound3/dig/gravel2.ogg", "sound3/dig/gravel3.ogg", "sound3/dig/gravel4.ogg", 
+                                "sound3/dig/stone1.ogg", "sound3/dig/stone2.ogg", "sound3/dig/stone3.ogg", 
+                                "sound3/dig/stone4.ogg", "sound3/dig/wood1.ogg", "sound3/dig/wood2.ogg", 
+                                "sound3/dig/wood3.ogg", "sound3/dig/wood4.ogg", "sound3/dig/cloth1.ogg", 
+                                "sound3/dig/cloth2.ogg", "sound3/dig/cloth3.ogg", "sound3/dig/cloth4.ogg", 
+                                "sound3/dig/sand1.ogg", "sound3/dig/sand2.ogg", "sound3/dig/sand3.ogg", 
+                                "sound3/dig/sand4.ogg", "sound3/dig/snow1.ogg", "sound3/dig/snow2.ogg", 
+                                "sound3/dig/snow3.ogg", "sound3/dig/snow4.ogg", "sound3/random/glass1.ogg",
+                                "sound3/random/glass2.ogg", "sound3/random/glass3.ogg" };
     public static final String FILE_INDEX_URL = "http://www.classicube.net/static/client/version",
-            RESOURCE_DOWNLOAD_URL = "http://s3.amazonaws.com/MinecraftResources/";
+            RESOURCE_DOWNLOAD_URL = "https://s3.amazonaws.com/MinecraftResources/";
 
     private List<FileToDownload> pickResourcesToDownload()
             throws IOException {
