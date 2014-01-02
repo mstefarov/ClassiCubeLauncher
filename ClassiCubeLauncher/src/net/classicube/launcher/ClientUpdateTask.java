@@ -468,9 +468,9 @@ public final class ClientUpdateTask
             final int baseProgress = (this.activeFileNumber * 100) / this.totalFiles;
             final int deltaProgress = 100 / this.totalFiles;
             overallProgress = baseProgress + (deltaProgress * percent) / 100;
-            status = String.format("Downloading (%s / %s KB)", bytesSoFar/1024, bytesTotal/1024);
+            status = String.format("Downloading (%s / %s KiB)", bytesSoFar/1024, bytesTotal/1024);
         } else {
-            status = String.format("Downloading... (%s KB)", bytesSoFar/1024);
+            status = String.format("Downloading... (%s KiB)", bytesSoFar/1024);
             overallProgress = (this.activeFileNumber * 100) / this.totalFiles;
         }
         this.publish(new ProgressUpdate(fileName, status, overallProgress));
