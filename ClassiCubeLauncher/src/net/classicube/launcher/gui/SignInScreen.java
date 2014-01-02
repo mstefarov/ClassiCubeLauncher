@@ -287,6 +287,10 @@ public final class SignInScreen extends javax.swing.JFrame {
         resumeMenu.show(bResume, 0, 0);
     }//GEN-LAST:event_bResumeDropDownMousePressed
 
+    private void bResumeDropDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeDropDownActionPerformed
+        resumeMenu.show(bResume, 0, 0);
+    }//GEN-LAST:event_bResumeDropDownActionPerformed
+
     // =============================================================================================
     //                                                                           GUI EVENT LISTENERS
     // =============================================================================================
@@ -595,6 +599,11 @@ public final class SignInScreen extends javax.swing.JFrame {
         bResumeDropDown.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 bResumeDropDownMousePressed(evt);
+            }
+        });
+        bResumeDropDown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bResumeDropDownActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
