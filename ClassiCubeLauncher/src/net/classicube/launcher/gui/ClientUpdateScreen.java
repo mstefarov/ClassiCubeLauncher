@@ -26,9 +26,6 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
     //                                                                                INITIALIZATION
     // =============================================================================================
     public static void createAndShow(final ServerJoinInfo joinInfo) {
-        if (joinInfo == null) {
-            throw new NullPointerException("info");
-        }
         ClientUpdateScreen sc = new ClientUpdateScreen(joinInfo);
         sc.setVisible(true);
         ClientUpdateTask.getInstance().registerUpdateScreen(sc);

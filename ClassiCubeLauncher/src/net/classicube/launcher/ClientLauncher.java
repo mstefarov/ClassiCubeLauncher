@@ -16,11 +16,11 @@ final public class ClientLauncher {
             ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
 
     public static void launchClient(final ServerJoinInfo joinInfo) {
-        if (joinInfo == null) {
-            throw new NullPointerException("joinInfo");
-        }
         LogUtil.getLogger().info("launchClient");
-        SessionManager.getSession().storeResumeInfo(joinInfo);
+
+        if (joinInfo != null) {
+            SessionManager.getSession().storeResumeInfo(joinInfo);
+        }// else if joinInfo==null, then we're launching singleplayer
 
         final File java = PathUtil.getJavaPath();
 
@@ -34,25 +34,46 @@ final public class ClientLauncher {
         }
 
         try {
-            final ProcessBuilder processBuilder = new ProcessBuilder(
-                    java.getAbsolutePath(),
-                    "-cp",
-                    ClassPath,
-                    "-Djava.library.path=" + nativePath,
-                    Prefs.getJavaArgs(),
-                    "-Xmx" + Prefs.getMaxMemory() + "m",
-                    ClientClassPath,
-                    joinInfo.address.getHostAddress(),
-                    Integer.toString(joinInfo.port),
-                    joinInfo.playerName,
-                    joinInfo.pass,
-                    SessionManager.getSession().getSkinUrl(),
-                    Boolean.toString(Prefs.getFullscreen()));
+            final ProcessBuilder processBuilder;
+            if (joinInfo != null) {
+                processBuilder = new ProcessBuilder(
+                        java.getAbsolutePath(),
+                        "-cp",
+                        ClassPath,
+                        "-Djava.library.path=" + nativePath,
+                        Prefs.getJavaArgs(),
+                        "-Xmx" + Prefs.getMaxMemory() + "m",
+                        ClientClassPath,
+                        joinInfo.address.getHostAddress(),
+                        Integer.toString(joinInfo.port),
+                        joinInfo.playerName,
+                        (joinInfo.pass == null || joinInfo.pass.length() == 0 ? "none" : joinInfo.pass),
+                        SessionManager.getSession().getSkinUrl(),
+                        Boolean.toString(Prefs.getFullscreen()));
+            } else {
+                processBuilder = new ProcessBuilder(
+                        java.getAbsolutePath(),
+                        "-cp",
+                        ClassPath,
+                        "-Djava.library.path=" + nativePath,
+                        Prefs.getJavaArgs(),
+                        "-Xmx" + Prefs.getMaxMemory() + "m",
+                        ClientClassPath,
+                        "none",
+                        "0",
+                        "none",
+                        "none",
+                        SessionManager.getSession().getSkinUrl(),
+                        Boolean.toString(Prefs.getFullscreen()));
+            }
+
             processBuilder.directory(PathUtil.getClientDir());
 
             // log the command used to launch client
             String cmdLineToLog = concatStringsWSep(processBuilder.command(), " ");
-            cmdLineToLog = cmdLineToLog.replace(joinInfo.pass, "########"); // sanitize mppass
+            if (joinInfo != null) {
+                cmdLineToLog = cmdLineToLog.replace(joinInfo.pass, "########"); // sanitize mppass
+            }
             LogUtil.getLogger().log(Level.INFO, cmdLineToLog);
 
             if (Prefs.getDebugMode()) {

@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
@@ -15,12 +16,22 @@ import javax.swing.ButtonModel;
 import javax.swing.JButton;
 
 class JNiceLookingRenderer {
-        public static void paintComponent(AbstractButton button, Graphics g) {
+
+    public static void paintComponent(AbstractButton button, Graphics g, int widthAdjust) {
         // Prepare
         Graphics2D g2 = (Graphics2D) g.create();
         Dimension size = button.getSize();
         int offset = 0;
-        
+
+        int startX = 0;
+        if (widthAdjust > 0) {
+            size.width += widthAdjust;
+        } else if (widthAdjust < 0) {
+            startX = widthAdjust;
+        }
+
+        //g2.setPaint(Color.cyan);
+        //g2.fillRect(0, 0, size.width, size.height);
         ButtonModel model = button.getModel();
 
         // Define colors
@@ -53,7 +64,7 @@ class JNiceLookingRenderer {
         }
 
         // Paint background
-        RoundRectangle2D roundBorder = new RoundRectangle2D.Float(1, 1, size.width - 3, size.height - 3, 2, 2);
+        RoundRectangle2D roundBorder = new RoundRectangle2D.Float(startX+1, 1, size.width - 3- startX, size.height - 3, 2, 2);
         GradientPaint gp = new GradientPaint(
                 0, 0, ccGradientTop,
                 0, button.getHeight(), ccGradientBottom);
@@ -62,21 +73,21 @@ class JNiceLookingRenderer {
 
         // Paint background highlight
         g2.setPaint(ccHighlight);
-        g2.drawLine(3, 2, size.width - 4, 2);
+        g2.drawLine(startX+3, 2, size.width - 4- startX, 2);
 
         // Paint highlight glow
-        if (button.isFocusOwner() || (button instanceof JButton) && ((JButton)button).isDefaultButton()) {
+        if (button.isFocusOwner() || (button instanceof JButton) && ((JButton) button).isDefaultButton()) {
             int glowSize = 1;
             if (button.isFocusOwner()) {
                 glowSize = 3;
             }
             Stroke oldStroke = g2.getStroke();
             g2.setStroke(new BasicStroke(glowSize));
-            RoundRectangle2D innerBorder = new RoundRectangle2D.Float(2, 2, size.width - 5, size.height - 5, 4, 4);
+            RoundRectangle2D innerBorder = new RoundRectangle2D.Float(startX+2, 2, size.width - 5- startX, size.height - 5, 4, 4);
             g2.draw(innerBorder);
             g2.setStroke(oldStroke);
         }
-        
+
         // Paint border
         g2.setPaint(ccBorder);
         g2.draw(roundBorder);

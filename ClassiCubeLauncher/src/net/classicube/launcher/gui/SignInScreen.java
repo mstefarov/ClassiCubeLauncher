@@ -1,6 +1,8 @@
 package net.classicube.launcher.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -12,11 +14,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Date;
 import java.util.logging.Level;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import net.classicube.launcher.AccountManager;
@@ -40,6 +46,9 @@ public final class SignInScreen extends javax.swing.JFrame {
     private final ImagePanel bgPanel;
     private UsernameOrPasswordChangedListener fieldChangeListener;
     private GameSession.SignInTask signInTask;
+    private JPopupMenu resumeMenu;
+    private JMenuItem singlePlayerMenuItem;
+    private JMenuItem directMenuItem;
 
     // =============================================================================================
     //                                                                                INITIALIZATION
@@ -57,6 +66,10 @@ public final class SignInScreen extends javax.swing.JFrame {
         initComponents();
 
         // some UI tweaks
+        this.bResumeDropDown.setPreferredSize(
+                new Dimension(
+                        20,
+                        this.bResume.getPreferredSize().height));
         hookUpListeners();
         getRootPane().setDefaultButton(bSignIn);
 
@@ -78,11 +91,16 @@ public final class SignInScreen extends javax.swing.JFrame {
     private void disableGUI() {
         cUsername.setEnabled(false);
         tPassword.setEnabled(false);
-        bDirect.setEnabled(false);
         bResume.setEnabled(false);
+        bResumeDropDown.setEnabled(false);
+        directMenuItem.setEnabled(false);
+        singlePlayerMenuItem.setEnabled(false);
         bSignIn.setEnabled(false);
         bPreferences.setEnabled(false);
         bChangeService.setEnabled(false);
+
+        resumeMenu.setVisible(false);
+        bResume.setComponentPopupMenu(null);
 
         progress.setVisible(true);
         pack();
@@ -92,13 +110,16 @@ public final class SignInScreen extends javax.swing.JFrame {
     private void enableGUI() {
         cUsername.setEnabled(true);
         tPassword.setEnabled(true);
-        bDirect.setEnabled(true);
+        bResumeDropDown.setEnabled(true);
+        directMenuItem.setEnabled(true);
+        singlePlayerMenuItem.setEnabled(true);
         enableResumeIfNeeded();
         checkIfSignInAllowed();
         bPreferences.setEnabled(true);
         bChangeService.setEnabled(true);
 
         progress.setVisible(false);
+        bResume.setComponentPopupMenu(resumeMenu);
         pack();
     }
 
@@ -213,27 +234,31 @@ public final class SignInScreen extends javax.swing.JFrame {
     // =============================================================================================
     //                                                                     DIRECT-CONNECT AND RESUME
     // =============================================================================================
-    private void bDirectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDirectActionPerformed
-        LogUtil.getLogger().log(Level.FINE, "[Direct]");
-        final String prompt = "mc://";
-        final String input = PromptScreen.show(this, "Direct connect",
-                "You can connect to a server directly, bypassing sign-in,<br>"
-                + "if you have a direct-connect URL in the form:<br>"
-                + "<code>mc://address:port/username/mppass</code>",
-                prompt);
-        if (input != null && !prompt.equals(input)) {
-            final String trimmedInput = input.replaceAll("[\\r\\n\\s]", "");
-            final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(trimmedInput);
-            if (joinInfo == null) {
-                ErrorScreen.show(this, "Unrecognized link", "Cannot join server directly: Unrecognized link format.", null);
-            } else if (joinInfo.signInNeeded) {
-                ErrorScreen.show(this, "Not a direct link", "Cannot join server directly: Sign in before using this URL.", null);
-            } else {
-                dispose();
-                ClientUpdateScreen.createAndShow(joinInfo);
+    private class DirectMenuItemActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            LogUtil.getLogger().log(Level.FINE, "[Direct]");
+            final String prompt = "mc://";
+            final String input = PromptScreen.show(SignInScreen.this, "Direct connect",
+                    "You can connect to a server directly, bypassing sign-in,<br>"
+                    + "if you have a direct-connect URL in the form:<br>"
+                    + "<code>mc://address:port/username/mppass</code>",
+                    prompt);
+            if (input != null && !prompt.equals(input)) {
+                final String trimmedInput = input.replaceAll("[\\r\\n\\s]", "");
+                final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(trimmedInput);
+                if (joinInfo == null) {
+                    ErrorScreen.show(SignInScreen.this, "Unrecognized link", "Cannot join server directly: Unrecognized link format.", null);
+                } else if (joinInfo.signInNeeded) {
+                    ErrorScreen.show(SignInScreen.this, "Not a direct link", "Cannot join server directly: Sign in before using this URL.", null);
+                } else {
+                    dispose();
+                    ClientUpdateScreen.createAndShow(joinInfo);
+                }
             }
         }
-    }//GEN-LAST:event_bDirectActionPerformed
+    }
 
     private void enableResumeIfNeeded() {
         final ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
@@ -249,6 +274,18 @@ public final class SignInScreen extends javax.swing.JFrame {
         dispose();
         ClientUpdateScreen.createAndShow(joinInfo);
     }//GEN-LAST:event_bResumeActionPerformed
+
+    private void bResumeDropDownMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bResumeDropDownMousePressed
+        if (!bResumeDropDown.isEnabled()) {
+            return;
+        }
+
+        // Disarm the button here to prevent toggling the "selected" property twice
+        // (once by popup menu handler, and then again by JToggleButton's internal model)
+        bResumeDropDown.getModel().setArmed(false);
+
+        resumeMenu.show(bResume, 0, 0);
+    }//GEN-LAST:event_bResumeDropDownMousePressed
 
     // =============================================================================================
     //                                                                           GUI EVENT LISTENERS
@@ -268,6 +305,44 @@ public final class SignInScreen extends javax.swing.JFrame {
         // Selects all text in the username field on-focus,
         // and fills in the password field for known usernames
         usernameEditor.addFocusListener(new UsernameFocusListener());
+
+        // Create the drop-down menu for [Resume|v] split button
+        resumeMenu = new JPopupMenu();
+        resumeMenu.addPopupMenuListener(new ResumePopupMenuListener());
+
+        directMenuItem = new JMenuItem("Direct...");
+        directMenuItem.addActionListener(new DirectMenuItemActionListener());
+        resumeMenu.add(directMenuItem);
+
+        singlePlayerMenuItem = new JMenuItem("Single Player");
+        singlePlayerMenuItem.addActionListener(new SinglePlayerMenuItemActionListener());
+        resumeMenu.add(singlePlayerMenuItem);
+        
+        // The created menu is assigned to bResume in enableGUI()
+    }
+
+    // Cosmetic enhancements for the [Resume|v] drop-down menu
+    class ResumePopupMenuListener implements PopupMenuListener {
+        @Override
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            // Align the drop-down menu to the [Resume|v] button
+            Point buttonLoc = bResume.getLocationOnScreen();
+            resumeMenu.setLocation(buttonLoc.x, buttonLoc.y + bResume.getHeight() - 1);
+            // Make the |v] appear pressed
+            bResumeDropDown.setSelected(true);
+            bResumeDropDown.repaint();
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+            // Make the |v] appear released
+            bResumeDropDown.setSelected(false);
+            bResumeDropDown.repaint();
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) { // do nothing
+        }
     }
 
     // Select all text in password field, when focused
@@ -309,7 +384,7 @@ public final class SignInScreen extends javax.swing.JFrame {
             }
         }
     }
-    
+
     // Allows pressing <Enter> to sign in, while in the password textbox
     class PasswordEnterListener implements KeyListener {
 
@@ -370,7 +445,7 @@ public final class SignInScreen extends javax.swing.JFrame {
                 realPasswordLength = doc.getLength();
             } else {
                 realUsernameLength = doc.getLength();
-                    tPassword.setText("");
+                tPassword.setText("");
             }
             checkIfSignInAllowed();
         }
@@ -389,7 +464,7 @@ public final class SignInScreen extends javax.swing.JFrame {
     }
 
     // Enable/disable [Sign In] depending on whether username/password are given.
-    void checkIfSignInAllowed() {
+    private void checkIfSignInAllowed() {
         final boolean enableSignIn = (fieldChangeListener.realUsernameLength > 1)
                 && (fieldChangeListener.realPasswordLength > 0);
         bSignIn.setEnabled(enableSignIn);
@@ -421,15 +496,15 @@ public final class SignInScreen extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        bChangeService = new net.classicube.launcher.gui.JNiceLookingButton();
+        bPreferences = new net.classicube.launcher.gui.JNiceLookingButton();
         ipLogo = new net.classicube.launcher.gui.ImagePanel();
         cUsername = new javax.swing.JComboBox<String>();
         tPassword = new javax.swing.JPasswordField();
-        progress = new javax.swing.JProgressBar();
-        bDirect = new net.classicube.launcher.gui.JNiceLookingButton();
         bResume = new net.classicube.launcher.gui.JNiceLookingButton();
+        bResumeDropDown = new net.classicube.launcher.gui.JNiceLookingToggleButton();
         bSignIn = new net.classicube.launcher.gui.JNiceLookingButton();
-        bChangeService = new net.classicube.launcher.gui.JNiceLookingButton();
-        bPreferences = new net.classicube.launcher.gui.JNiceLookingButton();
+        progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ClassiCube Launcher");
@@ -437,6 +512,33 @@ public final class SignInScreen extends javax.swing.JFrame {
         setName("ClassiCube Launcher"); // NOI18N
         setPreferredSize(new java.awt.Dimension(320, 270));
         getContentPane().setLayout(new java.awt.GridBagLayout());
+
+        bChangeService.setText("Switch to ServiceName");
+        bChangeService.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bChangeServiceActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
+        getContentPane().add(bChangeService, gridBagConstraints);
+
+        bPreferences.setText("Preferences");
+        bPreferences.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bPreferencesActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        getContentPane().add(bPreferences, gridBagConstraints);
 
         ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -475,39 +577,32 @@ public final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
         getContentPane().add(tPassword, gridBagConstraints);
 
-        progress.setIndeterminate(true);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        getContentPane().add(progress, gridBagConstraints);
-
-        bDirect.setText("Direct...");
-        bDirect.setToolTipText("<html>Connect to a server directly, bypassing sign-in, using a direct-connect URL.<br>\nDirect-connect URLs have the form: <code>mc://address:port/username/mppass</code>");
-        bDirect.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bDirectActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
-        getContentPane().add(bDirect, gridBagConstraints);
-
         bResume.setText("Resume");
+        bResume.setWidthAdjust(1);
         bResume.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bResumeActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        getContentPane().add(bResume, gridBagConstraints);
+
+        bResumeDropDown.setText("v");
+        bResumeDropDown.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        bResumeDropDown.setWidthAdjust(-2);
+        bResumeDropDown.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                bResumeDropDownMousePressed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(bResume, gridBagConstraints);
+        gridBagConstraints.weightx = 0.1;
+        getContentPane().add(bResumeDropDown, gridBagConstraints);
 
         bSignIn.setText("Sign In >");
         bSignIn.addActionListener(new java.awt.event.ActionListener() {
@@ -518,50 +613,41 @@ public final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 0.1;
         getContentPane().add(bSignIn, gridBagConstraints);
 
-        bChangeService.setText("Switch to ServiceName");
-        bChangeService.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bChangeServiceActionPerformed(evt);
-            }
-        });
+        progress.setIndeterminate(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
-        getContentPane().add(bChangeService, gridBagConstraints);
-
-        bPreferences.setText("Preferences");
-        bPreferences.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bPreferencesActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        getContentPane().add(bPreferences, gridBagConstraints);
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        getContentPane().add(progress, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private net.classicube.launcher.gui.JNiceLookingButton bChangeService;
-    private net.classicube.launcher.gui.JNiceLookingButton bDirect;
     private net.classicube.launcher.gui.JNiceLookingButton bPreferences;
     private net.classicube.launcher.gui.JNiceLookingButton bResume;
+    private net.classicube.launcher.gui.JNiceLookingToggleButton bResumeDropDown;
     private net.classicube.launcher.gui.JNiceLookingButton bSignIn;
     private javax.swing.JComboBox<String> cUsername;
     private net.classicube.launcher.gui.ImagePanel ipLogo;
     private javax.swing.JProgressBar progress;
     private javax.swing.JPasswordField tPassword;
     // End of variables declaration//GEN-END:variables
+
+    private class SinglePlayerMenuItemActionListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO
+            LogUtil.getLogger().log(Level.FINE, "[SinglePlayer]");
+            dispose();
+            ClientUpdateScreen.createAndShow(null);
+        }
+    }
 }
