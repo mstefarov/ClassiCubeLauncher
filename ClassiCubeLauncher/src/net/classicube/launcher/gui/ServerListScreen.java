@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -30,6 +31,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import net.classicube.launcher.GameServiceType;
 import net.classicube.launcher.GameSession;
+import net.classicube.launcher.GetExternalIPTask;
 import net.classicube.launcher.LogUtil;
 import net.classicube.launcher.ServerJoinInfo;
 import net.classicube.launcher.ServerListEntry;
@@ -101,15 +103,15 @@ public final class ServerListScreen extends javax.swing.JFrame {
         getServerListTask = session.getServerListAsync();
         getServerListTask.addPropertyChangeListener(
                 new PropertyChangeListener() {
-            @Override
-            public void propertyChange(final PropertyChangeEvent evt) {
-                if ("state".equals(evt.getPropertyName())) {
-                    if (evt.getNewValue().equals(StateValue.DONE)) {
-                        onServerListDone();
+                    @Override
+                    public void propertyChange(final PropertyChangeEvent evt) {
+                        if ("state".equals(evt.getPropertyName())) {
+                            if (evt.getNewValue().equals(StateValue.DONE)) {
+                                onServerListDone();
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
         getServerListTask.execute();
     }
 
@@ -149,7 +151,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         } catch (InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading server list", ex);
-            ErrorScreen.show(this, "Could not load server list",
+            ErrorScreen.show("Could not load server list",
                     "An error occured while loading the server list:<br>" + ex.getMessage(), ex);
             tSearch.setText("Could not load server list.");
         }
@@ -212,21 +214,21 @@ public final class ServerListScreen extends javax.swing.JFrame {
         final String trimmedInput = url.replaceAll("[\\r\\n\\s]", "");
         final ServerJoinInfo joinInfo = session.getDetailsFromUrl(trimmedInput);
         if (joinInfo == null) {
-            ErrorScreen.show(this, "Cannot connect to given server",
+            ErrorScreen.show("Cannot connect to given server",
                     "Unrecognized server URL. Make sure that you are using the correct link.", null);
         } else if (joinInfo.passNeeded) {
             getServerDetailsTask = session.getServerDetailsAsync(trimmedInput);
             getServerDetailsTask.addPropertyChangeListener(
                     new PropertyChangeListener() {
-                @Override
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if ("state".equals(evt.getPropertyName())) {
-                        if (evt.getNewValue().equals(StateValue.DONE)) {
-                            onServerDetailsDone();
+                        @Override
+                        public void propertyChange(final PropertyChangeEvent evt) {
+                            if ("state".equals(evt.getPropertyName())) {
+                                if (evt.getNewValue().equals(StateValue.DONE)) {
+                                    onServerDetailsDone();
+                                }
+                            }
                         }
-                    }
-                }
-            });
+                    });
             progress.setVisible(true);
             disableGui();
             getServerDetailsTask.execute();
@@ -243,12 +245,12 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 final ServerJoinInfo joinInfo = getServerDetailsTask.getJoinInfo();
                 joinServer(joinInfo);
             } else {
-                ErrorScreen.show(this, "Cannot connect", "There was a problem fetching server details.", null);
+                ErrorScreen.show("Cannot connect", "There was a problem fetching server details.", null);
                 enableGui();
             }
         } catch (final InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error loading server details", ex);
-            ErrorScreen.show(this, "Error fetching server details", ex.getMessage(), ex);
+            ErrorScreen.show("Error fetching server details", ex.getMessage(), ex);
             enableGui();
         }
     }
@@ -260,6 +262,24 @@ public final class ServerListScreen extends javax.swing.JFrame {
         if (joinInfo.playerName == null || "".equals(joinInfo.playerName)) {
             joinInfo.playerName = session.getAccount().playerName;
         }
+
+        InetAddress serverAddress = joinInfo.address;
+        try {
+            InetAddress localAddress = GetExternalIPTask.getInstance().get();
+            if (serverAddress.equals(localAddress)) {
+                InetAddress correctedAddress = SameIPScreen.show(serverAddress);
+                if (correctedAddress == null) {
+                    enableGui();
+                    return; // player canceled/closed dialog
+                } else {
+                    joinInfo.address = correctedAddress;
+                }
+            }
+
+        } catch (InterruptedException | ExecutionException ex) {
+            GetExternalIPTask.logAndShowError(ex);
+        }
+
         dispose();
         ClientUpdateScreen.createAndShow(joinInfo);
     }
@@ -321,6 +341,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }
 
     private static class TableFocusPreviousComponentAction extends AbstractAction {
+
         @Override
         public void actionPerformed(ActionEvent evt) {
             KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -329,6 +350,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }
 
     private static class TableFocusNextComponentAction extends AbstractAction {
+
         @Override
         public void actionPerformed(ActionEvent evt) {
             KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -337,6 +359,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
     }
 
     private static class UptimeCellRenderer extends DefaultTableCellRenderer {
+
         @Override
         public Component getTableCellRendererComponent(final JTable table, final Object value,
                 final boolean isSelected, final boolean hasFocus, final int row, final int column) {

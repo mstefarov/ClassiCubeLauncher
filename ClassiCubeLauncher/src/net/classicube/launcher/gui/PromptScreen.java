@@ -9,16 +9,23 @@ import javax.swing.event.DocumentListener;
 
 public class PromptScreen extends javax.swing.JDialog {
 
-    public static String show(final Frame parent, final String title, final String message, final String placeholder) {
-        PromptScreen screen = new PromptScreen(parent, title, message, placeholder);
+    public static String show(final String title, final String message, final String placeholder) {
+        PromptScreen screen = new PromptScreen(title, message, placeholder);
         screen.setVisible(true);
         return screen.input;
     }
+
     private String input;
 
-    private PromptScreen(final Frame parent, final String title, final String message, final String placeholder) {
+    private PromptScreen(final String title, final String message, final String placeholder) {
         // set title, add border
-        super(parent, title, true);
+        super((Frame)null, title, true);
+
+        sharedInitCode(placeholder, message);
+    }
+
+
+    private void sharedInitCode(final String placeholder, final String message) {
         // set background
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);

@@ -85,7 +85,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
             ClientUpdateTask.getInstance().get();
 
         } catch (final InterruptedException | ExecutionException ex) {
-            ErrorScreen.show(this, "Error updating",
+            ErrorScreen.show("Error updating",
                     "The game cannot be started because an error occured during the download/update process.",
                     ex);
             System.exit(3);
@@ -123,8 +123,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_bViewChangesActionPerformed
 
     void showReleaseNotesUrl() {
-        PromptScreen.show(this, "Release notes link",
-                "Here you can find a list of changes in this game update.", RELEASE_NOTES_URL);
+        PromptScreen.show("Release notes link", "Here you can find a list of changes in this game update.", RELEASE_NOTES_URL);
     }
 
     // =============================================================================================

@@ -6,6 +6,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import javax.swing.JDialog;
 import net.classicube.launcher.gui.ErrorScreen;
 
 // Global logging class (to make life easier)
@@ -24,7 +25,7 @@ public final class LogUtil {
             handler.setFormatter(new SimpleFormatter());
             logger.addHandler(handler);
         } catch (final IOException | SecurityException ex) {
-            ErrorScreen.show(null, "Error creating log file", ex.getMessage(), ex);
+            ErrorScreen.show("Error creating log file", ex.getMessage(), ex);
             System.exit(2);
         }
     }

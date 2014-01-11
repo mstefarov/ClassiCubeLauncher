@@ -22,9 +22,10 @@ import org.apache.commons.lang3.StringEscapeUtils;
 // Base class for service-specific handlers.
 public abstract class GameSession {
 
-    private static final String COOKIES_NODE_NAME = "Cookies";
-    private static final String LAST_SESSION_NODE_NAME = "LastSession";
-    private static final String BLANK_MPPASS = "00000000000000000000000000000000";
+    private static final String
+            COOKIES_NODE_NAME = "Cookies",
+            LAST_SESSION_NODE_NAME = "LastSession",
+            BLANK_MPPASS = "00000000000000000000000000000000";
     protected Preferences store, cookieStore;
 
     // constructor used by implementations

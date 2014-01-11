@@ -2,22 +2,24 @@ package net.classicube.launcher.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ItemEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
 
 public class ErrorScreen extends javax.swing.JDialog {
 
-    public static void show(final JFrame parent, final String title, final String message, final Throwable ex) {
-        new ErrorScreen(parent, title, message, ex).setVisible(true);
+    public static void show(final String title, final String message, final Throwable ex) {
+        new ErrorScreen(title, message, ex).setVisible(true);
     }
 
-    private ErrorScreen(final JFrame parent, final String title, final String message, final Throwable ex) {
+    private ErrorScreen(final String title, final String message, final Throwable ex) {
         // set title, add border
-        super(parent, title, true);
-
+        super((Frame)null, title, true);
+        sharedInitCode(message, ex);
+    }
+    private void sharedInitCode(final String message, final Throwable ex) {
         // set background
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);

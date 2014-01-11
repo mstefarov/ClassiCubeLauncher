@@ -12,7 +12,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.net.InetAddress;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -28,6 +30,7 @@ import javax.swing.text.JTextComponent;
 import net.classicube.launcher.AccountManager;
 import net.classicube.launcher.GameServiceType;
 import net.classicube.launcher.GameSession;
+import net.classicube.launcher.GetExternalIPTask;
 import net.classicube.launcher.LogUtil;
 import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
@@ -222,11 +225,11 @@ public final class SignInScreen extends javax.swing.JFrame {
                 dispose();
             } else {
                 final String errorMsg = SignInResult.getMessage(result);
-                ErrorScreen.show(this, "Could not sign in", errorMsg, null);
+                ErrorScreen.show("Could not sign in", errorMsg, null);
             }
         } catch (final Exception ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
-            ErrorScreen.show(this, "Error signing in", ex.getMessage(), ex);
+            ErrorScreen.show("Error signing in", ex.getMessage(), ex);
         }
         enableGUI();
     }
@@ -240,7 +243,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             LogUtil.getLogger().log(Level.FINE, "[Direct]");
             final String prompt = "mc://";
-            final String input = PromptScreen.show(SignInScreen.this, "Direct connect",
+            final String input = PromptScreen.show("Direct connect",
                     "You can connect to a server directly, bypassing sign-in,<br>"
                     + "if you have a direct-connect URL in the form:<br>"
                     + "<code>mc://address:port/username/mppass</code>",
@@ -249,10 +252,26 @@ public final class SignInScreen extends javax.swing.JFrame {
                 final String trimmedInput = input.replaceAll("[\\r\\n\\s]", "");
                 final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(trimmedInput);
                 if (joinInfo == null) {
-                    ErrorScreen.show(SignInScreen.this, "Unrecognized link", "Cannot join server directly: Unrecognized link format.", null);
+                    ErrorScreen.show("Unrecognized link", "Cannot join server directly: Unrecognized link format.", null);
                 } else if (joinInfo.signInNeeded) {
-                    ErrorScreen.show(SignInScreen.this, "Not a direct link", "Cannot join server directly: Sign in before using this URL.", null);
+                    ErrorScreen.show("Not a direct link", "Cannot join server directly: Sign in before using this URL.", null);
                 } else {
+                    // check if server IP is same as local 
+                    InetAddress serverAddress = joinInfo.address;
+                    try {
+                        InetAddress localAddress = GetExternalIPTask.getInstance().get();
+                        if (serverAddress.equals(localAddress)) {
+                            InetAddress correctedAddress = SameIPScreen.show(serverAddress);
+                            if (correctedAddress == null) {
+                                return; // player canceled/closed dialog
+                            } else {
+                                joinInfo.address = correctedAddress;
+                            }
+                        }
+
+                    } catch (InterruptedException | ExecutionException ex) {
+                        GetExternalIPTask.logAndShowError(ex);
+                    }
                     dispose();
                     ClientUpdateScreen.createAndShow(joinInfo);
                 }
@@ -321,12 +340,13 @@ public final class SignInScreen extends javax.swing.JFrame {
         singlePlayerMenuItem = new JMenuItem("Single Player");
         singlePlayerMenuItem.addActionListener(new SinglePlayerMenuItemActionListener());
         resumeMenu.add(singlePlayerMenuItem);
-        
+
         // The created menu is assigned to bResume in enableGUI()
     }
 
     // Cosmetic enhancements for the [Resume|v] drop-down menu
     class ResumePopupMenuListener implements PopupMenuListener {
+
         @Override
         public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             // Align the drop-down menu to the [Resume|v] button

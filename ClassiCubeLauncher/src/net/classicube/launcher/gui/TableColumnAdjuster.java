@@ -32,6 +32,8 @@ import javax.swing.table.TableModel;
  *  of the columns must fit inside the table. So if you increase one column, one
  *  or more of the other columns must decrease. Because of this the resize mode
  *  of RESIZE_ALL_COLUMNS will work the best.
+ *
+ *  Modified by Matvei Stefarov <me@matvei.org> for ClassiCubeLauncher
  */
 public final class TableColumnAdjuster
         implements PropertyChangeListener, TableModelListener {
@@ -42,7 +44,7 @@ public final class TableColumnAdjuster
     private boolean isColumnDataIncluded;
     private boolean isOnlyAdjustLarger;
     private boolean isDynamicAdjustment;
-    private Map<TableColumn, Integer> columnSizes = new HashMap<>();
+    private final Map<TableColumn, Integer> columnSizes = new HashMap<>();
 
     /*
      *  Specify the table and use default spacing

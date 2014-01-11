@@ -7,7 +7,6 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
@@ -16,12 +15,13 @@ import javax.swing.ButtonModel;
 import javax.swing.JButton;
 
 class JNiceLookingRenderer {
+    private static final int BORDER_RADIUS = 3;
 
     public static void paintComponent(AbstractButton button, Graphics g, int widthAdjust) {
         // Prepare
-        Graphics2D g2 = (Graphics2D) g.create();
-        Dimension size = button.getSize();
-        int offset = 0;
+        final Graphics2D g2 = (Graphics2D) g.create();
+        final Dimension size = button.getSize();
+        int textOffset = 0;
 
         int startX = 0;
         if (widthAdjust > 0) {
@@ -30,19 +30,17 @@ class JNiceLookingRenderer {
             startX = widthAdjust;
         }
 
-        //g2.setPaint(Color.cyan);
-        //g2.fillRect(0, 0, size.width, size.height);
-        ButtonModel model = button.getModel();
+        final ButtonModel model = button.getModel();
 
         // Define colors
-        Color ccGradientTop, ccGradientBottom, ccHighlight, ccBorder;
+        final Color ccGradientTop, ccGradientBottom, ccHighlight, ccBorder;
         if (button.isEnabled()) {
             if (model.isArmed() || model.isPressed() || model.isSelected()) {
                 // Pressed
                 ccGradientTop = new Color(146, 123, 166);
                 ccGradientBottom = new Color(168, 141, 191);
                 ccHighlight = ccGradientTop;
-                offset = 1;
+                textOffset = 1;
             } else if (model.isRollover() || button.isFocusOwner()) {
                 // Hover
                 ccGradientTop = new Color(180, 153, 203);
@@ -64,8 +62,11 @@ class JNiceLookingRenderer {
         }
 
         // Paint background
-        RoundRectangle2D roundBorder = new RoundRectangle2D.Float(startX+1, 1, size.width - 3- startX, size.height - 3, 2, 2);
-        GradientPaint gp = new GradientPaint(
+        final RoundRectangle2D roundBorder = new RoundRectangle2D.Float(
+                startX + 1, 1, // starting coordinate
+                size.width - 3 - startX, size.height - 3, // size
+                BORDER_RADIUS, BORDER_RADIUS); // border radii
+        final GradientPaint gp = new GradientPaint(
                 0, 0, ccGradientTop,
                 0, button.getHeight(), ccGradientBottom);
         g2.setPaint(gp);
@@ -73,7 +74,7 @@ class JNiceLookingRenderer {
 
         // Paint background highlight
         g2.setPaint(ccHighlight);
-        g2.drawLine(startX+3, 2, size.width - 4- startX, 2);
+        g2.drawLine(startX + 3, 2, size.width - 4 - startX, 2);
 
         // Paint highlight glow
         if (button.isFocusOwner() || (button instanceof JButton) && ((JButton) button).isDefaultButton()) {
@@ -83,7 +84,10 @@ class JNiceLookingRenderer {
             }
             Stroke oldStroke = g2.getStroke();
             g2.setStroke(new BasicStroke(glowSize));
-            RoundRectangle2D innerBorder = new RoundRectangle2D.Float(startX+2, 2, size.width - 5- startX, size.height - 5, 4, 4);
+            RoundRectangle2D innerBorder = new RoundRectangle2D.Float(
+                    startX + 2, 2, // starting coordinate
+                    size.width - 5 - startX, size.height - 5, // size
+                    BORDER_RADIUS + 2, BORDER_RADIUS + 2); // border radii
             g2.draw(innerBorder);
             g2.setStroke(oldStroke);
         }
@@ -93,27 +97,27 @@ class JNiceLookingRenderer {
         g2.draw(roundBorder);
 
         // Measure the label
-        FontMetrics fm = button.getFontMetrics(button.getFont());
-        Rectangle2D rect = fm.getStringBounds(button.getText(), g);
+        final FontMetrics fm = button.getFontMetrics(button.getFont());
+        final Rectangle2D rect = fm.getStringBounds(button.getText(), g);
 
-        int textHeight = (int) (rect.getHeight());
-        int textWidth = (int) (rect.getWidth());
-        int panelHeight = button.getHeight();
-        int panelWidth = button.getWidth();
+        final int textHeight = (int) (rect.getHeight());
+        final int textWidth = (int) (rect.getWidth());
+        final int panelHeight = button.getHeight();
+        final int panelWidth = button.getWidth();
 
         // Center text horizontally and vertically
-        int x = (panelWidth - textWidth) / 2;
-        int y = (panelHeight - textHeight) / 2 + fm.getAscent() - 1;
+        final int x = (panelWidth - textWidth) / 2;
+        final int y = (panelHeight - textHeight) / 2 + fm.getAscent() - 1;
 
         // Paint text shadow
         if (button.isEnabled()) {
             g2.setPaint(ccBorder);
-            g2.drawString(button.getText(), x + 1 + offset, y + 1 + offset);
+            g2.drawString(button.getText(), x + 1 + textOffset, y + 1 + textOffset);
         }
 
         // Paint text proper
         g2.setPaint(Color.WHITE);
-        g2.drawString(button.getText(), x + offset, y + offset);
+        g2.drawString(button.getText(), x + textOffset, y + textOffset);
 
         // Clean up
         g2.dispose();

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.logging.Level;
+import javax.swing.JDialog;
 import net.classicube.launcher.gui.DebugWindow;
 import net.classicube.launcher.gui.ErrorScreen;
 
@@ -28,7 +29,7 @@ final public class ClientLauncher {
         try {
             nativePath = new File(PathUtil.getClientDir(), "natives").getCanonicalPath();
         } catch (final Exception ex) {
-            ErrorScreen.show(null, "Could not launch the game",
+            ErrorScreen.show("Could not launch the game",
                     "Error finding the LWJGL native library path:<br>" + ex.getMessage(), ex);
             return;
         }
@@ -107,7 +108,7 @@ final public class ClientLauncher {
             }
 
         } catch (final Exception ex) {
-            ErrorScreen.show(null, "Could not launch the game",
+            ErrorScreen.show("Could not launch the game",
                     "Error launching the client:<br>" + ex.getMessage(), ex);
         }
     }
