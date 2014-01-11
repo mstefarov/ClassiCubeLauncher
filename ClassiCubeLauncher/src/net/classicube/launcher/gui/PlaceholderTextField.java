@@ -7,6 +7,7 @@ import javax.swing.JTextField;
 import javax.swing.text.Document;
 
 public final class PlaceholderTextField extends JTextField {
+
     private String placeholder = "";
 
     public PlaceholderTextField() {

@@ -3,8 +3,9 @@ package net.classicube.launcher;
 import java.util.prefs.Preferences;
 
 public final class Prefs {
+
     // Key names
-    private static String keyUpdateMode = "UpdateMode",
+    private static final String keyUpdateMode = "UpdateMode",
             keyFullscreen = "WindowSize",
             keyRememberUsers = "RememberUsers",
             keyRememberPasswords = "RememberPasswords",
@@ -13,7 +14,7 @@ public final class Prefs {
             keyMaxMemory = "MaxMemory",
             keySelectedGameService = "SelectedGameService",
             keyDebugMode = "DebugMode";
-    
+
     // Defaults
     public final static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
     public final static boolean FullscreenDefault = false,
@@ -66,7 +67,7 @@ public final class Prefs {
     public static boolean getDebugMode() {
         return getPrefs().getBoolean(keyDebugMode, DebugModeDefault);
     }
-    
+
     public static GameServiceType getSelectedGameService() {
         try {
             final String val = getPrefs().get(keySelectedGameService, SelectedGameServiceDefault.name());

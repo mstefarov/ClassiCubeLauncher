@@ -130,7 +130,6 @@ public final class TableColumnAdjuster
             preferredWidth = Math.max(preferredWidth, getCellDataWidth(row, column));
 
             //  We've exceeded the maximum width, no need to check other rows
-
             if (preferredWidth >= maxWidth) {
                 break;
             }
@@ -165,7 +164,6 @@ public final class TableColumnAdjuster
         width += spacing;
 
         //  Don't shrink the column width
-
         if (isOnlyAdjustLarger) {
             width = Math.max(width, tableColumn.getPreferredWidth());
         }
@@ -266,12 +264,10 @@ public final class TableColumnAdjuster
         }
 
         //  A cell has been updated
-
         if (e.getType() == TableModelEvent.UPDATE) {
             int column = table.convertColumnIndexToView(e.getColumn());
 
             //  Only need to worry about an increase in width for this cell
-
             if (isOnlyAdjustLarger) {
                 int row = e.getFirstRow();
                 TableColumn tableColumn = table.getColumnModel().getColumn(column);
@@ -329,6 +325,7 @@ public final class TableColumnAdjuster
      *  Action to adjust or restore the width of a single column or all columns
      */
     class ColumnAction extends AbstractAction {
+
         private boolean isSelectedColumn;
         private boolean isAdjust;
 

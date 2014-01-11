@@ -71,6 +71,7 @@ public final class UserAccount {
 
     private static class UserAccountDateComparator
             implements Comparator<UserAccount>, Serializable {
+
         @Override
         public int compare(final UserAccount o1, final UserAccount o2) {
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();

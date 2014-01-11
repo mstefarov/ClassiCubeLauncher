@@ -16,10 +16,8 @@ public class ErrorScreen extends javax.swing.JDialog {
 
     private ErrorScreen(final String title, final String message, final Throwable ex) {
         // set title, add border
-        super((Frame)null, title, true);
-        sharedInitCode(message, ex);
-    }
-    private void sharedInitCode(final String message, final Throwable ex) {
+        super((Frame) null, title, true);
+
         // set background
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);
@@ -43,7 +41,7 @@ public class ErrorScreen extends javax.swing.JDialog {
             this.bDetails.setVisible(false);
         }
         this.detailsContainer.setVisible(false);
-        
+
         // focus & highlight [Close]
         getRootPane().setDefaultButton(bClose);
 

@@ -1,12 +1,13 @@
 package net.classicube.launcher;
 
 enum OperatingSystem {
+
     NIX,
     SOLARIS,
     WINDOWS,
     MACOS,
     UNKNOWN;
-    
+
     private final static String osName = System.getProperty("os.name").toLowerCase();
 
     public static OperatingSystem detect() {

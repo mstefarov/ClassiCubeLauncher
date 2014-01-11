@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.JDialog;
 import net.classicube.launcher.gui.PromptScreen;
 
 // Provides all functionality specific to Minecraft.net:
@@ -26,8 +25,7 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                                       SIGN-IN
     // =============================================================================================
-    private static final String
-            LOGIN_URL = "https://minecraft.net/login",
+    private static final String LOGIN_URL = "https://minecraft.net/login",
             LOGOUT_URL = "https://minecraft.net/logout",
             CHALLENGE_URL = "https://minecraft.net/challenge",
             MIGRATED_ACCOUNT_MESSAGE = "Your account has been migrated",
@@ -40,8 +38,7 @@ final class MinecraftNetSession extends GameSession {
             CHALLENGE_MESSAGE = "To confirm your identity, please answer the question below",
             CHALLENGE_QUESTION_PATTERN = "<label for=\"answer\">([^<]+)</label>",
             CHALLENGE_QUESTION_ID_PATTERN = "name=\"questionId\" value=\"(\\d+)\" />";
-    private static final Pattern
-            authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
+    private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
             loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN),
             challengeQuestionRegex = Pattern.compile(CHALLENGE_QUESTION_PATTERN),
             challengeQuestionIdRegex = Pattern.compile(CHALLENGE_QUESTION_ID_PATTERN);

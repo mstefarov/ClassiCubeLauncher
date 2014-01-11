@@ -15,6 +15,7 @@ import javax.swing.ButtonModel;
 import javax.swing.JButton;
 
 class JNiceLookingRenderer {
+
     private static final int BORDER_RADIUS = 3;
 
     public static void paintComponent(AbstractButton button, Graphics g, int widthAdjust) {

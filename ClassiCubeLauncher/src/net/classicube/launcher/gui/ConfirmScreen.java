@@ -1,39 +1,24 @@
 package net.classicube.launcher.gui;
 
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
 import javax.swing.border.EmptyBorder;
 
 public class ConfirmScreen extends javax.swing.JDialog {
 
-    public static boolean show(final Dialog parent, final String title, final String message) {
-        ConfirmScreen screen = new ConfirmScreen(parent, title, message);
-        screen.setVisible(true);
-        return screen.isConfirmed;
-    }
-    
-    public static boolean show(final Frame parent, final String title, final String message) {
-        ConfirmScreen screen = new ConfirmScreen(parent, title, message);
+
+    public static boolean show(final String title, final String message) {
+        ConfirmScreen screen = new ConfirmScreen(title, message);
         screen.setVisible(true);
         return screen.isConfirmed;
     }
     private boolean isConfirmed;
 
-    private ConfirmScreen(final Frame parent, final String title, final String message) {
+    private ConfirmScreen(final String title, final String message) {
         // set title, add border
-        super(parent, title, true);
-        sharedInitCode(message);
-    }
-    
-    private ConfirmScreen(final Dialog parent, final String title, final String message) {
-        // set title, add border
-        super(parent, title, true);
-        sharedInitCode(message);
-    }
-    
-    private void sharedInitCode(final String message){
+        super((Frame)null, title, true);
+        
         // set background
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);

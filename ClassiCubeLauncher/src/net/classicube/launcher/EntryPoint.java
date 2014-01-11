@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
 import java.util.logging.Level;
-import javax.swing.JDialog;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -74,7 +73,7 @@ public final class EntryPoint {
 
         // begin the update process
         ClientUpdateTask.getInstance().execute();
-        
+
         // begin looking up our external IP address
         GetExternalIPTask.getInstance().execute();
     }

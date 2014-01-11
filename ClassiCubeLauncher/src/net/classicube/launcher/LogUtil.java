@@ -6,7 +6,6 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-import javax.swing.JDialog;
 import net.classicube.launcher.gui.ErrorScreen;
 
 // Global logging class (to make life easier)

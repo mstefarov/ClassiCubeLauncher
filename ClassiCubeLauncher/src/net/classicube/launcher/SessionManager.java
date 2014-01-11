@@ -6,6 +6,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 public final class SessionManager {
+
     private static GameSession activeSession;
     private static AccountManager accountManager;
 
@@ -40,14 +41,18 @@ public final class SessionManager {
             LogUtil.getLogger().log(Level.SEVERE, "Error erasing resume info", ex);
         }
     }
-    
-    public static boolean hasAnyResumeInfo(){
+
+    public static boolean hasAnyResumeInfo() {
         try {
             Preferences servicesNode = Preferences.userNodeForPackage(SessionManager.class);
             Preferences ccNode = servicesNode.node(GameServiceType.ClassiCubeNetService.name());
-            if(ccNode.nodeExists(GameSession.RESUME_NODE_NAME)) return true;
+            if (ccNode.nodeExists(GameSession.RESUME_NODE_NAME)) {
+                return true;
+            }
             Preferences mcNode = servicesNode.node(GameServiceType.MinecraftNetService.name());
-            if(mcNode.nodeExists(GameSession.RESUME_NODE_NAME)) return true;
+            if (mcNode.nodeExists(GameSession.RESUME_NODE_NAME)) {
+                return true;
+            }
             return false;
         } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error checking resume info", ex);

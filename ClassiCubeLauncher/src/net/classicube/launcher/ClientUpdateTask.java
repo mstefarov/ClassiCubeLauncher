@@ -111,29 +111,29 @@ public final class ClientUpdateTask
     // =============================================================================================
     private MessageDigest digest;
     private final byte[] ioBuffer = new byte[64 * 1024];
-    private final static String[] resourceFiles = new String[]{ "music/calm1.ogg", "music/calm2.ogg", "music/calm3.ogg",
-                                "newmusic/hal1.ogg", "newmusic/hal2.ogg", "newmusic/hal3.ogg", "newmusic/hal4.ogg",
-                                "newsound/step/grass1.ogg", "newsound/step/grass2.ogg", "newsound/step/grass3.ogg",
-                                "newsound/step/grass4.ogg", "newsound/step/gravel1.ogg",
-                                "newsound/step/gravel2.ogg", "newsound/step/gravel3.ogg",
-                                "newsound/step/gravel4.ogg", "newsound/step/stone1.ogg",
-                                "newsound/step/stone2.ogg", "newsound/step/stone3.ogg", "newsound/step/stone4.ogg",
-                                "newsound/step/wood1.ogg", "newsound/step/wood2.ogg", "newsound/step/wood3.ogg",
-                                "newsound/step/wood4.ogg", "newsound/step/cloth1.ogg", "newsound/step/cloth2.ogg",
-                                "newsound/step/cloth3.ogg", "newsound/step/cloth4.ogg", "newsound/step/sand1.ogg",
-                                "newsound/step/sand2.ogg", "newsound/step/sand3.ogg", "newsound/step/sand4.ogg",
-                                "newsound/step/snow1.ogg", "newsound/step/snow2.ogg", "newsound/step/snow3.ogg",
-                                "newsound/step/snow4.ogg", "sound3/dig/grass1.ogg", "sound3/dig/grass2.ogg",
-                                "sound3/dig/grass3.ogg", "sound3/dig/grass4.ogg", "sound3/dig/gravel1.ogg",
-                                "sound3/dig/gravel2.ogg", "sound3/dig/gravel3.ogg", "sound3/dig/gravel4.ogg",
-                                "sound3/dig/stone1.ogg", "sound3/dig/stone2.ogg", "sound3/dig/stone3.ogg",
-                                "sound3/dig/stone4.ogg", "sound3/dig/wood1.ogg", "sound3/dig/wood2.ogg",
-                                "sound3/dig/wood3.ogg", "sound3/dig/wood4.ogg", "sound3/dig/cloth1.ogg",
-                                "sound3/dig/cloth2.ogg", "sound3/dig/cloth3.ogg", "sound3/dig/cloth4.ogg",
-                                "sound3/dig/sand1.ogg", "sound3/dig/sand2.ogg", "sound3/dig/sand3.ogg",
-                                "sound3/dig/sand4.ogg", "sound3/dig/snow1.ogg", "sound3/dig/snow2.ogg",
-                                "sound3/dig/snow3.ogg", "sound3/dig/snow4.ogg", "sound3/random/glass1.ogg",
-                                "sound3/random/glass2.ogg", "sound3/random/glass3.ogg" };
+    private final static String[] resourceFiles = new String[]{"music/calm1.ogg", "music/calm2.ogg", "music/calm3.ogg",
+        "newmusic/hal1.ogg", "newmusic/hal2.ogg", "newmusic/hal3.ogg", "newmusic/hal4.ogg",
+        "newsound/step/grass1.ogg", "newsound/step/grass2.ogg", "newsound/step/grass3.ogg",
+        "newsound/step/grass4.ogg", "newsound/step/gravel1.ogg",
+        "newsound/step/gravel2.ogg", "newsound/step/gravel3.ogg",
+        "newsound/step/gravel4.ogg", "newsound/step/stone1.ogg",
+        "newsound/step/stone2.ogg", "newsound/step/stone3.ogg", "newsound/step/stone4.ogg",
+        "newsound/step/wood1.ogg", "newsound/step/wood2.ogg", "newsound/step/wood3.ogg",
+        "newsound/step/wood4.ogg", "newsound/step/cloth1.ogg", "newsound/step/cloth2.ogg",
+        "newsound/step/cloth3.ogg", "newsound/step/cloth4.ogg", "newsound/step/sand1.ogg",
+        "newsound/step/sand2.ogg", "newsound/step/sand3.ogg", "newsound/step/sand4.ogg",
+        "newsound/step/snow1.ogg", "newsound/step/snow2.ogg", "newsound/step/snow3.ogg",
+        "newsound/step/snow4.ogg", "sound3/dig/grass1.ogg", "sound3/dig/grass2.ogg",
+        "sound3/dig/grass3.ogg", "sound3/dig/grass4.ogg", "sound3/dig/gravel1.ogg",
+        "sound3/dig/gravel2.ogg", "sound3/dig/gravel3.ogg", "sound3/dig/gravel4.ogg",
+        "sound3/dig/stone1.ogg", "sound3/dig/stone2.ogg", "sound3/dig/stone3.ogg",
+        "sound3/dig/stone4.ogg", "sound3/dig/wood1.ogg", "sound3/dig/wood2.ogg",
+        "sound3/dig/wood3.ogg", "sound3/dig/wood4.ogg", "sound3/dig/cloth1.ogg",
+        "sound3/dig/cloth2.ogg", "sound3/dig/cloth3.ogg", "sound3/dig/cloth4.ogg",
+        "sound3/dig/sand1.ogg", "sound3/dig/sand2.ogg", "sound3/dig/sand3.ogg",
+        "sound3/dig/sand4.ogg", "sound3/dig/snow1.ogg", "sound3/dig/snow2.ogg",
+        "sound3/dig/snow3.ogg", "sound3/dig/snow4.ogg", "sound3/random/glass1.ogg",
+        "sound3/random/glass2.ogg", "sound3/random/glass3.ogg"};
     public static final String FILE_INDEX_URL = "http://www.classicube.net/static/client/version",
             RESOURCE_DOWNLOAD_URL = "https://s3.amazonaws.com/MinecraftResources/";
 
@@ -454,13 +454,13 @@ public final class ClientUpdateTask
 
     private void signalDownloadProgress() {
         final int overallProgress = (this.activeFileNumber * 100) / totalFiles;
-        final String fileName = activeFile.localName.getName() + " ("+(this.activeFileNumber+1)+" / "+this.totalFiles+")";
+        final String fileName = activeFile.localName.getName() + " (" + (this.activeFileNumber + 1) + " / " + this.totalFiles + ")";
         final String status = "Preparing to download...";
         this.publish(new ProgressUpdate(fileName, status, overallProgress));
     }
 
     private void signalDownloadPercent(final long bytesSoFar, final long bytesTotal) {
-        final String fileName = activeFile.localName.getName() + " ("+(this.activeFileNumber+1)+" / "+this.totalFiles+")";
+        final String fileName = activeFile.localName.getName() + " (" + (this.activeFileNumber + 1) + " / " + this.totalFiles + ")";
         final String status;
         final int overallProgress;
         if (bytesTotal > 0) {
@@ -468,9 +468,9 @@ public final class ClientUpdateTask
             final int baseProgress = (this.activeFileNumber * 100) / this.totalFiles;
             final int deltaProgress = 100 / this.totalFiles;
             overallProgress = baseProgress + (deltaProgress * percent) / 100;
-            status = String.format("Downloading (%s / %s KiB)", bytesSoFar/1024, bytesTotal/1024);
+            status = String.format("Downloading (%s / %s KiB)", bytesSoFar / 1024, bytesTotal / 1024);
         } else {
-            status = String.format("Downloading... (%s KiB)", bytesSoFar/1024);
+            status = String.format("Downloading... (%s KiB)", bytesSoFar / 1024);
             overallProgress = (this.activeFileNumber * 100) / this.totalFiles;
         }
         this.publish(new ProgressUpdate(fileName, status, overallProgress));
@@ -478,7 +478,7 @@ public final class ClientUpdateTask
 
     private void signalUnpackProgress() {
         int overallProgress = (this.activeFileNumber * 100 + 100) / this.totalFiles;
-        final String fileName = activeFile.localName.getName() + " ("+(this.activeFileNumber+1)+" / "+this.totalFiles+")";
+        final String fileName = activeFile.localName.getName() + " (" + (this.activeFileNumber + 1) + " / " + this.totalFiles + ")";
         final String status = "Unpacking...";
         this.publish(new ProgressUpdate(fileName, status, overallProgress));
     }

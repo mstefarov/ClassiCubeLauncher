@@ -127,21 +127,21 @@ final class PreferencesScreen extends javax.swing.JDialog {
     //                                                                                    FORGETTING
     // =============================================================================================
     private void bForgetUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetUsersActionPerformed
-        if (ConfirmScreen.show(this, "Warning", "Really erase all stored user information?")) {
+        if (ConfirmScreen.show("Warning", "Really erase all stored user information?")) {
             SessionManager.getAccountManager().clear();
             checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetUsersActionPerformed
 
     private void bForgetPasswordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetPasswordsActionPerformed
-        if (ConfirmScreen.show(this, "Warning", "Really erase all stored user passwords?")) {
+        if (ConfirmScreen.show("Warning", "Really erase all stored user passwords?")) {
             SessionManager.getAccountManager().clearPasswords();
             checkIfForgetButtonsShouldBeEnabled();
         }
     }//GEN-LAST:event_bForgetPasswordsActionPerformed
 
     private void bForgetServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServerActionPerformed
-        if (ConfirmScreen.show(this, "Warning", "Really erase stored information about the last-joined server?")) {
+        if (ConfirmScreen.show("Warning", "Really erase stored information about the last-joined server?")) {
             SessionManager.clearAllResumeInfo();
             checkIfForgetButtonsShouldBeEnabled();
         }

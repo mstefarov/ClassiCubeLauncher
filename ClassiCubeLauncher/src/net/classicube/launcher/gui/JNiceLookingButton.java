@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import javax.swing.JButton;
 
 public class JNiceLookingButton extends JButton {
+
     // used to adjust the appearance of borders.
     // Positive values shift and clip the left border by the specified number of pixels.
     // Negative values shift and clip the right border.

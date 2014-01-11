@@ -24,7 +24,7 @@ final class PathUtil {
         }
         return clientPath;
     }
-    
+
     public static File getJavaPath() {
         return new File(System.getProperty("java.home"), "bin/java");
     }
@@ -46,12 +46,12 @@ final class PathUtil {
             Files.move(sourcePath, destPath, FallbackFileReplaceOptions);
         }
     }
-    
+
     private static final CopyOption[] FileReplaceOptions = new CopyOption[]{
         StandardCopyOption.ATOMIC_MOVE,
         StandardCopyOption.REPLACE_EXISTING
     };
-    
+
     private static final CopyOption[] FallbackFileReplaceOptions = new CopyOption[]{
         StandardCopyOption.REPLACE_EXISTING
     };

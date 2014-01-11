@@ -43,7 +43,7 @@ final class HttpUtil {
     public static String downloadString(final String urlString) {
         return uploadString(urlString, null, MaxRedirects);
     }
-    
+
     // Uploads a string using POST, then downloads the response.
     // Returns null and logs an error on failure.
     public static String uploadString(final String urlString, final String dataString) {
