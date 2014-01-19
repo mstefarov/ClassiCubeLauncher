@@ -50,10 +50,7 @@ public final class SessionManager {
                 return true;
             }
             Preferences mcNode = servicesNode.node(GameServiceType.MinecraftNetService.name());
-            if (mcNode.nodeExists(GameSession.RESUME_NODE_NAME)) {
-                return true;
-            }
-            return false;
+            return mcNode.nodeExists(GameSession.RESUME_NODE_NAME);
         } catch (final BackingStoreException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error checking resume info", ex);
             return false;
