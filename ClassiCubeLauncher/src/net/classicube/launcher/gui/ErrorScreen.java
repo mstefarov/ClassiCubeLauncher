@@ -100,6 +100,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         getContentPane().add(lMessage, gridBagConstraints);
 
         bDetails.setText("+ Details");
@@ -134,7 +135,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 8);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         getContentPane().add(imgErrorIcon, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;

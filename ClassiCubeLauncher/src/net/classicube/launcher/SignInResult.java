@@ -26,13 +26,12 @@ public enum SignInResult {
                         + "<a href=\"https://account.mojang.com/me/changeSecretQuestions\">Mojang.com</a>";
             case EMAIL_UNACCEPTABLE:
                 return "Cannot sign in to ClassiCube.net with an email address.<br><br>"
-                        + "If you are trying to play on ClassiCube.net servers: "
-                        + "Please use your ClassiCube username to sign in, instead of your email address. "
-                        + "Your Mojang account won't work -- you have to "
-                        + "<a href=\"http://www.classicube.net/acc/register/\">register a ClassiCube.net account</a>, "
-                        + "if you haven't done so already.<br><br>"
-                        + "If you are trying to play on Minecraft.net's Classic servers: "
-                        + "Click [Switch to Minecraft.net] and then use your Minecraft username or Mojang account.";
+                        + "<font size=4>To play on ClassiCube.net servers:</font></b>"
+                        + "<blockquote><b>Please use your ClassiCube.net username. Your Mojang account won't work here &mdash; "
+                        + "you have to <a href=\"http://www.classicube.net/acc/register/\">register</a> "
+                        + "a ClassiCube.net account.</b></blockquote><br>"
+                        + "<font size=4><b>To play on Minecraft.net's Classic servers:</b></font>"
+                        + "<blockquote><b>Click <i>[Switch to Minecraft.net]</i> first, and then use your Mojang account.</b></blockquote>";
             default:
                 return result.name();
         }
