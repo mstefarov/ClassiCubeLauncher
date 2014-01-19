@@ -29,7 +29,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         initComponents();
 
         // fill in exception info (if available)
-        this.lMessage.setText("<html><b>" + message);
+        this.lMessage.setText("<html><div width=400><b>" + message);
         if (ex != null) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -51,8 +51,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         this.imgErrorIcon.setPreferredSize(new Dimension(64, 64));
         this.imgErrorIcon.setSize(new Dimension(64, 64));
 
-        // Set windows size, pack, and center
-        this.setPreferredSize(new Dimension(450, 130));
+        // pack and center the frame
         pack();
         setLocationRelativeTo(null);
     }

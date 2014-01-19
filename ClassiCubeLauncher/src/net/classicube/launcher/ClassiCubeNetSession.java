@@ -33,6 +33,7 @@ final class ClassiCubeNetSession extends GameSession {
             COOKIE_NAME = "session",
             WRONG_USERNAME_OR_PASS_MESSAGE = "Login failed (Username or password may be incorrect)",
             AUTH_TOKEN_PATTERN = "<input id=\"csrf_token\" name=\"csrf_token\" type=\"hidden\" value=\"(.+?)\">",
+            USERNAME_PATTERN = "^[a-zA-Z0-9_\\.]{2,16}$",
             LOGGED_IN_AS_PATTERN = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})</a>";
     private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
             loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
@@ -65,6 +66,11 @@ final class ClassiCubeNetSession extends GameSession {
             logger.log(Level.FINE, "ClassiCubeNetSession.SignInWorker");
             boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
 
+            // check if given username is valid at all
+            if(!account.signInUsername.matches(USERNAME_PATTERN)){
+                return SignInResult.EMAIL_UNACCEPTABLE;
+            }
+            
             // download the login page
             String loginPage = HttpUtil.downloadString(LOGIN_URL);
             if (loginPage == null) {
