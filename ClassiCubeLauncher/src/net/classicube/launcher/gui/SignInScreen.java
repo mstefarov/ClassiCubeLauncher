@@ -52,6 +52,7 @@ public final class SignInScreen extends javax.swing.JFrame {
     private JPopupMenu resumeMenu;
     private JMenuItem singlePlayerMenuItem;
     private JMenuItem directMenuItem;
+    private boolean settingPasswordText;
 
     // =============================================================================================
     //                                                                                INITIALIZATION
@@ -70,9 +71,7 @@ public final class SignInScreen extends javax.swing.JFrame {
 
         // some UI tweaks
         this.bResumeDropDown.setPreferredSize(
-                new Dimension(
-                        20,
-                        this.bResume.getPreferredSize().height));
+                new Dimension(20, this.bResume.getPreferredSize().height));
         hookUpListeners();
         getRootPane().setDefaultButton(bSignIn);
 
@@ -403,7 +402,14 @@ public final class SignInScreen extends javax.swing.JFrame {
             if (selectedUsername != null && Prefs.getRememberPasswords()) {
                 final UserAccount curAccount = accountManager.findAccount(selectedUsername);
                 if (curAccount != null) {
+                    // We have to temporarily prevent checkIfSignInAllowed() from firing here.
+                    // There are two DocumentEvents fired here by tPassword (first for removal, second for insertion)
+                    // which causes the SignIn button to briefly flicker, preventing user from clicking
+                    // the [Sign In] button right after selecting a username.
+                    settingPasswordText = true;
                     tPassword.setText(curAccount.password);
+                    settingPasswordText = false;
+                    fieldChangeListener.actionPerformed(null);
                 }
             }
         }
@@ -464,6 +470,9 @@ public final class SignInScreen extends javax.swing.JFrame {
         }
 
         private void somethingEdited(final DocumentEvent e) {
+            if (settingPasswordText) {
+                return;
+            }
             final Document doc = e.getDocument();
             if (doc.equals(tPassword.getDocument())) {
                 realPasswordLength = doc.getLength();
