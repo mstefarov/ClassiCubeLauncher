@@ -5,15 +5,34 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
+import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
+import net.classicube.launcher.LogUtil;
+import net.classicube.launcher.Prefs;
 
-public class SameIPScreen extends javax.swing.JDialog {
+public class SameIPScreen extends JDialog {
 
     private static final String DIALOG_TITLE = "Local server detected";
 
-    public static InetAddress show(InetAddress serverAddress) {
+    public static InetAddress show(InetAddress serverAddress, int port) {
+        String fullHostname = serverAddress.getHostAddress() + ":" + port;
+        Preferences ipList = Prefs.getRememberedExternalIPs();
+        String ipRemapString = ipList.get(fullHostname, "");
+        if (!ipRemapString.isEmpty()) {
+            try {
+                return InetAddress.getByName(ipRemapString);
+            } catch (UnknownHostException ex) {
+                LogUtil.getLogger().log(Level.SEVERE, "Error parsing remembered external-IP remapping.", ex);
+            }
+        }
         SameIPScreen screen = new SameIPScreen(serverAddress);
         screen.setVisible(true);
+        if (screen.xRememberChoice.isSelected()) {
+            ipList.put(fullHostname, screen.chosenAddress.getHostAddress());
+        }
         return screen.chosenAddress;
     }
 

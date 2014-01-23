@@ -267,7 +267,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         try {
             InetAddress localAddress = GetExternalIPTask.getInstance().get();
             if (serverAddress.equals(localAddress)) {
-                InetAddress correctedAddress = SameIPScreen.show(serverAddress);
+                InetAddress correctedAddress = SameIPScreen.show(serverAddress, joinInfo.port);
                 if (correctedAddress == null) {
                     enableGui();
                     return; // player canceled/closed dialog

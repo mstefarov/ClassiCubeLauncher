@@ -260,7 +260,7 @@ public final class SignInScreen extends javax.swing.JFrame {
                     try {
                         InetAddress localAddress = GetExternalIPTask.getInstance().get();
                         if (serverAddress.equals(localAddress)) {
-                            InetAddress correctedAddress = SameIPScreen.show(serverAddress);
+                            InetAddress correctedAddress = SameIPScreen.show(serverAddress, joinInfo.port);
                             if (correctedAddress == null) {
                                 return; // player canceled/closed dialog
                             } else {
@@ -402,13 +402,14 @@ public final class SignInScreen extends javax.swing.JFrame {
             if (selectedUsername != null && Prefs.getRememberPasswords()) {
                 final UserAccount curAccount = accountManager.findAccount(selectedUsername);
                 if (curAccount != null) {
-                    // We have to temporarily prevent checkIfSignInAllowed() from firing here.
+                    // We have to temporarily prevent checkIfSignInAllowed() from being called here.
                     // There are two DocumentEvents fired here by tPassword (first for removal, second for insertion)
-                    // which causes the SignIn button to briefly flicker, preventing user from clicking
-                    // the [Sign In] button right after selecting a username.
+                    // which causes [Sign In] button to briefly flicker, preventing user from
+                    // clicking it right after selecting a username from drop-down list.
                     settingPasswordText = true;
                     tPassword.setText(curAccount.password);
                     settingPasswordText = false;
+                    // Cause checkIfSignInAllowed() to be called manually once, after password text was changed
                     fieldChangeListener.actionPerformed(null);
                 }
             }

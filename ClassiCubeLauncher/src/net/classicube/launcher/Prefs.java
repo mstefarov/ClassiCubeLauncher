@@ -13,7 +13,8 @@ public final class Prefs {
             keyJavaArgs = "JavaArgs",
             keyMaxMemory = "MaxMemory",
             keySelectedGameService = "SelectedGameService",
-            keyDebugMode = "DebugMode";
+            keyDebugMode = "DebugMode",
+            keyRememberedExternalIPs = "RememberedExternalIPs";
 
     // Defaults
     public final static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
@@ -117,5 +118,9 @@ public final class Prefs {
     // Etc
     private static Preferences getPrefs() {
         return Preferences.userNodeForPackage(Prefs.class);
+    }
+    
+    public static Preferences getRememberedExternalIPs() {
+        return getPrefs().node(keyRememberedExternalIPs);
     }
 }
