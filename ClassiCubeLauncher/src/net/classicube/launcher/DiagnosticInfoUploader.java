@@ -129,14 +129,20 @@ public class DiagnosticInfoUploader {
         return sb.toString();
     }
 
+    // List all files in client's directory, except screenshots and logs
     private static String gatherClientDirStructure() {
         try {
             final StringBuilder sb = new StringBuilder();
-            String absClientDir = PathUtil.getClientDir().getAbsolutePath();
-            Files.walkFileTree(Paths.get(absClientDir), new SimpleFileVisitor<Path>() {
+            final String absClientDir = PathUtil.getClientDir().getAbsolutePath();
+            final Path basePath = Paths.get(absClientDir);
+            Files.walkFileTree(basePath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    sb.append(file).append('\n');
+                    String relativePathName = basePath.relativize(file).toString();
+                    if (!relativePathName.startsWith("Screenshots")
+                            && !relativePathName.startsWith("logs")) {
+                        sb.append(relativePathName).append('\n');
+                    }
                     return FileVisitResult.CONTINUE;
                 }
             });
