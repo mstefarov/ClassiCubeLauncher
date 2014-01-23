@@ -29,13 +29,13 @@ public class DiagnosticInfoUploader {
         // gather files
         String sysData = getSystemProperties();
         String dirData = gatherClientDirStructure();
-        String clientLogData = readLogFile(PathUtil.getClientDir(), "client.log");
-        String clientOldLogData = readLogFile(PathUtil.getClientDir(), "client.old.log");
-        String optionsData = readLogFile(PathUtil.getClientDir(), "options.txt");
+        String clientLogData = readLogFile(PathUtil.getClientDir(), PathUtil.CLIENT_LOG_FILE_NAME);
+        String clientOldLogData = readLogFile(PathUtil.getClientDir(), PathUtil.CLIENT_LOG_OLD_FILE_NAME);
+        String optionsData = readLogFile(PathUtil.getClientDir(), PathUtil.OPTIONS_FILE_NAME);
         String launcherLogData = null, launcherOldLogData = null;
         try {
-            launcherLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), "launcher.log");
-            launcherOldLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), "launcher.old.log");
+            launcherLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_FILE_NAME);
+            launcherOldLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_OLD_FILE_NAME);
         } catch (IOException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Could not find launcher log file", ex);
         }
@@ -63,27 +63,27 @@ public class DiagnosticInfoUploader {
 
         // append log files
         if (clientLogData != null) {
-            writer = writer.object("client.log")
+            writer = writer.object(PathUtil.CLIENT_LOG_FILE_NAME)
                     .value("content", clientLogData)
                     .end();
         }
         if (clientOldLogData != null) {
-            writer = writer.object("client.old.log")
+            writer = writer.object(PathUtil.CLIENT_LOG_OLD_FILE_NAME)
                     .value("content", clientOldLogData)
                     .end();
         }
         if (launcherLogData != null) {
-            writer = writer.object("launcher.log")
+            writer = writer.object(PathUtil.LOG_FILE_NAME)
                     .value("content", launcherLogData)
                     .end();
         }
         if (launcherOldLogData != null) {
-            writer = writer.object("launcher.old.log")
+            writer = writer.object(PathUtil.LOG_OLD_FILE_NAME)
                     .value("content", launcherOldLogData)
                     .end();
         }
         if (optionsData != null) {
-            writer = writer.object("options.txt")
+            writer = writer.object(PathUtil.OPTIONS_FILE_NAME)
                     .value("content", optionsData)
                     .end();
         }

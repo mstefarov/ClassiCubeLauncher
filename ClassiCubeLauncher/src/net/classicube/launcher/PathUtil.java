@@ -12,7 +12,11 @@ import java.nio.file.StandardCopyOption;
 final class PathUtil {
 
     public static final String CLIENT_DIR_NAME = ".net.classicube.client",
-            LOG_FILE_NAME = "launcher.log";
+            LOG_FILE_NAME = "launcher.log",
+            LOG_OLD_FILE_NAME = "launcher.old.log",
+            CLIENT_LOG_FILE_NAME = "client.log",
+            CLIENT_LOG_OLD_FILE_NAME="client.old.log",
+            OPTIONS_FILE_NAME="options.txt";
     private static File clientPath;
 
     public synchronized static File getClientDir() {

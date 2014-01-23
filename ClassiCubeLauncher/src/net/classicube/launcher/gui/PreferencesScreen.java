@@ -139,6 +139,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
     // =============================================================================================
     private void bForgetUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetUsersActionPerformed
         if (ConfirmScreen.show("Warning", "Really erase all stored user information?")) {
+            LogUtil.getLogger().log(Level.INFO, "[Forget Users]");
             SessionManager.getAccountManager().clear();
             checkIfForgetButtonsShouldBeEnabled();
         }
@@ -146,6 +147,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
     private void bForgetPasswordsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetPasswordsActionPerformed
         if (ConfirmScreen.show("Warning", "Really erase all stored user passwords?")) {
+            LogUtil.getLogger().log(Level.INFO, "[Forget Passwords]");
             SessionManager.getAccountManager().clearPasswords();
             checkIfForgetButtonsShouldBeEnabled();
         }
@@ -153,6 +155,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
     private void bForgetServersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServersActionPerformed
         if (ConfirmScreen.show("Warning", "Really erase stored information about the servers you joined?")) {
+            LogUtil.getLogger().log(Level.INFO, "[Forget Servers]");
             SessionManager.clearAllResumeInfo();
             try {
                 Prefs.getRememberedExternalIPs().clear();
@@ -167,14 +170,17 @@ final class PreferencesScreen extends javax.swing.JDialog {
     //                                                                           GUI EVENT LISTENERS
     // =============================================================================================
     private void bCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bCancelActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[Cancel]");
         dispose();
     }//GEN-LAST:event_bCancelActionPerformed
 
     private void bDefaultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDefaultsActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[Defaults]");
         loadDefaults();
     }//GEN-LAST:event_bDefaultsActionPerformed
 
     private void bSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSaveActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[Save]");
         storePreferences();
         if (!this.xRememberUsers.isSelected()) {
             SessionManager.getAccountManager().clear();
@@ -200,6 +206,22 @@ final class PreferencesScreen extends javax.swing.JDialog {
             this.bForgetPasswords.setEnabled(xRememberPasswords.isSelected());
         }
     }//GEN-LAST:event_xRememberUsersItemStateChanged
+
+    private void xRememberPasswordsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_xRememberPasswordsItemStateChanged
+        if (evt.getStateChange() == ItemEvent.DESELECTED) {
+            this.bForgetPasswords.setEnabled(false);
+        } else {
+            this.bForgetPasswords.setEnabled(true);
+        }
+    }//GEN-LAST:event_xRememberPasswordsItemStateChanged
+
+    private void bSubmitDiagInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSubmitDiagInfoActionPerformed
+        LogUtil.getLogger().log(Level.FINE, "[Submit diagnostic information]");
+        String url = DiagnosticInfoUploader.UploadToGist();
+        PromptScreen.show("Diagnostic information submitted!",
+                "Please provide this link to the ClassiCube developers.",
+                url);
+    }//GEN-LAST:event_bSubmitDiagInfoActionPerformed
 
     // =============================================================================================
     //                                                                            GENERATED GUI CODE
@@ -503,21 +525,6 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void xRememberPasswordsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_xRememberPasswordsItemStateChanged
-        if (evt.getStateChange() == ItemEvent.DESELECTED) {
-            this.bForgetPasswords.setEnabled(false);
-        } else {
-            this.bForgetPasswords.setEnabled(true);
-        }
-    }//GEN-LAST:event_xRememberPasswordsItemStateChanged
-
-    private void bSubmitDiagInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSubmitDiagInfoActionPerformed
-        String url = DiagnosticInfoUploader.UploadToGist();
-        PromptScreen.show("Diagnostic information submitted!",
-                "Please provide this link to the ClassiCube developers.",
-                url);
-    }//GEN-LAST:event_bSubmitDiagInfoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private net.classicube.launcher.gui.JNiceLookingButton bCancel;
