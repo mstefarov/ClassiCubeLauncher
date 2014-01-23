@@ -16,7 +16,7 @@ import javax.swing.JButton;
 
 class JNiceLookingRenderer {
 
-    private static final int BORDER_RADIUS = 3;
+    private static final int BORDER_RADIUS = 2;
 
     public static void paintComponent(AbstractButton button, Graphics g, int widthAdjust) {
         // Prepare
@@ -97,30 +97,66 @@ class JNiceLookingRenderer {
         g2.setPaint(ccBorder);
         g2.draw(roundBorder);
 
-        // Measure the label
-        final FontMetrics fm = button.getFontMetrics(button.getFont());
-        final Rectangle2D rect = fm.getStringBounds(button.getText(), g);
+        if ("v".equals(button.getText())) {
+            // Paint a downwards arrow
+            paintTriangle(g, button.getWidth() / 2 - 3 + textOffset,
+                    button.getHeight() / 2 - 1 + textOffset,
+                    4, Color.WHITE, ccBorder, button.isEnabled());
 
-        final int textHeight = (int) (rect.getHeight());
-        final int textWidth = (int) (rect.getWidth());
-        final int panelHeight = button.getHeight();
-        final int panelWidth = button.getWidth();
+        } else {
+            // Measure the label
+            final FontMetrics fm = button.getFontMetrics(button.getFont());
+            final Rectangle2D rect = fm.getStringBounds(button.getText(), g);
 
-        // Center text horizontally and vertically
-        final int x = (panelWidth - textWidth) / 2;
-        final int y = (panelHeight - textHeight) / 2 + fm.getAscent() - 1;
+            final int textHeight = (int) (rect.getHeight());
+            final int textWidth = (int) (rect.getWidth());
+            final int panelHeight = button.getHeight();
+            final int panelWidth = button.getWidth();
 
-        // Paint text shadow
-        if (button.isEnabled()) {
-            g2.setPaint(ccBorder);
-            g2.drawString(button.getText(), x + 1 + textOffset, y + 1 + textOffset);
+            // Center text horizontally and vertically
+            final int x = (panelWidth - textWidth) / 2;
+            final int y = (panelHeight - textHeight) / 2 + fm.getAscent() - 1;
+
+            // Paint text shadow
+            if (button.isEnabled()) {
+                g2.setPaint(ccBorder);
+                g2.drawString(button.getText(), x + 1 + textOffset, y + 1 + textOffset);
+            }
+
+            // Paint text proper
+            g2.setPaint(Color.WHITE);
+            g2.drawString(button.getText(), x + textOffset, y + textOffset);
         }
-
-        // Paint text proper
-        g2.setPaint(Color.WHITE);
-        g2.drawString(button.getText(), x + textOffset, y + textOffset);
-
         // Clean up
         g2.dispose();
+    }
+
+    // Based on javax.swing.plaf.basic.BasicArrowButton.paintTriangle(...)
+    public static void paintTriangle(Graphics g, int x, int y, int size, Color highlight, Color shadow, boolean isEnabled) {
+        int mid, i, j;
+
+        j = 0;
+        size = Math.max(size, 2);
+        mid = (size / 2) - 1;
+
+        g.translate(x, y);
+
+        if (isEnabled) {
+            g.translate(1, 1);
+            g.setColor(shadow);
+            for (i = size - 1; i >= 0; i--) {
+                g.drawLine(mid - i, j, mid + i, j);
+                j++;
+            }
+            g.translate(-1, -1);
+            g.setColor(highlight);
+        }
+
+        j = 0;
+        for (i = size - 1; i >= 0; i--) {
+            g.drawLine(mid - i, j, mid + i, j);
+            j++;
+        }
+        g.translate(-x, -y);
     }
 }
