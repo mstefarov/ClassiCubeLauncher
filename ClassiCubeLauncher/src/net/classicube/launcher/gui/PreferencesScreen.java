@@ -2,12 +2,17 @@ package net.classicube.launcher.gui;
 
 import java.awt.Color;
 import java.awt.event.ItemEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import javax.swing.JFrame;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 import net.classicube.launcher.AccountManager;
 import net.classicube.launcher.GameServiceType;
+import net.classicube.launcher.DiagnosticInfoUploader;
+import net.classicube.launcher.LogUtil;
 import net.classicube.launcher.Prefs;
 import net.classicube.launcher.SessionManager;
 import net.classicube.launcher.UpdateMode;
@@ -52,11 +57,17 @@ final class PreferencesScreen extends javax.swing.JDialog {
         }
         boolean hasUsers = curManager.hasAccounts() || otherManager.hasAccounts();
         boolean hasPasswords = hasUsers && (curManager.hasPasswords() || otherManager.hasPasswords());
-        boolean hasResume = SessionManager.hasAnyResumeInfo();
+        boolean hasResume;
+        try {
+            hasResume = SessionManager.hasAnyResumeInfo() || (Prefs.getRememberedExternalIPs().keys().length > 0);
+        } catch (BackingStoreException ex) {
+            LogUtil.getLogger().log(Level.WARNING, "Error checking stored external IPs", ex);
+            hasResume = SessionManager.hasAnyResumeInfo();
+        }
 
         this.bForgetUsers.setEnabled(hasUsers);
         this.bForgetPasswords.setEnabled(hasPasswords);
-        this.bForgetServer.setEnabled(hasResume);
+        this.bForgetServers.setEnabled(hasResume);
     }
 
     // =============================================================================================
@@ -140,12 +151,17 @@ final class PreferencesScreen extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_bForgetPasswordsActionPerformed
 
-    private void bForgetServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServerActionPerformed
-        if (ConfirmScreen.show("Warning", "Really erase stored information about the last-joined server?")) {
+    private void bForgetServersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bForgetServersActionPerformed
+        if (ConfirmScreen.show("Warning", "Really erase stored information about the servers you joined?")) {
             SessionManager.clearAllResumeInfo();
+            try {
+                Prefs.getRememberedExternalIPs().clear();
+            } catch (BackingStoreException ex) {
+                LogUtil.getLogger().log(Level.SEVERE, "Error erasing preferences.", ex);
+            }
             checkIfForgetButtonsShouldBeEnabled();
         }
-    }//GEN-LAST:event_bForgetServerActionPerformed
+    }//GEN-LAST:event_bForgetServersActionPerformed
 
     // =============================================================================================
     //                                                                           GUI EVENT LISTENERS
@@ -209,7 +225,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         xRememberPasswords = new javax.swing.JCheckBox();
         bForgetPasswords = new net.classicube.launcher.gui.JNiceLookingButton();
         xRememberServer = new javax.swing.JCheckBox();
-        bForgetServer = new net.classicube.launcher.gui.JNiceLookingButton();
+        bForgetServers = new net.classicube.launcher.gui.JNiceLookingButton();
         javax.swing.JSeparator jSeparator3 = new javax.swing.JSeparator();
         javax.swing.JLabel lParameters = new javax.swing.JLabel();
         tJavaArgs = new javax.swing.JTextField();
@@ -221,6 +237,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         bCancel = new net.classicube.launcher.gui.JNiceLookingButton();
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         xDebugMode = new javax.swing.JCheckBox();
+        bSubmitDiagInfo = new net.classicube.launcher.gui.JNiceLookingButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -354,10 +371,10 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 8);
         getContentPane().add(xRememberServer, gridBagConstraints);
 
-        bForgetServer.setText("Forget last server");
-        bForgetServer.addActionListener(new java.awt.event.ActionListener() {
+        bForgetServers.setText("Forget servers");
+        bForgetServers.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bForgetServerActionPerformed(evt);
+                bForgetServersActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -365,7 +382,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(bForgetServer, gridBagConstraints);
+        getContentPane().add(bForgetServers, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 10;
@@ -411,7 +428,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         jSeparator4.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
@@ -426,7 +443,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         getContentPane().add(bDefaults, gridBagConstraints);
@@ -439,7 +456,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 15;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bSave, gridBagConstraints);
 
@@ -451,7 +468,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 15;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bCancel, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -469,6 +486,21 @@ final class PreferencesScreen extends javax.swing.JDialog {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         getContentPane().add(xDebugMode, gridBagConstraints);
 
+        bSubmitDiagInfo.setText("Submit diagnostic information");
+        bSubmitDiagInfo.setToolTipText("<html>Upload information needed for diagnosing problems in ClassiCube software.<br>\nInformation includes log files, your preferences, some basic system information<br>\n(Java version, operating system, etc), and a list of files in your client's directory.<br>\n<b>No passwords or any other personal information is ever uploaded.</b>");
+        bSubmitDiagInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bSubmitDiagInfoActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        getContentPane().add(bSubmitDiagInfo, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -479,13 +511,22 @@ final class PreferencesScreen extends javax.swing.JDialog {
             this.bForgetPasswords.setEnabled(true);
         }
     }//GEN-LAST:event_xRememberPasswordsItemStateChanged
+
+    private void bSubmitDiagInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSubmitDiagInfoActionPerformed
+        String url = DiagnosticInfoUploader.UploadToGist();
+        PromptScreen.show("Diagnostic information submitted!",
+                "Please provide this link to the ClassiCube developers.",
+                url);
+    }//GEN-LAST:event_bSubmitDiagInfoActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private net.classicube.launcher.gui.JNiceLookingButton bCancel;
     private net.classicube.launcher.gui.JNiceLookingButton bDefaults;
     private net.classicube.launcher.gui.JNiceLookingButton bForgetPasswords;
-    private net.classicube.launcher.gui.JNiceLookingButton bForgetServer;
+    private net.classicube.launcher.gui.JNiceLookingButton bForgetServers;
     private net.classicube.launcher.gui.JNiceLookingButton bForgetUsers;
     private net.classicube.launcher.gui.JNiceLookingButton bSave;
+    private net.classicube.launcher.gui.JNiceLookingButton bSubmitDiagInfo;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSpinner nMemory;
     private javax.swing.JRadioButton rUpdateAutomatic;
