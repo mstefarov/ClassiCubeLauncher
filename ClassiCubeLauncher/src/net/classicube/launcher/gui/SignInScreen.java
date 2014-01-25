@@ -72,8 +72,10 @@ public final class SignInScreen extends javax.swing.JFrame {
         // some UI tweaks
         this.bResumeDropDown.setPreferredSize(
                 new Dimension(20, this.bResume.getPreferredSize().height));
+        this.bResumeDropDown.setMinimumSize(this.bResumeDropDown.getPreferredSize());
         hookUpListeners();
         getRootPane().setDefaultButton(bSignIn);
+        this.ipLogo.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -574,7 +576,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         getContentPane().add(bPreferences, gridBagConstraints);
 
-        ipLogo.setPreferredSize(new java.awt.Dimension(250, 75));
+        ipLogo.setFocusable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
