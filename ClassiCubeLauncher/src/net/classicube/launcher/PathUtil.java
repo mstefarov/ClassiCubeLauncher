@@ -19,6 +19,7 @@ final class PathUtil {
             OPTIONS_FILE_NAME="options.txt";
     private static File clientPath;
 
+    // Find client's directory. If it does not exist, create it.
     public synchronized static File getClientDir() {
         if (clientPath == null) {
             clientPath = new File(SharedUpdaterCode.getAppDataDir(), CLIENT_DIR_NAME);

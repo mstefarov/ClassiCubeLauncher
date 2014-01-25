@@ -16,15 +16,7 @@
  */
 package org.apache.commons.lang3;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * <p>Operations on {@link java.lang.String} that are
@@ -165,21 +157,6 @@ public class StringUtils {
      * @since 2.1
      */
     public static final int INDEX_NOT_FOUND = -1;
-
-    /**
-     * <p>The maximum size to which the padding constant(s) can expand.</p>
-     */
-    private static final int PAD_LIMIT = 8192;
-
-    /**
-     * A regex pattern for recognizing blocks of whitespace characters.
-     * The apparent convolutedness of the pattern serves the purpose of
-     * ignoring "blocks" consisting of only a single space:  the pattern
-     * is used only to normalize whitespace, condensing "blocks" down to a
-     * single space, thus matching the same would likely cause a great
-     * many noop replacements.
-     */
-    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("(?: |\\u00A0|\\s|[\\s&&[^ ]])\\s*");
 
     /**
      * <p>{@code StringUtils} instances should NOT be constructed in

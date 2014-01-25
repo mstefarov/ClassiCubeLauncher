@@ -64,7 +64,7 @@ final class ClassiCubeNetSession extends GameSession {
                 throws Exception {
             final Logger logger = LogUtil.getLogger();
             logger.log(Level.FINE, "ClassiCubeNetSession.SignInWorker");
-            boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
+            final boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
 
             // check if given username is valid at all
             if(!account.signInUsername.matches(USERNAME_PATTERN)){

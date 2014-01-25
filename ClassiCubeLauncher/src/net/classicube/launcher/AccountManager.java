@@ -28,7 +28,7 @@ public final class AccountManager {
         }
         try {
             for (final String accountName : this.store.childrenNames()) {
-                Preferences accountNode = this.store.node(accountName);
+                final Preferences accountNode = this.store.node(accountName);
                 try {
                     final UserAccount acct = new UserAccount(accountNode);
                     this.accounts.put(acct.signInUsername.toLowerCase(), acct);
@@ -84,7 +84,7 @@ public final class AccountManager {
 
     // Returns true if there is at least one account stored.
     public boolean hasAccounts() {
-        return !accounts.isEmpty();
+        return !this.accounts.isEmpty();
     }
 
     // Returns true if at least one account has a password stored.
