@@ -219,7 +219,7 @@ public final class ClientUpdateTask
 
         files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "launcher.jar.pack.lzma",
-                new File(launcherDir, "launcher.jar")));
+                new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
 
         files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "client.jar.pack.lzma",
@@ -367,12 +367,6 @@ public final class ClientUpdateTask
         }
         LogUtil.getLogger().log(Level.INFO, "Deploying {0}", localName);
         try {
-            // special handling for client.jar
-            if (localName.getName().equalsIgnoreCase("launcher.jar")) {
-                localName = new File(SharedUpdaterCode.getLauncherDir(),
-                        SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME);
-            }
-
             final File parentDir = localName.getCanonicalFile().getParentFile();
             if (!parentDir.exists() && !parentDir.mkdirs()) {
                 throw new IOException("Unable to make directory " + parentDir);
@@ -513,7 +507,7 @@ public final class ClientUpdateTask
         }
         for (final FileToDownload file : files) {
             if (!file.localName.exists()) {
-                throw new RuntimeException("Update process failed: ");
+                throw new RuntimeException("Update process failed. Missing file: " + file.localName);
             }
         }
     }
