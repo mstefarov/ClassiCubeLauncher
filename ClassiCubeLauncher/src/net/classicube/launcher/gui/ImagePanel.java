@@ -1,6 +1,7 @@
 package net.classicube.launcher.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -9,25 +10,26 @@ import javax.swing.JComponent;
 
 // A little custom panel that has a tiled background texture
 public final class ImagePanel extends JComponent {
-
     private Image image;
     private boolean isTiled;
     private boolean drawGradient;
-    private Color gradientColor;
+    private Color gradientColor = Color.BLACK;
     private static final long serialVersionUID = 1L;
 
     public ImagePanel() {
-        gradientColor = Color.BLACK;
     }
 
     public ImagePanel(final Image image, final boolean isTiled) {
-        this.image = image;
         this.isTiled = isTiled;
-        gradientColor = Color.BLACK;
+        setImage(image);
     }
 
     public void setImage(final Image image) {
         this.image = image;
+        if (!isTiled && image != null) {
+            this.setPreferredSize(new Dimension(image.getWidth(this), image.getHeight(this)));
+            this.setMinimumSize(this.getPreferredSize());
+        }
     }
 
     public void setGradient(final boolean drawGradient) {
