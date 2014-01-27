@@ -22,24 +22,24 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
-import net.classicube.launcher.gui.ClientUpdateScreen;
+import net.classicube.launcher.gui.UpdateScreen;
 
 // Handles downloading and deployment of client updates,
 // as well as resource files used by the client.
-public final class ClientUpdateTask
-        extends SwingWorker<Boolean, ClientUpdateTask.ProgressUpdate> {
+public final class UpdateTask
+        extends SwingWorker<Boolean, UpdateTask.ProgressUpdate> {
 
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================
-    private static final ClientUpdateTask instance = new ClientUpdateTask();
+    private static final UpdateTask instance = new UpdateTask();
     private boolean updatesApplied;
 
-    public static ClientUpdateTask getInstance() {
+    public static UpdateTask getInstance() {
         return instance;
     }
 
-    private ClientUpdateTask() {
+    private UpdateTask() {
     }
 
     // =============================================================================================
@@ -423,7 +423,7 @@ public final class ClientUpdateTask
     // =============================================================================================
     //                                                                            PROGRESS REPORTING
     // =============================================================================================
-    private volatile ClientUpdateScreen updateScreen;
+    private volatile UpdateScreen updateScreen;
     private int activeFileNumber, totalFiles;
     private FileToDownload activeFile;
 
@@ -490,7 +490,7 @@ public final class ClientUpdateTask
         }
     }
 
-    public synchronized void registerUpdateScreen(final ClientUpdateScreen updateScreen) {
+    public synchronized void registerUpdateScreen(final UpdateScreen updateScreen) {
         if (updateScreen == null) {
             throw new NullPointerException("updateScreen");
         }

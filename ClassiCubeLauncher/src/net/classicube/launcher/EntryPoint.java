@@ -72,7 +72,7 @@ public final class EntryPoint {
         new SignInScreen().setVisible(true);
 
         // begin the update process
-        ClientUpdateTask.getInstance().execute();
+        UpdateTask.getInstance().execute();
 
         // begin looking up our external IP address
         GetExternalIPTask.getInstance().execute();

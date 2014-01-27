@@ -281,7 +281,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         }
 
         dispose();
-        ClientUpdateScreen.createAndShow(joinInfo);
+        UpdateScreen.createAndShow(joinInfo);
     }
 
     // =============================================================================================

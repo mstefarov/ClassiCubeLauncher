@@ -1,24 +1,28 @@
 package net.classicube.launcher.gui;
 
 import java.awt.Desktop;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import javax.swing.JFrame;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 import net.classicube.launcher.ClientLauncher;
-import net.classicube.launcher.ClientUpdateTask;
+import net.classicube.launcher.UpdateTask;
 import net.classicube.launcher.LogUtil;
 import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
 import net.classicube.launcher.UpdateMode;
 
-public final class ClientUpdateScreen extends javax.swing.JFrame {
+public final class UpdateScreen extends JFrame {
     // =============================================================================================
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
 
-    private static final String RELEASE_NOTES_URL = "http://www.classicube.net/forum/viewpost/ir/latest";
+    private static final String
+            RELEASE_NOTES_URL = "http://www.classicube.net/forum/viewpost/ir/latest/#bottom_post";
     private Desktop desktop;
     private final ServerJoinInfo joinInfo;
 
@@ -26,12 +30,12 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
     //                                                                                INITIALIZATION
     // =============================================================================================
     public static void createAndShow(final ServerJoinInfo joinInfo) {
-        ClientUpdateScreen sc = new ClientUpdateScreen(joinInfo);
+        UpdateScreen sc = new UpdateScreen(joinInfo);
         sc.setVisible(true);
-        ClientUpdateTask.getInstance().registerUpdateScreen(sc);
+        UpdateTask.getInstance().registerUpdateScreen(sc);
     }
 
-    private ClientUpdateScreen(final ServerJoinInfo joinInfo) {
+    private UpdateScreen(final ServerJoinInfo joinInfo) {
         this.joinInfo = joinInfo;
         final JRootPane root = getRootPane();
         root.setBorder(new EmptyBorder(8, 8, 8, 8));
@@ -42,10 +46,10 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
         setLocationRelativeTo(null);
 
         // tweak the UI for auto/notify preference
-        boolean manualAdvance = false;
         switch (Prefs.getUpdateMode()) {
             case AUTOMATIC:
                 lNotice.setText("The game will start as soon as updates are complete.");
+                bPlay.setVisible(false);
                 break;
             case NOTIFY:
                 lNotice.setText("Please wait: a game update is being installed.");
@@ -54,20 +58,20 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
                 if (this.desktop != null && !this.desktop.isSupported(Desktop.Action.BROWSE)) {
                     this.desktop = null;
                 }
-                manualAdvance = true;
                 break;
             case DISABLED:
                 lNotice.setText("The game will start as soon as required files are downloaded.");
+                bPlay.setVisible(false);
+                bViewChanges.setVisible(false);
+                break;
         }
-        bPlay.setVisible(manualAdvance);
-        bViewChanges.setVisible(manualAdvance);
         pack();
     }
 
     // =============================================================================================
     //                                                                                      UPDATING
     // =============================================================================================
-    public void setStatus(final ClientUpdateTask.ProgressUpdate dl) {
+    public void setStatus(final UpdateTask.ProgressUpdate dl) {
         if (dl.progress < 0) {
             this.progress.setIndeterminate(true);
         } else {
@@ -82,7 +86,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
         LogUtil.getLogger().info("onUpdateDone");
         try {
             // wait for updater to finish (if still running)
-            ClientUpdateTask.getInstance().get();
+            UpdateTask.getInstance().get();
 
         } catch (final InterruptedException | ExecutionException ex) {
             ErrorScreen.show("Error updating",
@@ -98,6 +102,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
         } else {
             this.lNotice.setText(" ");
             this.bPlay.setEnabled(true);
+            bPlay.setVisible(true);
         }
     }
 
@@ -113,7 +118,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
         if (this.desktop != null) {
             try {
                 this.desktop.browse(new URI(RELEASE_NOTES_URL));
-            } catch (final Exception ex) {
+            } catch (final IOException | URISyntaxException | UnsupportedOperationException | SecurityException | IllegalArgumentException ex) {
                 LogUtil.getLogger().log(Level.WARNING, "Error opening release notes URL", ex);
                 showReleaseNotesUrl();
             }
@@ -123,7 +128,7 @@ public final class ClientUpdateScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_bViewChangesActionPerformed
 
     void showReleaseNotesUrl() {
-        PromptScreen.show("Release notes link", "Here you can find a list of changes in this game update.", RELEASE_NOTES_URL);
+        PromptScreen.show("Release notes link", "You can find a list of changes in this game update at this URL:", RELEASE_NOTES_URL);
     }
 
     // =============================================================================================
