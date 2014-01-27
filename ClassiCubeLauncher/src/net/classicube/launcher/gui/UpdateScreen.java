@@ -78,7 +78,6 @@ public final class UpdateScreen extends JFrame {
             this.progress.setIndeterminate(false);
             this.progress.setValue(dl.progress);
         }
-        this.lFileName.setText(dl.fileName);
         this.lStats.setText(dl.statusString);
     }
 
@@ -143,7 +142,6 @@ public final class UpdateScreen extends JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        lFileName = new javax.swing.JLabel();
         lStats = new javax.swing.JLabel();
         progress = new javax.swing.JProgressBar();
         lNotice = new javax.swing.JLabel();
@@ -154,26 +152,17 @@ public final class UpdateScreen extends JFrame {
         setTitle("Game Update");
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        lFileName.setForeground(new java.awt.Color(255, 255, 255));
-        lFileName.setText("Preparing to update...");
+        lStats.setForeground(new java.awt.Color(255, 255, 255));
+        lStats.setText("...");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
-        getContentPane().add(lFileName, gridBagConstraints);
-
-        lStats.setForeground(new java.awt.Color(255, 255, 255));
-        lStats.setText("...");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         getContentPane().add(lStats, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.1;
@@ -183,7 +172,7 @@ public final class UpdateScreen extends JFrame {
         lNotice.setText("<notice>");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
         getContentPane().add(lNotice, gridBagConstraints);
@@ -197,7 +186,7 @@ public final class UpdateScreen extends JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 16);
         getContentPane().add(bViewChanges, gridBagConstraints);
@@ -211,7 +200,7 @@ public final class UpdateScreen extends JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bPlay, gridBagConstraints);
 
@@ -220,7 +209,6 @@ public final class UpdateScreen extends JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private net.classicube.launcher.gui.JNiceLookingButton bPlay;
     private net.classicube.launcher.gui.JNiceLookingButton bViewChanges;
-    private javax.swing.JLabel lFileName;
     private javax.swing.JLabel lNotice;
     private javax.swing.JLabel lStats;
     private javax.swing.JProgressBar progress;

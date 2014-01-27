@@ -32,8 +32,8 @@ public final class UpdateTask
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================
+    private static final int MAX_PARALLEL_DOWNLOAD = 4;
     private static final UpdateTask instance = new UpdateTask();
-    private boolean updatesApplied;
 
     public static UpdateTask getInstance() {
         return instance;
@@ -45,6 +45,12 @@ public final class UpdateTask
     // =============================================================================================
     //                                                                                          MAIN
     // =============================================================================================
+    private Thread[] workerThreads;
+    private List<FileToDownload> files;
+    private int activeFileNumber, filesDone, totalFiles;
+    private boolean needLzma;
+    private boolean updatesApplied;
+
     @Override
     protected Boolean doInBackground()
             throws Exception {
@@ -53,7 +59,7 @@ public final class UpdateTask
 
         // step 1: build up file list
         logger.log(Level.INFO, "Checking for updates.");
-        final List<FileToDownload> files = pickBinariesToDownload();
+        files = pickBinariesToDownload();
         files.addAll(pickResourcesToDownload());
 
         if (files.isEmpty()) {
@@ -65,33 +71,43 @@ public final class UpdateTask
 
             this.activeFileNumber = 0;
             this.totalFiles = files.size();
-            for (final FileToDownload file : files) {
-                this.activeFile = file;
-                try {
-                    // step 2: download
-                    signalDownloadProgress();
-                    final File downloadedFile = downloadFile(file);
 
-                    // step 3: unpack
-                    signalUnpackProgress();
-                    final File processedFile = SharedUpdaterCode.processDownload(
-                            LogUtil.getLogger(),
-                            downloadedFile, file.remoteUrl, file.localName.getName());
-
-                    // step 4: deploy
-                    deployFile(processedFile, file.localName);
-
-                } catch (final IOException ex) {
-                    logger.log(Level.SEVERE, "Error downloading an updated file.", ex);
-                }
-                this.activeFileNumber++;
+            if (needLzma) {
+                // lzma.jar will always be the first on the list.
+                // We need to get it before deploying any other files.
+                processOneFile(getNextFileSync());
             }
-            logger.log(Level.INFO, "Updates applied.");
+
+            int numThreads = Math.min(totalFiles, MAX_PARALLEL_DOWNLOAD);
+            workerThreads = new Thread[numThreads];
+            for (int i = 0; i < numThreads; i++) {
+                workerThreads[i] = new DownloadThread(logger);
+                workerThreads[i].start();
+            }
+            for (int i = 0; i < numThreads; i++) {
+                workerThreads[i].join();
+            }
         }
 
         // confirm that all required files have been downloaded and deployed
         verifyFiles(files);
+
+        logger.log(Level.INFO, "Updates applied.");
         return true;
+    }
+
+    private void processOneFile(final FileToDownload file)
+            throws InterruptedException, IOException {
+        // step 1: download
+        final File downloadedFile = downloadFile(file);
+
+        // step 2: unpack
+        final File processedFile = SharedUpdaterCode.processDownload(
+                LogUtil.getLogger(),
+                downloadedFile, file.remoteUrl, file.localName.getName());
+
+        // step 3: deploy
+        deployFile(processedFile, file.localName);
     }
 
     private static String listFileNames(final List<FileToDownload> files) {
@@ -106,6 +122,29 @@ public final class UpdateTask
         }
         return sb.toString();
     }
+
+    // Called by DownloadThreads to get the next file. Pushes an update 
+    // Returns null when there are no more files left to download.
+    private synchronized FileToDownload getNextFileSync() {
+        filesDone++;
+        FileToDownload fileToReturn = null;
+        String fileNameToReport;
+
+        if (activeFileNumber != totalFiles) {
+            fileToReturn = files.get(activeFileNumber);
+            activeFileNumber++;
+            fileNameToReport = fileToReturn.localName.getName();
+        } else {
+            fileNameToReport = files.get(totalFiles - 1).localName.getName();
+        }
+
+        int overallProgress = (this.filesDone * 100 + 100) / this.totalFiles;
+        final String status = String.format("Updating %s (%d/%d)",
+                fileNameToReport, this.activeFileNumber, this.totalFiles);
+        this.publish(new ProgressUpdate(status, overallProgress));
+        return fileToReturn;
+    }
+
     // =============================================================================================
     //                                                                        CHECKING / DOWNLOADING
     // =============================================================================================
@@ -139,16 +178,16 @@ public final class UpdateTask
 
     private List<FileToDownload> pickResourcesToDownload()
             throws IOException {
-        final List<FileToDownload> files = new ArrayList<>();
+        final List<FileToDownload> pickedFiles = new ArrayList<>();
 
         final File resDir = new File(PathUtil.getClientDir(), "resources");
         for (final String resFileName : resourceFiles) {
             final File resFile = new File(resDir, resFileName);
             if (!resFile.exists()) {
-                files.add(new FileToDownload(RESOURCE_DOWNLOAD_URL, resFileName, resFile));
+                pickedFiles.add(new FileToDownload(RESOURCE_DOWNLOAD_URL, resFileName, resFile));
             }
         }
-        return files;
+        return pickedFiles;
     }
 
     private List<FileToDownload> pickBinariesToDownload()
@@ -176,7 +215,7 @@ public final class UpdateTask
                             localFile.localName.getName());
                     download = true;
                 } else {
-                    throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" does not exist.");
+                    throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" cannot be found.");
                 }
             } else if (updateExistingFiles && !isLzma) {
                 if (remoteFile != null) {
@@ -200,7 +239,11 @@ public final class UpdateTask
             }
             if (download) {
                 localFile.remoteLength = remoteFile.length;
-                filesToDownload.add(localFile);
+                if (isLzma) {
+                    needLzma = true;
+                } else {
+                    filesToDownload.add(localFile);
+                }
             }
         }
         return filesToDownload;
@@ -208,35 +251,35 @@ public final class UpdateTask
 
     private List<FileToDownload> listBinaries()
             throws IOException {
-        final List<FileToDownload> files = new ArrayList<>();
+        final List<FileToDownload> binaryFiles = new ArrayList<>();
 
         final File clientDir = PathUtil.getClientDir();
         final File launcherDir = SharedUpdaterCode.getLauncherDir();
 
-        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "lzma.jar",
                 new File(launcherDir, "lzma.jar")));
 
-        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "launcher.jar.pack.lzma",
                 new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
 
-        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "client.jar.pack.lzma",
                 new File(clientDir, "client.jar")));
 
-        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "lwjgl.jar.pack.lzma",
                 new File(clientDir, "libs/lwjgl.jar")));
-        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "lwjgl_util.jar.pack.lzma",
                 new File(clientDir, "libs/lwjgl_util.jar")));
-        files.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
                 "jinput.jar.pack.lzma",
                 new File(clientDir, "libs/jinput.jar")));
-        files.add(pickNativeDownload());
+        binaryFiles.add(pickNativeDownload());
 
-        return files;
+        return binaryFiles;
     }
 
     // get a list of files available from CC.net
@@ -339,16 +382,12 @@ public final class UpdateTask
             final URLConnection connection = website.openConnection();
             file.remoteLength = connection.getContentLength();
         }
-        signalDownloadPercent(0, file.remoteLength);
 
         try (final InputStream siteIn = website.openStream()) {
             try (final FileOutputStream fileOut = new FileOutputStream(tempFile)) {
                 int len;
-                int total = 0;
                 while ((len = siteIn.read(ioBuffer)) > 0) {
                     fileOut.write(ioBuffer, 0, len);
-                    total += len;
-                    signalDownloadPercent(total, file.remoteLength);
                 }
             }
         }
@@ -424,8 +463,6 @@ public final class UpdateTask
     //                                                                            PROGRESS REPORTING
     // =============================================================================================
     private volatile UpdateScreen updateScreen;
-    private int activeFileNumber, totalFiles;
-    private FileToDownload activeFile;
 
     @Override
     protected synchronized void process(final List<ProgressUpdate> chunks) {
@@ -441,45 +478,12 @@ public final class UpdateTask
         if (fileName == null) {
             throw new NullPointerException("fileName");
         }
-        final int overallProgress = -1; // between 0 and 15%
-        final String status = "Checking for updates...";
-        this.publish(new ProgressUpdate(fileName, status, overallProgress));
-    }
-
-    private void signalDownloadProgress() {
-        final int overallProgress = (this.activeFileNumber * 100) / totalFiles;
-        final String fileName = activeFile.localName.getName() + " (" + (this.activeFileNumber + 1) + " / " + this.totalFiles + ")";
-        final String status = "Preparing to download...";
-        this.publish(new ProgressUpdate(fileName, status, overallProgress));
-    }
-
-    private void signalDownloadPercent(final long bytesSoFar, final long bytesTotal) {
-        final String fileName = activeFile.localName.getName() + " (" + (this.activeFileNumber + 1) + " / " + this.totalFiles + ")";
-        final String status;
-        final int overallProgress;
-        if (bytesTotal > 0) {
-            final int percent = (int) Math.max(0, Math.min(100, (bytesSoFar * 100) / bytesTotal));
-            final int baseProgress = (this.activeFileNumber * 100) / this.totalFiles;
-            final int deltaProgress = 100 / this.totalFiles;
-            overallProgress = baseProgress + (deltaProgress * percent) / 100;
-            status = String.format("Downloading (%s / %s KiB)", bytesSoFar / 1024, bytesTotal / 1024);
-        } else {
-            status = String.format("Downloading... (%s KiB)", bytesSoFar / 1024);
-            overallProgress = (this.activeFileNumber * 100) / this.totalFiles;
-        }
-        this.publish(new ProgressUpdate(fileName, status, overallProgress));
-    }
-
-    private void signalUnpackProgress() {
-        int overallProgress = (this.activeFileNumber * 100 + 100) / this.totalFiles;
-        final String fileName = activeFile.localName.getName() + " (" + (this.activeFileNumber + 1) + " / " + this.totalFiles + ")";
-        final String status = "Unpacking...";
-        this.publish(new ProgressUpdate(fileName, status, overallProgress));
+        this.publish(new ProgressUpdate("Checking " + fileName, -1));
     }
 
     private void signalDone() {
         final String message = (this.updatesApplied ? "Updates applied." : "No updates needed.");
-        this.publish(new ProgressUpdate(" ", message, 100));
+        this.publish(new ProgressUpdate(message, 100));
     }
 
     @Override
@@ -538,20 +542,40 @@ public final class UpdateTask
 
     public final static class ProgressUpdate {
 
-        public String fileName;
         public String statusString;
         public int progress;
 
-        public ProgressUpdate(final String fileName, final String statusString, final int progress) {
-            if (fileName == null) {
-                throw new NullPointerException("fileName");
-            }
+        public ProgressUpdate(final String statusString, final int progress) {
             if (statusString == null) {
                 throw new NullPointerException("statusString");
             }
-            this.fileName = fileName;
             this.statusString = statusString;
             this.progress = progress;
+        }
+    }
+
+    private class DownloadThread extends Thread {
+
+        private final Logger logger;
+
+        public DownloadThread(Logger logger) {
+            this.logger = logger;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    FileToDownload file = getNextFileSync();
+                    if (file == null) {
+                        return;
+                    }
+                    processOneFile(file);
+                }
+
+            } catch (final IOException | InterruptedException ex) {
+                logger.log(Level.SEVERE, "Error downloading an updated file.", ex);
+            }
         }
     }
 }

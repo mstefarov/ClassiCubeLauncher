@@ -8,6 +8,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import net.classicube.launcher.gui.DebugWindow;
 import net.classicube.launcher.gui.ErrorScreen;
+import org.apache.commons.lang3.StringUtils;
 
 // Handles launching the client process.
 final public class ClientLauncher {
@@ -70,7 +71,7 @@ final public class ClientLauncher {
             processBuilder.directory(PathUtil.getClientDir());
 
             // log the command used to launch client
-            String cmdLineToLog = concatStringsWSep(processBuilder.command(), " ");
+            String cmdLineToLog = StringUtils.join(processBuilder.command(), " ");
             if (joinInfo != null) {
                 cmdLineToLog = cmdLineToLog.replace(joinInfo.pass, "########"); // sanitize mppass
             }
@@ -110,21 +111,5 @@ final public class ClientLauncher {
             ErrorScreen.show("Could not launch the game",
                     "Error launching the client:<br>" + ex.getMessage(), ex);
         }
-    }
-
-    private static String concatStringsWSep(final List<String> strings, final String separator) {
-        if (strings == null) {
-            throw new NullPointerException("strings");
-        }
-        if (separator == null) {
-            throw new NullPointerException("separator");
-        }
-        final StringBuilder sb = new StringBuilder();
-        String sep = "";
-        for (final String s : strings) {
-            sb.append(sep).append(s);
-            sep = separator;
-        }
-        return sb.toString();
     }
 }
