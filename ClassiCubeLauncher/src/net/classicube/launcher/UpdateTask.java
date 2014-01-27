@@ -32,7 +32,7 @@ public final class UpdateTask
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================
-    private static final int MAX_PARALLEL_DOWNLOAD = 4;
+    private static final int MAX_PARALLEL_DOWNLOADS = 4;
     private static final UpdateTask instance = new UpdateTask();
 
     public static UpdateTask getInstance() {
@@ -73,17 +73,19 @@ public final class UpdateTask
             this.totalFiles = files.size();
 
             if (needLzma) {
-                // lzma.jar will always be the first on the list.
-                // We need to get it before deploying any other files.
-                processOneFile(getNextFileSync());
+                // We need to get lzma.jar before deploying any other files, because some of them
+                // may need to be decompressed. "lzma.jar" will always be the first on the list.
+                processOneFile(getNextFileSync(false));
             }
 
-            int numThreads = Math.min(totalFiles, MAX_PARALLEL_DOWNLOAD);
+            // The rest of the files are processed by worker threads.
+            int numThreads = Math.min(totalFiles, MAX_PARALLEL_DOWNLOADS);
             workerThreads = new Thread[numThreads];
             for (int i = 0; i < numThreads; i++) {
                 workerThreads[i] = new DownloadThread(logger);
                 workerThreads[i].start();
             }
+            // Wait for all workers to finish
             for (int i = 0; i < numThreads; i++) {
                 workerThreads[i].join();
             }
@@ -110,6 +112,7 @@ public final class UpdateTask
         deployFile(processedFile, file.localName);
     }
 
+    // Make a list of all local names, for logging
     private static String listFileNames(final List<FileToDownload> files) {
         if (files == null) {
             throw new NullPointerException("files");
@@ -123,10 +126,12 @@ public final class UpdateTask
         return sb.toString();
     }
 
-    // Called by DownloadThreads to get the next file. Pushes an update 
+    // Grabs the next file from the list, and sends a progress report to UpdateScreen.
     // Returns null when there are no more files left to download.
-    private synchronized FileToDownload getNextFileSync() {
-        filesDone++;
+    private synchronized FileToDownload getNextFileSync(boolean fileWasDone) {
+        if (fileWasDone) {
+            filesDone++;
+        }
         FileToDownload fileToReturn = null;
         String fileNameToReport;
 
@@ -564,12 +569,10 @@ public final class UpdateTask
         @Override
         public void run() {
             try {
-                while (true) {
-                    FileToDownload file = getNextFileSync();
-                    if (file == null) {
-                        return;
-                    }
+                FileToDownload file = getNextFileSync(false);
+                while (file != null) {
                     processOneFile(file);
+                    file = getNextFileSync(true);
                 }
 
             } catch (final IOException | InterruptedException ex) {
