@@ -96,13 +96,14 @@ public final class UpdateScreen extends JFrame {
             return;
         }
 
-        if (!updatesApplied || Prefs.getUpdateMode() == UpdateMode.AUTOMATIC) {
+        if (!updatesApplied || Prefs.getUpdateMode() != UpdateMode.NOTIFY) {
             dispose();
             ClientLauncher.launchClient(this.joinInfo);
         } else {
             this.lNotice.setText(" ");
             this.bPlay.setEnabled(true);
-            bPlay.setVisible(true);
+            this.bPlay.setVisible(true);
+            pack();
         }
     }
 
