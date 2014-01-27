@@ -25,7 +25,7 @@ public class DiagnosticInfoUploader {
 
     public static final String GIST_API_URL = "https://api.github.com/gists";
 
-    public static String UploadToGist() {
+    public static String uploadToGist() {
         // gather files
         final String sysData = getSystemProperties();
         final String dirData = gatherClientDirStructure();

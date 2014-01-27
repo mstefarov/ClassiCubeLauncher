@@ -71,6 +71,7 @@ public final class UserAccount {
 
     private static class UserAccountDateComparator
             implements Comparator<UserAccount>, Serializable {
+        static final long serialVersionUID = 1L;
 
         @Override
         public int compare(final UserAccount o1, final UserAccount o2) {

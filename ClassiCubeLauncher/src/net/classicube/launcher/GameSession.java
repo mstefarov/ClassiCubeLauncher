@@ -168,6 +168,7 @@ public abstract class GameSession {
                     case "mppass":
                         this.joinInfo.pass = value;
                         break;
+                    // default: ignore this param
                 }
             }
 
@@ -199,7 +200,7 @@ public abstract class GameSession {
         info.hash = node.get("Hash", null);
         try {
             info.address = InetAddress.getByName(node.get("Address", null));
-        } catch (final Exception ex) {
+        } catch (final UnknownHostException ex) {
             return null;
         }
         info.port = node.getInt("Port", 0);

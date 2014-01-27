@@ -46,7 +46,7 @@ public final class UpdateTask
     //                                                                                          MAIN
     // =============================================================================================
     private Thread[] workerThreads;
-    private List<FileToDownload> files;
+    private final List<FileToDownload> files = new ArrayList<>();
     private int activeFileNumber, filesDone, totalFiles;
     private boolean needLzma;
     private boolean updatesApplied;
@@ -59,7 +59,7 @@ public final class UpdateTask
 
         // step 1: build up file list
         logger.log(Level.INFO, "Checking for updates.");
-        files = pickBinariesToDownload();
+        files.addAll(pickBinariesToDownload());
         files.addAll(pickResourcesToDownload());
 
         if (files.isEmpty()) {
@@ -214,14 +214,10 @@ public final class UpdateTask
             boolean download = false;
             if (!localFile.localName.exists()) {
                 // If local file does not exist
-                if (remoteFile != null) {
-                    LogUtil.getLogger().log(Level.INFO,
-                            "ClientUpdateTask: Will download {0}: does not exist locally",
-                            localFile.localName.getName());
-                    download = true;
-                } else {
-                    throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" cannot be found.");
-                }
+                LogUtil.getLogger().log(Level.INFO,
+                        "ClientUpdateTask: Will download {0}: does not exist locally",
+                        localFile.localName.getName());
+                download = true;
             } else if (updateExistingFiles && !isLzma) {
                 if (remoteFile != null) {
                     try {
@@ -243,6 +239,10 @@ public final class UpdateTask
                 }
             }
             if (download) {
+                if (remoteFile == null) {
+
+                    throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" cannot be found.");
+                }
                 localFile.remoteLength = remoteFile.length;
                 if (isLzma) {
                     needLzma = true;
@@ -523,6 +523,20 @@ public final class UpdateTask
     // =============================================================================================
     //                                                                                   INNER TYPES
     // =============================================================================================
+    public final static class ProgressUpdate {
+
+        public String statusString;
+        public int progress;
+
+        public ProgressUpdate(final String statusString, final int progress) {
+            if (statusString == null) {
+                throw new NullPointerException("statusString");
+            }
+            this.statusString = statusString;
+            this.progress = progress;
+        }
+    }
+
     private final static class FileToDownload {
 
         public final String baseUrl;
@@ -542,20 +556,6 @@ public final class UpdateTask
         String name;
         long length;
         String hash;
-    }
-
-    public final static class ProgressUpdate {
-
-        public String statusString;
-        public int progress;
-
-        public ProgressUpdate(final String statusString, final int progress) {
-            if (statusString == null) {
-                throw new NullPointerException("statusString");
-            }
-            this.statusString = statusString;
-            this.progress = progress;
-        }
     }
 
     private class DownloadThread extends Thread {

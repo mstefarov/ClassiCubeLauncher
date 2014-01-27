@@ -217,7 +217,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
     private void bSubmitDiagInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSubmitDiagInfoActionPerformed
         LogUtil.getLogger().log(Level.FINE, "[Submit diagnostic information]");
-        String url = DiagnosticInfoUploader.UploadToGist();
+        String url = DiagnosticInfoUploader.uploadToGist();
         PromptScreen.show("Diagnostic information submitted!",
                 "Please provide this link to the ClassiCube developers.",
                 url);
