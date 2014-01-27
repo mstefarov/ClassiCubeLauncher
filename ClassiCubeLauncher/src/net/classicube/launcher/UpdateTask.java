@@ -241,9 +241,8 @@ public final class UpdateTask
                 localFile.remoteLength = remoteFile.length;
                 if (isLzma) {
                     needLzma = true;
-                } else {
-                    filesToDownload.add(localFile);
                 }
+                filesToDownload.add(localFile);
             }
         }
         return filesToDownload;

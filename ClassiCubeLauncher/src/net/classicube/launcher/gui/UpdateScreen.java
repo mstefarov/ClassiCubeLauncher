@@ -153,7 +153,7 @@ public final class UpdateScreen extends JFrame {
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         lStats.setForeground(new java.awt.Color(255, 255, 255));
-        lStats.setText("...");
+        lStats.setText("Preparing to update...");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
