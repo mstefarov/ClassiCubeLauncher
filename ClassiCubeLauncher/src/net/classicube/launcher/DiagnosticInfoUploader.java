@@ -31,6 +31,7 @@ public class DiagnosticInfoUploader {
         final String dirData = gatherClientDirStructure();
         final String clientLogData = readLogFile(PathUtil.getClientDir(), PathUtil.CLIENT_LOG_FILE_NAME);
         final String clientOldLogData = readLogFile(PathUtil.getClientDir(), PathUtil.CLIENT_LOG_OLD_FILE_NAME);
+        final String selfUpdaterLogData = readLogFile(PathUtil.getClientDir(), PathUtil.SELF_UPDATER_LOG_FILE_NAME);
         final String optionsData = readLogFile(PathUtil.getClientDir(), PathUtil.OPTIONS_FILE_NAME);
         String launcherLogData = null,
                 launcherOldLogData = null;
@@ -81,6 +82,11 @@ public class DiagnosticInfoUploader {
         if (launcherOldLogData != null) {
             writer = writer.object(PathUtil.LOG_OLD_FILE_NAME)
                     .value("content", launcherOldLogData)
+                    .end();
+        }
+        if (selfUpdaterLogData != null) {
+            writer = writer.object(PathUtil.SELF_UPDATER_LOG_FILE_NAME)
+                    .value("content", selfUpdaterLogData)
                     .end();
         }
         if (optionsData != null) {

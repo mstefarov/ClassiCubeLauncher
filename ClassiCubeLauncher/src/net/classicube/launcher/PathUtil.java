@@ -16,7 +16,8 @@ final class PathUtil {
             LOG_OLD_FILE_NAME = "launcher.old.log",
             CLIENT_LOG_FILE_NAME = "client.log",
             CLIENT_LOG_OLD_FILE_NAME="client.old.log",
-            OPTIONS_FILE_NAME="options.txt";
+            OPTIONS_FILE_NAME="options.txt",
+            SELF_UPDATER_LOG_FILE_NAME="selfupdater.log";
     private static File clientPath;
 
     // Find client's directory. If it does not exist, create it.
