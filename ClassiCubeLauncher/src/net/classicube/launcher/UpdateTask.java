@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ public final class UpdateTask
     // =============================================================================================
     //                                                                    CONSTANTS & INITIALIZATION
     // =============================================================================================
-    private static final int MAX_PARALLEL_DOWNLOADS = 4;
+    private static final int MAX_PARALLEL_DOWNLOADS = 5;
     private static final UpdateTask instance = new UpdateTask();
 
     public static UpdateTask getInstance() {
@@ -94,7 +93,9 @@ public final class UpdateTask
         // confirm that all required files have been downloaded and deployed
         verifyFiles(files);
 
-        logger.log(Level.INFO, "Updates applied.");
+        if (this.updatesApplied) {
+            logger.log(Level.INFO, "Updates applied.");
+        }
         return true;
     }
 
@@ -106,10 +107,10 @@ public final class UpdateTask
         // step 2: unpack
         final File processedFile = SharedUpdaterCode.processDownload(
                 LogUtil.getLogger(),
-                downloadedFile, file.remoteUrl, file.localName.getName());
+                downloadedFile, file.remoteUrl, file.targetName.getName());
 
         // step 3: deploy
-        deployFile(processedFile, file.localName);
+        deployFile(processedFile, file.targetName);
     }
 
     // Make a list of all local names, for logging
@@ -189,7 +190,7 @@ public final class UpdateTask
         for (final String resFileName : resourceFiles) {
             final File resFile = new File(resDir, resFileName);
             if (!resFile.exists()) {
-                pickedFiles.add(new FileToDownload(RESOURCE_DOWNLOAD_URL, resFileName, resFile));
+                pickedFiles.add(new FileToDownload(RESOURCE_DOWNLOAD_URL + resFileName, resFile));
             }
         }
         return pickedFiles;
@@ -209,8 +210,8 @@ public final class UpdateTask
 
         for (final FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
+            boolean isLzma = (localFile == lzmaJarFile);
             final RemoteFile remoteFile = remoteFiles.get(localFile.remoteUrl);
-            boolean isLzma = localFile.localName.getName().equals(SharedUpdaterCode.LZMA_JAR_NAME);
             boolean download = false;
             if (!localFile.localName.exists()) {
                 // If local file does not exist
@@ -240,10 +241,8 @@ public final class UpdateTask
             }
             if (download) {
                 if (remoteFile == null) {
-
                     throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" cannot be found.");
                 }
-                localFile.remoteLength = remoteFile.length;
                 if (isLzma) {
                     needLzma = true;
                 }
@@ -253,6 +252,8 @@ public final class UpdateTask
         return filesToDownload;
     }
 
+    private FileToDownload lzmaJarFile;
+
     private List<FileToDownload> listBinaries()
             throws IOException {
         final List<FileToDownload> binaryFiles = new ArrayList<>();
@@ -260,26 +261,22 @@ public final class UpdateTask
         final File clientDir = PathUtil.getClientDir();
         final File launcherDir = SharedUpdaterCode.getLauncherDir();
 
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
-                "lzma.jar",
-                new File(launcherDir, "lzma.jar")));
+        lzmaJarFile = new FileToDownload(SharedUpdaterCode.BASE_URL + "lzma.jar",
+                new File(launcherDir, "lzma.jar"));
+        binaryFiles.add(lzmaJarFile);
 
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
-                "launcher.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "launcher.jar.pack.lzma",
+                new File(launcherDir, "launcher.jar"),
                 new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
 
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
-                "client.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "client.jar.pack.lzma",
                 new File(clientDir, "client.jar")));
 
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
-                "lwjgl.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "lwjgl.jar.pack.lzma",
                 new File(clientDir, "libs/lwjgl.jar")));
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
-                "lwjgl_util.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "lwjgl_util.jar.pack.lzma",
                 new File(clientDir, "libs/lwjgl_util.jar")));
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL,
-                "jinput.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "jinput.jar.pack.lzma",
                 new File(clientDir, "libs/jinput.jar")));
         binaryFiles.add(pickNativeDownload());
 
@@ -299,7 +296,6 @@ public final class UpdateTask
         // special treatment for LZMA
         final RemoteFile lzmaFile = new RemoteFile();
         lzmaFile.name = SharedUpdaterCode.LZMA_JAR_NAME;
-        lzmaFile.length = 7187;
         lzmaFile.hash = "N/A";
         remoteFiles.put(lzmaFile.name.toLowerCase(), lzmaFile);
 
@@ -308,7 +304,6 @@ public final class UpdateTask
             final String[] components = line.split(" ");
             final RemoteFile file = new RemoteFile();
             file.name = components[0];
-            file.length = Long.parseLong(components[1]);
             file.hash = components[2].toLowerCase();
             remoteFiles.put(file.name.toLowerCase(), file);
         }
@@ -371,7 +366,7 @@ public final class UpdateTask
         final String remoteName = osName + "_natives.jar";
         final File localPath = new File(PathUtil.getClientDir(),
                 "natives/" + osName + "_natives.jar");
-        return new FileToDownload(SharedUpdaterCode.BASE_URL, remoteName, localPath);
+        return new FileToDownload(SharedUpdaterCode.BASE_URL + remoteName, localPath);
     }
 
     private File downloadFile(final FileToDownload file)
@@ -380,12 +375,7 @@ public final class UpdateTask
             throw new NullPointerException("file");
         }
         final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
-        final URL website = new URL(file.baseUrl + file.remoteUrl);
-
-        if (file.remoteLength == 0) {
-            final URLConnection connection = website.openConnection();
-            file.remoteLength = connection.getContentLength();
-        }
+        final URL website = new URL(file.remoteUrl);
 
         try (final InputStream siteIn = website.openStream()) {
             try (final FileOutputStream fileOut = new FileOutputStream(tempFile)) {
@@ -401,27 +391,27 @@ public final class UpdateTask
     // =============================================================================================
     //                                                                      POST-DOWNLOAD PROCESSING
     // =============================================================================================
-    private void deployFile(final File processedFile, File localName) {
+    private void deployFile(final File processedFile, File targetFile) {
         if (processedFile == null) {
             throw new NullPointerException("processedFile");
         }
-        if (localName == null) {
+        if (targetFile == null) {
             throw new NullPointerException("localName");
         }
-        LogUtil.getLogger().log(Level.INFO, "Deploying {0}", localName);
+        LogUtil.getLogger().log(Level.INFO, "Deploying {0}", targetFile);
         try {
-            final File parentDir = localName.getCanonicalFile().getParentFile();
+            final File parentDir = targetFile.getCanonicalFile().getParentFile();
             if (!parentDir.exists() && !parentDir.mkdirs()) {
                 throw new IOException("Unable to make directory " + parentDir);
             }
-            PathUtil.replaceFile(processedFile, localName);
+            PathUtil.replaceFile(processedFile, targetFile);
 
             // special handling for natives
-            if (localName.getName().endsWith("natives.jar")) {
-                extractNatives(localName);
+            if (targetFile.getName().endsWith("natives.jar")) {
+                extractNatives(targetFile);
             }
         } catch (final IOException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + localName.getName(), ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + targetFile.getName(), ex);
         }
     }
 
@@ -539,22 +529,25 @@ public final class UpdateTask
 
     private final static class FileToDownload {
 
-        public final String baseUrl;
+        // remote filename
         public final String remoteUrl;
         public final File localName;
-        public long remoteLength;
+        public final File targetName;
 
-        public FileToDownload(final String baseUrl, final String remoteName, final File localName) {
-            this.baseUrl = baseUrl;
+        public FileToDownload(final String remoteName, final File localName) {
+            this(remoteName, localName, localName);
+        }
+
+        public FileToDownload(final String remoteName, final File localName, final File targetName) {
             this.remoteUrl = remoteName;
             this.localName = localName;
+            this.targetName = targetName;
         }
     }
 
     private final static class RemoteFile {
 
         String name;
-        long length;
         String hash;
     }
 
