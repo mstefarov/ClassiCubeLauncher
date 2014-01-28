@@ -3,7 +3,6 @@ package net.classicube.launcher.gui;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import javax.swing.JFrame;
 import javax.swing.JRadioButton;
@@ -40,9 +39,14 @@ final class PreferencesScreen extends javax.swing.JDialog {
         // fix for ugly spinner border
         nMemory.getEditor().setOpaque(false);
 
+        // hook up context menu
+        CutCopyPasteAdapter.addToTextField(this.tJavaArgs, true);
+        
+        // Pack and center
         pack();
         setLocationRelativeTo(parent);
-
+        
+        // Fill in the values
         loadPreferences();
         checkIfForgetButtonsShouldBeEnabled();
     }
@@ -220,7 +224,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         String url = DiagnosticInfoUploader.uploadToGist();
         PromptScreen.show("Diagnostic information submitted!",
                 "Please provide this link to the ClassiCube developers.",
-                url);
+                url, false);
     }//GEN-LAST:event_bSubmitDiagInfoActionPerformed
 
     // =============================================================================================

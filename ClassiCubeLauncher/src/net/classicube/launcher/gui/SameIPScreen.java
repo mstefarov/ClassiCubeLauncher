@@ -6,7 +6,6 @@ import java.awt.Frame;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
@@ -187,7 +186,7 @@ public class SameIPScreen extends JDialog {
             final String baseMessage = "Please enter the local address (192.168.x.x) of the computer on which the server is hosted.";
 
             while (true) {
-                String givenString = PromptScreen.show(DIALOG_TITLE, baseMessage, "192.168.");
+                String givenString = PromptScreen.show(DIALOG_TITLE, baseMessage, "192.168.", true);
                 if (givenString == null) {
                     // User left the address blank or pressed [Cancel]. Abort!
                     this.setEnabled(true);

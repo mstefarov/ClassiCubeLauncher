@@ -219,7 +219,7 @@ final class MinecraftNetSession extends GameSession {
                 "<html>Since you are logging in from this computer for the first time,<br>"
                 + "Minecraft.net needs you to confirm your identity before you can continue.<br>"
                 + "This is to make sure that your account isn't used without your authorization."
-                + "<br><br><b>" + question, "");
+                + "<br><br><b>" + question, "", true);
         if (answer == null) {
             // If player gave no answer, or closed the window, abort signing in.
             return SignInResult.CHALLENGE_FAILED;

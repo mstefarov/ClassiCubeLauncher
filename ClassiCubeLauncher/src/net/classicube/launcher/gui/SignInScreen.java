@@ -248,7 +248,7 @@ public final class SignInScreen extends javax.swing.JFrame {
                     "You can connect to a server directly, bypassing sign-in,<br>"
                     + "if you have a direct-connect URL in the form:<br>"
                     + "<code>mc://address:port/username/mppass</code>",
-                    prompt);
+                    prompt, true);
             if (input != null && !prompt.equals(input)) {
                 final String trimmedInput = input.replaceAll("[\\r\\n\\s]", "");
                 final ServerJoinInfo joinInfo = SessionManager.getSession().getDetailsFromUrl(trimmedInput);

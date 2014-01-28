@@ -128,7 +128,9 @@ public final class UpdateScreen extends JFrame {
     }//GEN-LAST:event_bViewChangesActionPerformed
 
     void showReleaseNotesUrl() {
-        PromptScreen.show("Release notes link", "You can find a list of changes in this game update at this URL:", RELEASE_NOTES_URL);
+        PromptScreen.show("Release notes link",
+                "You can find a list of changes in this game update at this URL:",
+                RELEASE_NOTES_URL, false);
     }
 
     // =============================================================================================

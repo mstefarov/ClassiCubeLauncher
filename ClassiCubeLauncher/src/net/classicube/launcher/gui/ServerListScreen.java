@@ -65,6 +65,10 @@ public final class ServerListScreen extends javax.swing.JFrame {
         // init components and stuff
         initComponents();
         this.serverTableContainer.getViewport().setBackground(new Color(247, 247, 247));
+        
+        // hook up context menus
+        CutCopyPasteAdapter.addToTextField(this.tSearch, true);
+        CutCopyPasteAdapter.addToTextField(this.tServerURL, true);
 
         // set window title
         session = SessionManager.getSession();
