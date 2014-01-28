@@ -22,12 +22,11 @@ public class Program {
     private static final String LauncherEntryClass = "net.classicube.launcher.EntryPoint";
     private static final String LAUNCHER_JAR_NAME = "launcher.jar";
     private static final String LauncherEntryMethod = "main";
-    private static File launcherDir,
-            launcherJar;
+    private static File launcherDir, launcherJar;
 
     public static void main(String[] args) {
-        System.setProperty("java.net.preferIPv4Stack" , "true");
-        
+        System.setProperty("java.net.preferIPv4Stack", "true");
+
         try {
             launcherDir = SharedUpdaterCode.getLauncherDir();
         } catch (IOException ex) {
@@ -36,19 +35,36 @@ public class Program {
         }
         launcherJar = new File(launcherDir, LAUNCHER_JAR_NAME);
         final File newLauncherJar = new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME);
-        
+
         initLogging();
 
-        if (newLauncherJar.exists()) {
-            replaceFile(newLauncherJar, launcherJar);
-        } else if (!launcherJar.exists()) {
-            ProgressIndicator progressWindow = new ProgressIndicator();
-            progressWindow.setVisible(true);
-            downloadLauncher();
-            progressWindow.dispose();
+        while (true) {
+            if (newLauncherJar.exists()) {
+                replaceFile(newLauncherJar, launcherJar);
+            } else if (!launcherJar.exists()) {
+                ProgressIndicator progressWindow = new ProgressIndicator();
+                progressWindow.setVisible(true);
+                downloadLauncher();
+                progressWindow.dispose();
+            }
+            try {
+                startLauncher(launcherJar);
+                return;
+            } catch (final Exception ex) {
+                final String message = "Could not start the ClassiCube launcher: " + ex;
+                Object[] options = {"Abort", "Retry"};
+                int chosenOption = JOptionPane.showOptionDialog(null, message, "Error",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null,
+                        options, options[1]);
+                if (chosenOption == 0) {
+                    // Abort
+                    System.exit(1);
+                } else {
+                    // Retry: delete launcher files and re-download
+                    deleteLauncherFiles();
+                }
+            }
         }
-
-        startLauncher(launcherJar);
     }
 
     private static void initLogging() {
@@ -80,15 +96,11 @@ public class Program {
         }
     }
 
-    private static void startLauncher(final File launcherJar) {
-        try {
-            final Class<?> lpClass = loadLauncher(launcherJar);
-            final Method entryPoint = lpClass.getMethod(LauncherEntryMethod, String[].class);
-            entryPoint.invoke(null, (Object) new String[0]);
-        } catch (final Exception ex) {
-            final String message = "Could not start the ClassiCube launcher. Details:<br>" + ex;
-            fatalError(message);
-        }
+    private static void startLauncher(final File launcherJar)
+            throws Exception {
+        final Class<?> lpClass = loadLauncher(launcherJar);
+        final Method entryPoint = lpClass.getMethod(LauncherEntryMethod, String[].class);
+        entryPoint.invoke(null, (Object) new String[0]);
     }
 
     // Load the entry point from launcher's jar
@@ -138,11 +150,30 @@ public class Program {
     }
 
     private static void fatalError(String message) {
-        System.err.println(message.replace("<br>", "\n"));
+        if (logger != null) {
+            logger.log(Level.SEVERE, message);
+        }
         JOptionPane.showMessageDialog(null,
                 "<html>" + message,
                 "ClassiCube launcher error",
                 JOptionPane.ERROR_MESSAGE);
         System.exit(1);
+    }
+
+    private static void deleteLauncherFiles() {
+        try {
+            final File[] files = launcherDir.listFiles();
+            if (files == null) {  // null if security restricted
+                    throw new IOException("Failed to list contents of " + launcherDir);
+            }
+            for (final File file : files) {
+                if(!file.isDirectory() && !file.getName().toLowerCase().endsWith(".log")){
+                    file.delete();
+                }
+            }
+            
+        } catch (IOException ex) {
+            fatalError("Unable to recover from earlier error. Details:<br>" + ex);
+        }
     }
 }
