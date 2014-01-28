@@ -19,9 +19,10 @@ import javax.swing.JOptionPane;
 public class Program {
 
     private static final Logger logger = Logger.getLogger(Program.class.getName());
-    private static final String LauncherEntryClass = "net.classicube.launcher.EntryPoint";
+    private static final String LAUNCHER_ENTRY_CLASS = "net.classicube.launcher.EntryPoint";
     private static final String LAUNCHER_JAR_NAME = "launcher.jar";
-    private static final String LauncherEntryMethod = "main";
+    private static final String LAUNCHER_ENTRY_METHOD = "main";
+    private static final String BUG_REPORT_URL = "http://is.gd/CCL_bugs";
     private static File launcherDir, launcherJar;
 
     public static void main(String[] args) {
@@ -30,8 +31,7 @@ public class Program {
         try {
             launcherDir = SharedUpdaterCode.getLauncherDir();
         } catch (IOException ex) {
-            final String message = "Error finding launcher's directory. Details:<br>" + ex;
-            fatalError(message);
+            fatalError("Error finding launcher's directory.", ex);
         }
         launcherJar = new File(launcherDir, LAUNCHER_JAR_NAME);
         final File newLauncherJar = new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME);
@@ -51,12 +51,17 @@ public class Program {
                 startLauncher(launcherJar);
                 return;
             } catch (final Exception ex) {
-                final String message = "Could not start the ClassiCube launcher: " + ex;
+                logger.log(Level.SEVERE, "Failed to start launcher", ex);
+                final String message = String.format(
+                        "<html>Could not start the ClassiCube launcher:"
+                        + "<blockquote><i>%s</i></blockquote>"
+                        + "If clicking [Retry] does not help, please report this problem at <u>%s</u>",
+                        new Object[]{ex, BUG_REPORT_URL});
                 Object[] options = {"Abort", "Retry"};
-                int chosenOption = JOptionPane.showOptionDialog(null, message, "Error",
+                int chosenOption = JOptionPane.showOptionDialog(null, message, "ClassiCube Launcher Error",
                         JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null,
                         options, options[1]);
-                if (chosenOption == 0) {
+                if (chosenOption != 1) {
                     // Abort
                     System.exit(1);
                 } else {
@@ -75,7 +80,7 @@ public class Program {
             handler.setFormatter(new SimpleFormatter());
             logger.addHandler(handler);
         } catch (final IOException | SecurityException ex) {
-            fatalError("Could not create log file.");
+            fatalError("Could not create log file:", ex);
         }
     }
 
@@ -91,15 +96,15 @@ public class Program {
                     logger, launcherTempFile, "launcher.jar.pack.lzma", "launcher.jar");
             replaceFile(processedLauncherFile, launcherJar);
         } catch (Exception ex) {
-            final String message = "Error unpacking the launcher. Details:<br>" + ex;
-            fatalError(message);
+            logger.log(Level.SEVERE, "Error unpacking the launcher.", ex);
+            fatalError("Error unpacking the launcher:", ex);
         }
     }
 
     private static void startLauncher(final File launcherJar)
             throws Exception {
         final Class<?> lpClass = loadLauncher(launcherJar);
-        final Method entryPoint = lpClass.getMethod(LauncherEntryMethod, String[].class);
+        final Method entryPoint = lpClass.getMethod(LAUNCHER_ENTRY_METHOD, String[].class);
         entryPoint.invoke(null, (Object) new String[0]);
     }
 
@@ -108,7 +113,7 @@ public class Program {
             throws IOException, ClassNotFoundException {
         final URL[] urls = {new URL("jar:file:" + launcherJar + "!/")};
         final URLClassLoader loader = URLClassLoader.newInstance(urls);
-        return loader.loadClass(LauncherEntryClass);
+        return loader.loadClass(LAUNCHER_ENTRY_CLASS);
     }
 
     private static File downloadFile(final String remoteName) {
@@ -121,10 +126,8 @@ public class Program {
             }
             return tempFile;
         } catch (Exception ex) {
-            final String message = String.format(
-                    "Error downloading launcher component \"%s\". Details:<br>%s",
-                    new Object[]{remoteName, ex.getMessage()});
-            fatalError(message);
+            logger.log(Level.SEVERE, "Error downloading launcher component " + remoteName, ex);
+            fatalError("Error downloading launcher component \"" + remoteName + "\"", ex);
             return null;
         }
     }
@@ -142,38 +145,46 @@ public class Program {
 
             sourceFile.delete();
         } catch (final IOException ex) {
-            final String message = String.format(
-                    "Error deploying launcher component \"%s\". Details:<br>%s",
-                    new Object[]{destFile.getName(), ex});
-            fatalError(message);
+            logger.log(Level.SEVERE, "Error deploying launcher component " + destFile.getName(), ex);
+            fatalError("Error deploying launcher component \"" + destFile.getName() + "\"", ex);
         }
     }
 
-    private static void fatalError(String message) {
-        if (logger != null) {
-            logger.log(Level.SEVERE, message);
-        }
-        JOptionPane.showMessageDialog(null,
-                "<html>" + message,
-                "ClassiCube launcher error",
-                JOptionPane.ERROR_MESSAGE);
-        System.exit(1);
-    }
-
+    // Attempts to delete all files (except log files) inside launcher's directory.
+    // Exits program via fatalError(...) on error.
     private static void deleteLauncherFiles() {
         try {
             final File[] files = launcherDir.listFiles();
             if (files == null) {  // null if security restricted
-                    throw new IOException("Failed to list contents of " + launcherDir);
+                throw new IOException("Failed to list contents of " + launcherDir);
             }
             for (final File file : files) {
-                if(!file.isDirectory() && !file.getName().toLowerCase().endsWith(".log")){
-                    file.delete();
+                if (!file.isDirectory() && !file.getName().toLowerCase().endsWith(".log")) {
+                    if (!file.delete()) {
+                        logger.log(Level.WARNING, "Unable to delete {0}", file.getName());
+                    }
                 }
             }
-            
+
         } catch (IOException ex) {
-            fatalError("Unable to recover from earlier error. Details:<br>" + ex);
+            logger.log(Level.SEVERE, "Error deleting launcher files.", ex);
+            fatalError("Unable to recover from an earlier error:", ex);
         }
+    }
+
+    private static void fatalError(String message, Throwable ex) {
+        String htmlMessage;
+        if (ex != null) {
+            htmlMessage = String.format(
+                    "<html>%s<blockquote><i>%s</i></blockquote>If this problem persists, contact us at <u>%s</u>",
+                    new Object[]{message, ex, BUG_REPORT_URL});
+        } else {
+            htmlMessage = String.format(
+                    "<html>%s<br>If this problem persists, contact us at <u>%s</u>",
+                    new Object[]{message, BUG_REPORT_URL});
+        }
+        JOptionPane.showMessageDialog(null,
+                htmlMessage, "ClassiCube Launcher Error", JOptionPane.ERROR_MESSAGE);
+        System.exit(1);
     }
 }
