@@ -342,7 +342,7 @@
     <Component class="net.classicube.launcher.gui.JNiceLookingButton" name="bSubmitDiagInfo">
       <Properties>
         <Property name="text" type="java.lang.String" value="Submit diagnostic information"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Upload information needed for diagnosing problems in ClassiCube software.&lt;br&gt;&#xa;Information includes log files, your preferences, some basic system information&lt;br&gt;&#xa;(Java version, operating system, etc), and a list of files in your client&apos;s directory.&lt;br&gt;&#xa;&lt;b&gt;No passwords or any other personal information is ever uploaded.&lt;/b&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Upload information needed for diagnosing problems in ClassiCube software.&lt;br&gt;&#xa;Information includes log files, your preferences, some basic system information&lt;br&gt;&#xa;(Java version, operating system, etc), and a list of files in your client&apos;s directory.&lt;br&gt;&#xa;&lt;b&gt;Logs may contain your username, but NOT your password or any other personal info."/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bSubmitDiagInfoActionPerformed"/>

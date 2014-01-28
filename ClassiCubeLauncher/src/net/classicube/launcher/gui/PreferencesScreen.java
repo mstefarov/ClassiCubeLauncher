@@ -509,7 +509,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(xDebugMode, gridBagConstraints);
 
         bSubmitDiagInfo.setText("Submit diagnostic information");
-        bSubmitDiagInfo.setToolTipText("<html>Upload information needed for diagnosing problems in ClassiCube software.<br>\nInformation includes log files, your preferences, some basic system information<br>\n(Java version, operating system, etc), and a list of files in your client's directory.<br>\n<b>No passwords or any other personal information is ever uploaded.</b>");
+        bSubmitDiagInfo.setToolTipText("<html>Upload information needed for diagnosing problems in ClassiCube software.<br>\nInformation includes log files, your preferences, some basic system information<br>\n(Java version, operating system, etc), and a list of files in your client's directory.<br>\n<b>Logs may contain your username, but NOT your password or any other personal info.");
         bSubmitDiagInfo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bSubmitDiagInfoActionPerformed(evt);
