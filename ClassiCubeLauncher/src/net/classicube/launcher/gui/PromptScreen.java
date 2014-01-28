@@ -52,7 +52,7 @@ public class PromptScreen extends javax.swing.JDialog {
         this.imgErrorIcon.setSize(new Dimension(64, 64));
 
         // Add cut/copy/paste menu to text box
-        CutCopyPasteAdapter.addToTextField(tInput, allowModification);
+        CutCopyPasteAdapter.addToComponent(tInput, allowModification);
 
         // Set windows size, pack, and center
         //this.setPreferredSize(new Dimension(400, 150));

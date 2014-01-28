@@ -122,82 +122,14 @@ public class StringUtils {
     // (not sure who tested this)
 
     /**
-     * A String for a space character.
-     *
-     * @since 3.2
-     */
-    public static final String SPACE = " ";
-
-    /**
      * The empty String {@code ""}.
      * @since 2.0
      */
     public static final String EMPTY = "";
 
-    /**
-     * A String for linefeed LF ("\n").
-     *
-     * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6">JLF: Escape Sequences
-     *      for Character and String Literals</a>
-     * @since 3.2
-     */
-    public static final String LF = "\n";
-
-    /**
-     * A String for carriage return CR ("\r").
-     *
-     * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6">JLF: Escape Sequences
-     *      for Character and String Literals</a>
-     * @since 3.2
-     */
-    public static final String CR = "\r";
-
-    /**
-     * Represents a failed index search.
-     * @since 2.1
-     */
-    public static final int INDEX_NOT_FOUND = -1;
-
-    /**
-     * <p>{@code StringUtils} instances should NOT be constructed in
-     * standard programming. Instead, the class should be used as
-     * {@code StringUtils.trim(" foo ");}.</p>
-     *
-     * <p>This constructor is public to permit tools that require a JavaBean
-     * instance to operate.</p>
-     */
-    public StringUtils() {
-        super();
-    }
     
-
     // Joining
     //-----------------------------------------------------------------------
-    /**
-     * <p>Joins the elements of the provided array into a single String
-     * containing the provided list of elements.</p>
-     *
-     * <p>No separator is added to the joined String.
-     * Null objects or empty strings within the array are represented by
-     * empty strings.</p>
-     *
-     * <pre>
-     * StringUtils.join(null)            = null
-     * StringUtils.join([])              = ""
-     * StringUtils.join([null])          = ""
-     * StringUtils.join(["a", "b", "c"]) = "abc"
-     * StringUtils.join([null, "", "a"]) = "a"
-     * </pre>
-     *
-     * @param <T> the specific type of values to join together
-     * @param elements  the values to join together, may be null
-     * @return the joined String, {@code null} if null array input
-     * @since 2.0
-     * @since 3.0 Changed signature to use varargs
-     */
-    public static <T> String join(final T... elements) {
-        return join(elements, null);
-    }
 
     /**
      * <p>Joins the elements of the provided array into a single String
