@@ -21,8 +21,7 @@ public final class UpdateScreen extends JFrame {
     //                                                                            FIELDS & CONSTANTS
     // =============================================================================================
 
-    private static final String
-            RELEASE_NOTES_URL = "http://www.classicube.net/forum/viewpost/ir/latest/#bottom_post";
+    private static final String RELEASE_NOTES_URL = "http://www.classicube.net/forum/viewpost/ir/latest/#bottom_post";
     private Desktop desktop;
     private final ServerJoinInfo joinInfo;
 
@@ -88,6 +87,7 @@ public final class UpdateScreen extends JFrame {
             UpdateTask.getInstance().get();
 
         } catch (final InterruptedException | ExecutionException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error during the download/update process.", ex);
             ErrorScreen.show("Error updating",
                     "The game cannot be started because an error occured during the download/update process.",
                     ex);
