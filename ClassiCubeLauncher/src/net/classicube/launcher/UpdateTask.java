@@ -107,7 +107,7 @@ public final class UpdateTask
         // step 2: unpack
         final File processedFile = SharedUpdaterCode.processDownload(
                 LogUtil.getLogger(),
-                downloadedFile, file.remoteUrl, file.targetName.getName());
+                downloadedFile, file.baseUrl + file.remoteName, file.targetName.getName());
 
         // step 3: deploy
         deployFile(processedFile, file.targetName);
@@ -180,7 +180,8 @@ public final class UpdateTask
         "sound3/dig/snow3.ogg", "sound3/dig/snow4.ogg", "sound3/random/glass1.ogg",
         "sound3/random/glass2.ogg", "sound3/random/glass3.ogg"};
     public static final String FILE_INDEX_URL = "http://www.classicube.net/static/client/version",
-            RESOURCE_DOWNLOAD_URL = "https://s3.amazonaws.com/MinecraftResources/";
+            RESOURCE_DOWNLOAD_URL = "https://s3.amazonaws.com/MinecraftResources/",
+            LAUNCHER_JAR = "launcher.jar";
 
     private List<FileToDownload> pickResourcesToDownload()
             throws IOException {
@@ -190,7 +191,7 @@ public final class UpdateTask
         for (final String resFileName : resourceFiles) {
             final File resFile = new File(resDir, resFileName);
             if (!resFile.exists()) {
-                pickedFiles.add(new FileToDownload(RESOURCE_DOWNLOAD_URL + resFileName, resFile));
+                pickedFiles.add(new FileToDownload(RESOURCE_DOWNLOAD_URL, resFileName, resFile));
             }
         }
         return pickedFiles;
@@ -211,18 +212,34 @@ public final class UpdateTask
         for (final FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
             boolean isLzma = (localFile == lzmaJarFile);
-            final RemoteFile remoteFile = remoteFiles.get(localFile.remoteUrl);
+            boolean isLauncherJar = (localFile == launcherJarFile);
+            final RemoteFile remoteFile = remoteFiles.get(localFile.remoteName);
             boolean download = false;
-            if (!localFile.localName.exists()) {
+            File fileToHash = localFile.localName;
+
+            boolean localFileMissing = !localFile.localName.exists();
+
+            if (localFileMissing && isLauncherJar) {
+                // If launcher is not started from its usual location, we need to take care
+                // to avoid repeated attempts to update it.
+                LogUtil.getLogger().log(Level.WARNING,
+                        "launcher.jar is not present in its usual location!");
+                // We check if "launcher.jar.new" is up-to-date (instead of checking "launcher.jar"),
+                // and only download it if UpdateMode is not DISABLED.
+                fileToHash = localFile.targetName;
+            }
+
+            if (localFileMissing && !isLauncherJar) {
                 // If local file does not exist
                 LogUtil.getLogger().log(Level.INFO,
-                        "ClientUpdateTask: Will download {0}: does not exist locally",
-                        localFile.localName.getName());
+                        "Will download {0}: does not exist locally", localFile.localName.getName());
                 download = true;
+
             } else if (updateExistingFiles && !isLzma) {
+                // If local file exists, but may need updating
                 if (remoteFile != null) {
                     try {
-                        final String localHash = computeLocalHash(localFile.localName);
+                        final String localHash = computeLocalHash(fileToHash);
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
@@ -239,12 +256,14 @@ public final class UpdateTask
                             "No remote match for local file {0}", localFile.localName.getName());
                 }
             }
+
             if (download) {
-                if (remoteFile == null) {
-                    throw new RuntimeException("Required file \"" + localFile.remoteUrl + "\" cannot be found.");
-                }
                 if (isLzma) {
                     needLzma = true;
+                } else if (remoteFile == null) {
+                    String errMsg = String.format("Required file \"%s%s\" cannot be found.",
+                            localFile.baseUrl, localFile.remoteName);
+                    throw new RuntimeException(errMsg);
                 }
                 filesToDownload.add(localFile);
             }
@@ -252,7 +271,7 @@ public final class UpdateTask
         return filesToDownload;
     }
 
-    private FileToDownload lzmaJarFile;
+    private FileToDownload lzmaJarFile, launcherJarFile;
 
     private List<FileToDownload> listBinaries()
             throws IOException {
@@ -261,22 +280,23 @@ public final class UpdateTask
         final File clientDir = PathUtil.getClientDir();
         final File launcherDir = SharedUpdaterCode.getLauncherDir();
 
-        lzmaJarFile = new FileToDownload(SharedUpdaterCode.BASE_URL + "lzma.jar",
+        lzmaJarFile = new FileToDownload(SharedUpdaterCode.BASE_URL, "lzma.jar",
                 new File(launcherDir, "lzma.jar"));
         binaryFiles.add(lzmaJarFile);
 
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "launcher.jar.pack.lzma",
-                new File(launcherDir, "launcher.jar"),
-                new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME)));
+        launcherJarFile = new FileToDownload(SharedUpdaterCode.BASE_URL, "launcher.jar.pack.lzma",
+                new File(launcherDir, LAUNCHER_JAR),
+                new File(launcherDir, SharedUpdaterCode.LAUNCHER_NEW_JAR_NAME));
+        binaryFiles.add(launcherJarFile);
 
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "client.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL, "client.jar.pack.lzma",
                 new File(clientDir, "client.jar")));
 
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "lwjgl.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL, "lwjgl.jar.pack.lzma",
                 new File(clientDir, "libs/lwjgl.jar")));
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "lwjgl_util.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL, "lwjgl_util.jar.pack.lzma",
                 new File(clientDir, "libs/lwjgl_util.jar")));
-        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL + "jinput.jar.pack.lzma",
+        binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL, "jinput.jar.pack.lzma",
                 new File(clientDir, "libs/jinput.jar")));
         binaryFiles.add(pickNativeDownload());
 
@@ -366,7 +386,7 @@ public final class UpdateTask
         final String remoteName = osName + "_natives.jar";
         final File localPath = new File(PathUtil.getClientDir(),
                 "natives/" + osName + "_natives.jar");
-        return new FileToDownload(SharedUpdaterCode.BASE_URL + remoteName, localPath);
+        return new FileToDownload(SharedUpdaterCode.BASE_URL, remoteName, localPath);
     }
 
     private File downloadFile(final FileToDownload file)
@@ -375,7 +395,7 @@ public final class UpdateTask
             throw new NullPointerException("file");
         }
         final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
-        final URL website = new URL(file.remoteUrl);
+        final URL website = new URL(file.baseUrl + file.remoteName);
 
         try (final InputStream siteIn = website.openStream()) {
             try (final FileOutputStream fileOut = new FileOutputStream(tempFile)) {
@@ -504,7 +524,7 @@ public final class UpdateTask
             throw new NullPointerException("files");
         }
         for (final FileToDownload file : files) {
-            if (!file.localName.exists()) {
+            if (!LAUNCHER_JAR.equals(file.localName.getName()) && !file.localName.exists()) {
                 throw new RuntimeException("Update process failed. Missing file: " + file.localName);
             }
         }
@@ -530,16 +550,18 @@ public final class UpdateTask
     private final static class FileToDownload {
 
         // remote filename
-        public final String remoteUrl;
+        public final String baseUrl;
+        public final String remoteName;
         public final File localName;
         public final File targetName;
 
-        public FileToDownload(final String remoteName, final File localName) {
-            this(remoteName, localName, localName);
+        public FileToDownload(final String baseUrl, final String remoteName, final File localName) {
+            this(baseUrl, remoteName, localName, localName);
         }
 
-        public FileToDownload(final String remoteName, final File localName, final File targetName) {
-            this.remoteUrl = remoteName;
+        public FileToDownload(final String baseUrl, final String remoteName, final File localName, final File targetName) {
+            this.baseUrl = baseUrl;
+            this.remoteName = remoteName;
             this.localName = localName;
             this.targetName = targetName;
         }
