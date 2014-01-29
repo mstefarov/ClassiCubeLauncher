@@ -20,12 +20,12 @@
     <jdkPreference>preferJre</jdkPreference>
   </jre>
   <versionInfo>
-    <fileVersion>13.9.26.0</fileVersion>
-    <txtFileVersion>Build 4 (2013-09-26)</txtFileVersion>
-    <fileDescription>Game launcher for ClassiCube client</fileDescription>
+    <fileVersion>14.01.29.0</fileVersion>
+    <txtFileVersion>Build 5 (2014-01-29)</txtFileVersion>
+    <fileDescription>ClassiCube Launcher</fileDescription>
     <copyright>ClassiCube.net</copyright>
-    <productVersion>13.9.26.0</productVersion>
-    <txtProductVersion>Build 4 (2013-09-26)</txtProductVersion>
+    <productVersion>14.01.29.0</productVersion>
+    <txtProductVersion>Build 5 (2014-01-29)</txtProductVersion>
     <productName>ClassiCube Launcher</productName>
     <companyName>ClassiCube.net</companyName>
     <internalName>ClassiCube Launcher</internalName>
