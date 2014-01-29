@@ -59,19 +59,19 @@ public final class ServerListScreen extends javax.swing.JFrame {
         // Make a pretty background
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);
-        setContentPane(bgPanel);
+        this.setContentPane(bgPanel);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         // init components and stuff
-        initComponents();
+        this.initComponents();
         this.serverTableContainer.getViewport().setBackground(new Color(247, 247, 247));
         
         // hook up context menus
-        CutCopyPasteAdapter.addToComponent(this.tSearch, true);
-        CutCopyPasteAdapter.addToComponent(this.tServerURL, true);
+        CutCopyPasteAdapter.addToComponent(this.tSearch, true, true);
+        CutCopyPasteAdapter.addToComponent(this.tServerURL, true, true);
 
         // set window title
-        session = SessionManager.getSession();
+        this.session = SessionManager.getSession();
         final String playerName = session.getAccount().playerName;
         if (session.getServiceType() == GameServiceType.ClassiCubeNetService) {
             setTitle(playerName + " @ ClassiCube.net - servers");

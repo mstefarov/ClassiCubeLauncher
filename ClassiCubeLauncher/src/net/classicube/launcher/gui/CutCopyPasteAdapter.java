@@ -20,17 +20,24 @@ import net.classicube.launcher.LogUtil;
 
 public class CutCopyPasteAdapter extends MouseAdapter implements ClipboardOwner {
 
-    public static CutCopyPasteAdapter addToComponent(final JTextComponent component, final boolean allowModification) {
-        CutCopyPasteAdapter adapter = new CutCopyPasteAdapter(component, allowModification);
+    public static CutCopyPasteAdapter addToComponent(
+            final JTextComponent component, final boolean allowCopy, final boolean allowModification) {
+        CutCopyPasteAdapter adapter = new CutCopyPasteAdapter(component, allowCopy, allowModification);
         component.addMouseListener(adapter);
         return adapter;
     }
 
-    private final JTextComponent textField;
+    private final JTextComponent component;
+    private final boolean allowCopy;
     private final boolean allowModification;
 
-    private CutCopyPasteAdapter(final JTextComponent textField, final boolean allowModification) {
-        this.textField = textField;
+    private CutCopyPasteAdapter(
+            final JTextComponent component, final boolean allowCopy, final boolean allowModification) {
+        if (!allowCopy && !allowModification) {
+            throw new IllegalArgumentException("Either allowCopy or allowModification must be set.");
+        }
+        this.component = component;
+        this.allowCopy = allowCopy;
         this.allowModification = allowModification;
     }
 
@@ -65,50 +72,50 @@ public class CutCopyPasteAdapter extends MouseAdapter implements ClipboardOwner 
 
         public CopyPasteMenu() {
             final boolean hasSelectedText
-                    = (textField.getSelectedText() != null) && textField.getSelectedText().length() > 0;
-            if (allowModification) {
+                    = (component.getSelectedText() != null) && component.getSelectedText().length() > 0;
+            if (allowCopy && allowModification) {
                 final JMenuItem cutMenuItem = new JMenuItem("Cut");
                 cutMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        setClipboardContents(textField.getSelectedText());
-                        final int selStart = textField.getSelectionStart();
-                        final int selEnd = textField.getSelectionEnd();
-                        String newText = textField.getText().substring(0, selStart)
-                                + textField.getText().substring(selEnd);
-                        textField.setText(newText);
-                        textField.setSelectionStart(selStart);
-                        textField.setSelectionEnd(textField.getSelectionStart());
+                        setClipboardContents(component.getSelectedText());
+                        final int selStart = component.getSelectionStart();
+                        final int selEnd = component.getSelectionEnd();
+                        String newText = component.getText().substring(0, selStart)
+                                + component.getText().substring(selEnd);
+                        component.setText(newText);
+                        component.setSelectionStart(selStart);
+                        component.setSelectionEnd(component.getSelectionStart());
                     }
                 });
                 cutMenuItem.setEnabled(hasSelectedText);
                 add(cutMenuItem);
             }
-
-            final JMenuItem copyMenuItem = new JMenuItem("Copy");
-            copyMenuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    setClipboardContents(textField.getSelectedText());
-                }
-            });
-            copyMenuItem.setEnabled(hasSelectedText);
-            add(copyMenuItem);
-
+            if (allowCopy) {
+                final JMenuItem copyMenuItem = new JMenuItem("Copy");
+                copyMenuItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        setClipboardContents(component.getSelectedText());
+                    }
+                });
+                copyMenuItem.setEnabled(hasSelectedText);
+                add(copyMenuItem);
+            }
             if (allowModification) {
                 final JMenuItem pasteMenuItem = new JMenuItem("Paste");
                 pasteMenuItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        final int selStart = textField.getSelectionStart();
-                        final int selEnd = textField.getSelectionEnd();
+                        final int selStart = component.getSelectionStart();
+                        final int selEnd = component.getSelectionEnd();
                         final String pastedText = getClipboardContents();
-                        final String newText = textField.getText().substring(0, selStart)
+                        final String newText = component.getText().substring(0, selStart)
                                 + pastedText
-                                + textField.getText().substring(selEnd);
-                        textField.setText(newText);
-                        textField.setSelectionStart(selStart + pastedText.length());
-                        textField.setSelectionEnd(textField.getSelectionStart());
+                                + component.getText().substring(selEnd);
+                        component.setText(newText);
+                        component.setSelectionStart(selStart + pastedText.length());
+                        component.setSelectionEnd(component.getSelectionStart());
                     }
                 });
                 add(pasteMenuItem);

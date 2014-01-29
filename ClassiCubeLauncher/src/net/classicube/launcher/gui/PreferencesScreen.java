@@ -40,7 +40,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         nMemory.getEditor().setOpaque(false);
 
         // hook up context menu
-        CutCopyPasteAdapter.addToComponent(this.tJavaArgs, true);
+        CutCopyPasteAdapter.addToComponent(this.tJavaArgs, true, true);
         
         // Pack and center
         pack();

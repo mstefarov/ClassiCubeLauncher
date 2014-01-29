@@ -330,6 +330,10 @@ public final class SignInScreen extends javax.swing.JFrame {
         // and fills in the password field for known usernames
         usernameEditor.addFocusListener(new UsernameFocusListener());
 
+        // Add a context menu to username text
+        CutCopyPasteAdapter.addToComponent(usernameEditor, true, true);
+        CutCopyPasteAdapter.addToComponent(tPassword, false, true);
+
         // Create the drop-down menu for [Resume|v] split button
         resumeMenu = new JPopupMenu();
         resumeMenu.addPopupMenuListener(new ResumePopupMenuListener());
@@ -388,19 +392,34 @@ public final class SignInScreen extends javax.swing.JFrame {
     // Selects all text in the username field on-focus (you'd think this would be easier)
     class UsernameFocusListener implements FocusListener {
 
+        boolean wasTemp;
+
         @Override
         public void focusGained(final FocusEvent e) {
-            final JTextComponent editor = ((JTextField) cUsername.getEditor().getEditorComponent());
-            final String selectedUsername = (String) cUsername.getSelectedItem();
-            if (selectedUsername != null) {
-                editor.setCaretPosition(selectedUsername.length());
-                editor.moveCaretPosition(0);
+            final String selectedUsername;
+            final JTextComponent editor = (JTextField) cUsername.getEditor().getEditorComponent();
+            if (wasTemp) {
+                selectedUsername = editor.getText();
+                locatePassword(selectedUsername);
+            } else {
+                selectedUsername = (String) cUsername.getSelectedItem();
+                if (selectedUsername != null) {
+                    editor.setCaretPosition(selectedUsername.length());
+                    editor.moveCaretPosition(0);
+                }
             }
         }
 
         @Override
         public void focusLost(final FocusEvent e) {
-            final String selectedUsername = (String) cUsername.getSelectedItem();
+            wasTemp = e.isTemporary();
+            if (!wasTemp) {
+                final String selectedUsername = (String) cUsername.getSelectedItem();
+                locatePassword(selectedUsername);
+            }
+        }
+
+        void locatePassword(String selectedUsername) {
             if (selectedUsername != null && Prefs.getRememberPasswords()) {
                 final UserAccount curAccount = accountManager.findAccount(selectedUsername);
                 if (curAccount != null) {
@@ -413,6 +432,7 @@ public final class SignInScreen extends javax.swing.JFrame {
                     settingPasswordText = false;
                     // Cause checkIfSignInAllowed() to be called manually once, after password text was changed
                     fieldChangeListener.actionPerformed(null);
+                    checkIfSignInAllowed();
                 }
             }
         }
