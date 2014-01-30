@@ -56,7 +56,7 @@ public final class UpdateTask
         this.digest = MessageDigest.getInstance("SHA1");
         final Logger logger = LogUtil.getLogger();
 
-        // step 1: build up file list
+        // build up file list
         logger.log(Level.INFO, "Checking for updates.");
         files.addAll(pickBinariesToDownload());
         files.addAll(pickResourcesToDownload());
@@ -206,7 +206,7 @@ public final class UpdateTask
 
         // Getting remote file index failed. Abort update.
         if (remoteFiles == null) {
-            return localFiles;
+            return filesToDownload;
         }
 
         for (final FileToDownload localFile : localFiles) {
@@ -227,9 +227,10 @@ public final class UpdateTask
                 // We check if "launcher.jar.new" is up-to-date (instead of checking "launcher.jar"),
                 // and only download it if UpdateMode is not DISABLED.
                 fileToHash = localFile.targetName;
+                localFileMissing = !localFile.targetName.exists();
             }
 
-            if (localFileMissing && !isLauncherJar) {
+            if (localFileMissing) {
                 // If local file does not exist
                 LogUtil.getLogger().log(Level.INFO,
                         "Will download {0}: does not exist locally", localFile.localName.getName());
@@ -244,7 +245,7 @@ public final class UpdateTask
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
                                     "Will download {0}: contents don''t match ({1} vs {2})",
-                                    new Object[]{localFile.localName.getName(), localHash, remoteFile.hash});
+                                    new Object[]{fileToHash.getName(), localHash, remoteFile.hash});
                             download = true;
                         }
                     } catch (final IOException ex) {
@@ -253,7 +254,7 @@ public final class UpdateTask
                     }
                 } else {
                     LogUtil.getLogger().log(Level.WARNING,
-                            "No remote match for local file {0}", localFile.localName.getName());
+                            "No remote match for local file {0}", fileToHash.getName());
                 }
             }
 
