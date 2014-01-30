@@ -59,7 +59,7 @@ public class Program {
                         "<html>Could not start the ClassiCube launcher:"
                         + "<blockquote><i>%s</i></blockquote>"
                         + "If clicking [Retry] does not help, please report this problem at <u>%s</u>",
-                        new Object[]{ex, BUG_REPORT_URL});
+                        new Object[]{exceptionToString(ex), BUG_REPORT_URL});
                 Object[] options = {"Abort", "Retry"};
                 int chosenOption = JOptionPane.showOptionDialog(null, message, "ClassiCube Launcher Error",
                         JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null,
@@ -78,9 +78,9 @@ public class Program {
     private static void testLzma() throws IOException {
         // Minimal LZMA stream
         byte[] lzmaTest = new byte[]{
-            0x5d, 0x00, 0x00, 0x04, 0x00, (byte)0xff, (byte)0xff, (byte)0xff,
-            (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, 0x00, 0x05, 0x41,
-            (byte)0xfb, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xe0, 0x00, 0x00, 0x00
+            0x5d, 0x00, 0x00, 0x04, 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, 0x00, 0x05, 0x41,
+            (byte) 0xfb, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xe0, 0x00, 0x00, 0x00
         };
         // Try to make an LZMA stream, to ensure that lzma.jar is downloaded and usable
         ByteArrayInputStream mockStream = new ByteArrayInputStream(lzmaTest);
@@ -191,7 +191,7 @@ public class Program {
         if (ex != null) {
             htmlMessage = String.format(
                     "<html>%s<blockquote><i>%s</i></blockquote>If this problem persists, contact us at <u>%s</u>",
-                    new Object[]{message, ex, BUG_REPORT_URL});
+                    new Object[]{message, exceptionToString(ex), BUG_REPORT_URL});
         } else {
             htmlMessage = String.format(
                     "<html>%s<br>If this problem persists, contact us at <u>%s</u>",
@@ -200,5 +200,20 @@ public class Program {
         JOptionPane.showMessageDialog(null,
                 htmlMessage, "ClassiCube Launcher Error", JOptionPane.ERROR_MESSAGE);
         System.exit(1);
+    }
+
+    private static String exceptionToString(Throwable ex) {
+        StringBuilder sb = new StringBuilder();
+        do {
+            if (sb.length() > 0) {
+                sb.append("<br>caused by ");
+            }
+            StackTraceElement frame = ex.getStackTrace()[0];
+            sb.append(ex)
+                    .append("<br>&nbsp;&nbsp;&nbsp;&nbsp;at ")
+                    .append(frame.getClassName()).append('.').append(frame.getMethodName());
+            ex = ex.getCause();
+        } while (ex != null);
+        return sb.toString();
     }
 }
