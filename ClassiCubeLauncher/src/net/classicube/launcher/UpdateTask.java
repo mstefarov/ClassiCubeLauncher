@@ -211,13 +211,15 @@ public final class UpdateTask
 
         for (final FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
-            boolean isLzma = (localFile == lzmaJarFile);
-            boolean isLauncherJar = (localFile == launcherJarFile);
+            
             final RemoteFile remoteFile = remoteFiles.get(localFile.remoteName);
             boolean download = false;
-            File fileToHash = localFile.localName;
-
             boolean localFileMissing = !localFile.localName.exists();
+            File fileToHash = localFile.localName;
+            
+            // lzma.jar and launcher.jar get special treatment
+            boolean isLzma = (localFile == lzmaJarFile);
+            boolean isLauncherJar = (localFile == launcherJarFile);
 
             if (isLauncherJar) {
                 if (localFileMissing) {
@@ -233,6 +235,8 @@ public final class UpdateTask
                 } else if (localFile.targetName.exists()) {
                     // If "launcher.jar.new" already exists, just check if it's up-to-date.
                     fileToHash = localFile.targetName;
+                    LogUtil.getLogger().log(Level.WARNING,
+                            "launcher.jar.new already exists: we're probably not running from self-updater.");
                 }
             }
 
