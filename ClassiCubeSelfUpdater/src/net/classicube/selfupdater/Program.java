@@ -58,7 +58,7 @@ public class Program {
                 final String message = String.format(
                         "<html>Could not start the ClassiCube launcher:"
                         + "<blockquote><i>%s</i></blockquote>"
-                        + "If clicking [Retry] does not help, please report this problem at <u>%s</u>",
+                        + "If clicking [Retry] does not help, please report this problem at %s",
                         new Object[]{exceptionToString(ex), BUG_REPORT_URL});
                 Object[] options = {"Abort", "Retry"};
                 int chosenOption = JOptionPane.showOptionDialog(null, message, "ClassiCube Launcher Error",
@@ -190,7 +190,7 @@ public class Program {
         String htmlMessage;
         if (ex != null) {
             htmlMessage = String.format(
-                    "<html>%s<blockquote><i>%s</i></blockquote>If this problem persists, contact us at <u>%s</u>",
+                    "<html>%s<blockquote><i>%s</i></blockquote>If this problem persists, contact us at %s",
                     new Object[]{message, exceptionToString(ex), BUG_REPORT_URL});
         } else {
             htmlMessage = String.format(
