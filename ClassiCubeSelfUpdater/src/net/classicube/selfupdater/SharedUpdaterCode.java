@@ -110,7 +110,7 @@ public class SharedUpdaterCode {
         }
     }
 
-    private static synchronized InputStream makeLzmaInputStream(final Logger logger, final InputStream stream) {
+    static synchronized InputStream makeLzmaInputStream(final Logger logger, final InputStream stream) {
         if (logger == null) {
             throw new NullPointerException("logger");
         }
@@ -130,7 +130,7 @@ public class SharedUpdaterCode {
                 SecurityException | InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException ex) {
             logger.log(Level.SEVERE, "Error creating LzmaInputStream", ex);
-            return null;
+            throw new RuntimeException("Error creating LzmaInputStream", ex);
         }
     }
 

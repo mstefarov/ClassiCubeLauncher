@@ -1,9 +1,11 @@
 package net.classicube.selfupdater;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,15 +41,16 @@ public class Program {
         initLogging();
 
         while (true) {
-            if (newLauncherJar.exists()) {
-                replaceFile(newLauncherJar, launcherJar);
-            } else if (!launcherJar.exists()) {
-                ProgressIndicator progressWindow = new ProgressIndicator();
-                progressWindow.setVisible(true);
-                downloadLauncher();
-                progressWindow.dispose();
-            }
             try {
+                if (newLauncherJar.exists()) {
+                    replaceFile(newLauncherJar, launcherJar);
+                } else if (!launcherJar.exists()) {
+                    ProgressIndicator progressWindow = new ProgressIndicator();
+                    progressWindow.setVisible(true);
+                    downloadLauncher();
+                    progressWindow.dispose();
+                }
+                testLzma();
                 startLauncher(launcherJar);
                 return;
             } catch (final Exception ex) {
@@ -72,6 +75,19 @@ public class Program {
         }
     }
 
+    private static void testLzma() throws IOException {
+        // Minimal LZMA stream
+        byte[] lzmaTest = new byte[]{
+            0x5d, 0x00, 0x00, 0x04, 0x00, (byte)0xff, (byte)0xff, (byte)0xff,
+            (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff, 0x00, 0x05, 0x41,
+            (byte)0xfb, (byte)0xff, (byte)0xff, (byte)0xff, (byte)0xe0, 0x00, 0x00, 0x00
+        };
+        // Try to make an LZMA stream, to ensure that lzma.jar is downloaded and usable
+        ByteArrayInputStream mockStream = new ByteArrayInputStream(lzmaTest);
+        InputStream mockLzmaStream = SharedUpdaterCode.makeLzmaInputStream(logger, mockStream);
+        mockLzmaStream.close();
+    }
+
     private static void initLogging() {
         logger.setLevel(Level.ALL);
         final File logFile = new File(launcherDir, "selfupdater.log");
@@ -84,7 +100,7 @@ public class Program {
         }
     }
 
-    private static void downloadLauncher() {
+    private static void downloadLauncher() throws IOException {
         final File lzmaJar = new File(launcherDir, SharedUpdaterCode.LZMA_JAR_NAME);
         if (!lzmaJar.exists()) {
             final File lzmaTempFile = downloadFile("lzma.jar");
@@ -95,9 +111,9 @@ public class Program {
             final File processedLauncherFile = SharedUpdaterCode.processDownload(
                     logger, launcherTempFile, "launcher.jar.pack.lzma", "launcher.jar");
             replaceFile(processedLauncherFile, launcherJar);
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Error unpacking the launcher.", ex);
-            fatalError("Error unpacking the launcher:", ex);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Error unpacking launcher.jar", ex);
+            throw new IOException("Error unpacking launcher.jar", ex);
         }
     }
 
@@ -116,7 +132,7 @@ public class Program {
         return loader.loadClass(LAUNCHER_ENTRY_CLASS);
     }
 
-    private static File downloadFile(final String remoteName) {
+    private static File downloadFile(final String remoteName) throws IOException {
         try {
             final File tempFile = File.createTempFile(remoteName, ".downloaded");
             final URL website = new URL(SharedUpdaterCode.BASE_URL + remoteName);
@@ -125,15 +141,14 @@ public class Program {
                 fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             }
             return tempFile;
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.log(Level.SEVERE, "Error downloading launcher component " + remoteName, ex);
-            fatalError("Error downloading launcher component \"" + remoteName + "\"", ex);
-            return null;
+            throw new IOException("Error downloading launcher component " + remoteName, ex);
         }
     }
 
     // Replace contents of destFile with sourceFile
-    private static void replaceFile(final File sourceFile, final File destFile) {
+    private static void replaceFile(final File sourceFile, final File destFile) throws IOException {
         try {
             destFile.createNewFile();
 
@@ -145,8 +160,8 @@ public class Program {
 
             sourceFile.delete();
         } catch (final IOException ex) {
-            logger.log(Level.SEVERE, "Error deploying launcher component " + destFile.getName(), ex);
-            fatalError("Error deploying launcher component \"" + destFile.getName() + "\"", ex);
+            logger.log(Level.SEVERE, "Error deploying launcher component: " + destFile.getName(), ex);
+            throw new IOException("Error deploying launcher component: " + destFile.getName(), ex);
         }
     }
 
@@ -165,7 +180,6 @@ public class Program {
                     }
                 }
             }
-
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Error deleting launcher files.", ex);
             fatalError("Unable to recover from an earlier error:", ex);
