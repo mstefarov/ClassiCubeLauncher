@@ -219,15 +219,21 @@ public final class UpdateTask
 
             boolean localFileMissing = !localFile.localName.exists();
 
-            if (localFileMissing && isLauncherJar) {
-                // If launcher is not started from its usual location, we need to take care
-                // to avoid repeated attempts to update it.
-                LogUtil.getLogger().log(Level.WARNING,
-                        "launcher.jar is not present in its usual location!");
-                // We check if "launcher.jar.new" is up-to-date (instead of checking "launcher.jar"),
-                // and only download it if UpdateMode is not DISABLED.
-                fileToHash = localFile.targetName;
-                localFileMissing = !localFile.targetName.exists();
+            if (isLauncherJar) {
+                if (localFileMissing) {
+                    // If launcher.jar is missing from its usual location, that means we're
+                    // currently running from somewhere else. We need to take care to avoid
+                    // repeated attempts to update the launcher.
+                    LogUtil.getLogger().log(Level.WARNING,
+                            "launcher.jar is not present in its usual location!");
+                    // We check if "launcher.jar.new" is up-to-date (instead of checking "launcher.jar"),
+                    // and only download it if UpdateMode is not DISABLED.
+                    fileToHash = localFile.targetName;
+                    localFileMissing = !localFile.targetName.exists();
+                } else if (localFile.targetName.exists()) {
+                    // If "launcher.jar.new" already exists, just check if it's up-to-date.
+                    fileToHash = localFile.targetName;
+                }
             }
 
             if (localFileMissing) {
