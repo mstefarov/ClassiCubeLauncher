@@ -20,12 +20,12 @@
     <jdkPreference>preferJre</jdkPreference>
   </jre>
   <versionInfo>
-    <fileVersion>14.01.29.0</fileVersion>
-    <txtFileVersion>Build 5 (2014-01-29)</txtFileVersion>
+    <fileVersion>14.01.30.0</fileVersion>
+    <txtFileVersion>Build 6 (2014-01-30)</txtFileVersion>
     <fileDescription>ClassiCube Launcher</fileDescription>
     <copyright>ClassiCube.net</copyright>
-    <productVersion>14.01.29.0</productVersion>
-    <txtProductVersion>Build 5 (2014-01-29)</txtProductVersion>
+    <productVersion>14.01.30.0</productVersion>
+    <txtProductVersion>Build 6 (2014-01-30)</txtProductVersion>
     <productName>ClassiCube Launcher</productName>
     <companyName>ClassiCube.net</companyName>
     <internalName>ClassiCube Launcher</internalName>
