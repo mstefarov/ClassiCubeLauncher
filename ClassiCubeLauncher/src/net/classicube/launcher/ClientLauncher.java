@@ -71,8 +71,9 @@ final public class ClientLauncher {
 
             // log the command used to launch client
             String cmdLineToLog = StringUtils.join(processBuilder.command(), " ");
-            if (joinInfo != null) {
-                cmdLineToLog = cmdLineToLog.replace(joinInfo.pass, "########"); // sanitize mppass
+            if (joinInfo != null && joinInfo.pass != null && joinInfo.pass.length() > 16) {
+                // sanitize mppass -- we don't want it logged.
+                cmdLineToLog = cmdLineToLog.replace(joinInfo.pass, "########");
             }
             LogUtil.getLogger().log(Level.INFO, cmdLineToLog);
 
