@@ -26,9 +26,9 @@ public class DiagnosticInfoUploader {
     public static final String GIST_API_URL = "https://api.github.com/gists";
 
     public static String uploadToGist() {
-        // gather files
+        // gather files for uploading
         final String sysData = getSystemProperties();
-        final String dirData = gatherClientDirStructure();
+        final String dirData = gatherDirStructure();
         final String clientLogData = readLogFile(PathUtil.getClientDir(), PathUtil.CLIENT_LOG_FILE_NAME);
         final String clientOldLogData = readLogFile(PathUtil.getClientDir(), PathUtil.CLIENT_LOG_OLD_FILE_NAME);
         final String selfUpdaterLogData = readLogFile(PathUtil.getClientDir(), PathUtil.SELF_UPDATER_LOG_FILE_NAME);
@@ -39,7 +39,8 @@ public class DiagnosticInfoUploader {
             launcherLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_FILE_NAME);
             launcherOldLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_OLD_FILE_NAME);
         } catch (final IOException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Could not find launcher log file", ex);
+            // Theoretically this should never happen.
+            LogUtil.getLogger().log(Level.SEVERE, "Could not find launcher directory!", ex);
         }
 
         // construct a Gist API request (JSON)
@@ -134,29 +135,41 @@ public class DiagnosticInfoUploader {
         return sb.toString();
     }
 
-    // List all files in client's directory, except screenshots and logs
-    private static String gatherClientDirStructure() {
+    // List files in client's and launcher's directories
+    private static String gatherDirStructure() {
         try {
             final StringBuilder sb = new StringBuilder();
             final String absClientDir = PathUtil.getClientDir().getAbsolutePath();
-            final Path basePath = Paths.get(absClientDir);
-            Files.walkFileTree(basePath, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
-                        throws IOException {
-                    final String relativePathName = basePath.relativize(file).toString();
-                    if (!relativePathName.startsWith("Screenshots")
-                            && !relativePathName.startsWith("logs")) {
-                        sb.append(relativePathName).append('\n');
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+            sb.append("Client directory structure:\n");
+            walkDir(Paths.get(absClientDir), sb);
+
+            final String absLauncherDir = SharedUpdaterCode.getLauncherDir().getAbsolutePath();
+            sb.append("\nLauncher directory structure:\n");
+            walkDir(Paths.get(absLauncherDir), sb);
+
             return sb.toString();
         } catch (final IOException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error gathering directory structure for client dir", ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error gathering directory structure.", ex);
             return null;
         }
+    }
+
+    // List all files in client's directory, except screenshots and server logs
+    private static void walkDir(final Path basePath, final StringBuilder sb) throws IOException {
+        Files.walkFileTree(basePath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+                    throws IOException {
+                final String relativePathName = basePath.relativize(file).toString();
+                if (!relativePathName.startsWith("Screenshots")
+                        && !relativePathName.startsWith("logs")) {
+                    sb.append(String.format("%1$7s  %2$s\n",
+                            file.toFile().length(),
+                            relativePathName));
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     // Reads contents of given file into a string, if the file exists. Returns null otherwise.
