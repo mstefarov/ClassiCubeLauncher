@@ -44,7 +44,7 @@ public final class AccountManager {
     }
 
     // Stores all accounts
-    public void store() {
+    public void storeAll() {
         LogUtil.getLogger().log(Level.FINE, "AccountManager.store");
         this.clearStore();
         if (!Prefs.getRememberUsers()) {
@@ -53,6 +53,13 @@ public final class AccountManager {
         for (final UserAccount acct : this.accounts.values()) {
             acct.store(this.store.node(acct.signInUsername.toLowerCase()));
         }
+    }
+
+    public void store(UserAccount acct) {
+        if (!accounts.containsValue(acct)) {
+            this.accounts.put(acct.signInUsername.toLowerCase(), acct);
+        }
+        acct.store(this.store.node(acct.signInUsername.toLowerCase()));
     }
 
     // Erases all accounts
@@ -79,7 +86,7 @@ public final class AccountManager {
         for (final UserAccount account : this.accounts.values()) {
             account.password = "";
         }
-        this.store();
+        this.storeAll();
     }
 
     // Returns true if there is at least one account stored.
@@ -126,7 +133,6 @@ public final class AccountManager {
         if (existingAccount == null) {
             // new account!
             final UserAccount newAccount = new UserAccount(username, password);
-            this.accounts.put(newAccount.signInUsername.toLowerCase(), newAccount);
             return newAccount;
         } else {
             existingAccount.signInUsername = username;

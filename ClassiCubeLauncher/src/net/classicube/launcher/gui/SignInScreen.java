@@ -221,7 +221,7 @@ public final class SignInScreen extends javax.swing.JFrame {
             if (result == SignInResult.SUCCESS) {
                 final UserAccount acct = SessionManager.getSession().getAccount();
                 acct.signInDate = new Date();
-                accountManager.store();
+                accountManager.store(acct);
                 new ServerListScreen().setVisible(true);
                 dispose();
             } else {
