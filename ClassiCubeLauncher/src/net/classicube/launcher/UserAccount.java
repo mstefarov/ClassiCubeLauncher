@@ -75,6 +75,8 @@ public final class UserAccount {
 
         @Override
         public int compare(final UserAccount o1, final UserAccount o2) {
+            if(o1.signInDate.getTime()==0) return 1;
+            if(o2.signInDate.getTime()==0) return -1;
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();
             return delta.intValue();
         }
