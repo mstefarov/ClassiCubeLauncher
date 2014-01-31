@@ -31,6 +31,14 @@ public final class AccountManager {
                 final Preferences accountNode = this.store.node(accountName);
                 try {
                     final UserAccount acct = new UserAccount(accountNode);
+                    if (acct.signInDate.getTime() == 0) {
+                        // AccountManager used to store all accounts as soon as [Sign In] button was
+                        // pressed. Now we only store after a successful sign-in. This avoids typos
+                        // from being saved forever.
+                        LogUtil.getLogger().log(Level.WARNING,
+                                "Skipping user account {0} (never signed into).", acct.signInUsername);
+                        continue;
+                    }
                     this.accounts.put(acct.signInUsername.toLowerCase(), acct);
                 } catch (final IllegalArgumentException ex) {
                     LogUtil.getLogger().log(Level.SEVERE, "Error loading an account", ex);
