@@ -538,7 +538,15 @@ public final class SignInScreen extends javax.swing.JFrame {
 
     private void bPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPreferencesActionPerformed
         LogUtil.getLogger().log(Level.FINE, "[Preferences]");
+        accountManager = SessionManager.getAccountManager();
+        boolean hadAccounts = accountManager.hasAccounts();
+        
         new PreferencesScreen(this).setVisible(true);
+
+        // if usernames have just been forgotten, clear the list
+        if (hadAccounts && !accountManager.hasAccounts()) {
+            cUsername.removeAllItems();
+        }
     }//GEN-LAST:event_bPreferencesActionPerformed
 
     // =============================================================================================
