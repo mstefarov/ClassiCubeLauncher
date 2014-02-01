@@ -78,7 +78,7 @@ public final class UserAccount {
             if(o1.signInDate.getTime()==0) return 1;
             if(o2.signInDate.getTime()==0) return -1;
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();
-            return delta.intValue();
+            return Long.signum(delta);
         }
     }
 }
