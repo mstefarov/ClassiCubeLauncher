@@ -1,6 +1,8 @@
 package net.classicube.launcher;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
@@ -211,12 +214,12 @@ public final class UpdateTask
 
         for (final FileToDownload localFile : localFiles) {
             signalCheckProgress(localFile.localName.getName());
-            
+
             final RemoteFile remoteFile = remoteFiles.get(localFile.remoteName);
             boolean download = false;
             boolean localFileMissing = !localFile.localName.exists();
             File fileToHash = localFile.localName;
-            
+
             // lzma.jar and launcher.jar get special treatment
             boolean isLzma = (localFile == lzmaJarFile);
             boolean isLauncherJar = (localFile == launcherJarFile);
@@ -282,7 +285,7 @@ public final class UpdateTask
         return filesToDownload;
     }
 
-    private FileToDownload lzmaJarFile, launcherJarFile;
+    private FileToDownload lzmaJarFile, launcherJarFile, nativesFile;
 
     private List<FileToDownload> listBinaries()
             throws IOException {
@@ -309,7 +312,9 @@ public final class UpdateTask
                 new File(clientDir, "libs/lwjgl_util.jar")));
         binaryFiles.add(new FileToDownload(SharedUpdaterCode.BASE_URL, "jinput.jar.pack.lzma",
                 new File(clientDir, "libs/jinput.jar")));
-        binaryFiles.add(pickNativeDownload());
+
+        nativesFile = pickNativeDownload();
+        binaryFiles.add(nativesFile);
 
         return binaryFiles;
     }
@@ -438,52 +443,118 @@ public final class UpdateTask
             PathUtil.replaceFile(processedFile, targetFile);
 
             // special handling for natives
-            if (targetFile.getName().endsWith("natives.jar")) {
-                extractNatives(targetFile);
+            if (targetFile == nativesFile.targetName) {
+                extractNatives();
             }
         } catch (final IOException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error deploying " + targetFile.getName(), ex);
         }
     }
 
-    protected void extractNatives(final File jarPath)
+    // Extracts the contents 
+    protected void extractNatives()
             throws FileNotFoundException, IOException {
-        if (jarPath == null) {
-            throw new NullPointerException("jarPath");
-        }
-        LogUtil.getLogger().log(Level.FINE, "extractNatives({0})", jarPath.getName());
+        LogUtil.getLogger().log(Level.FINE, "extractNatives({0})", nativesFile.targetName.getName());
 
+        final File nativeFolder = getNativesFolder();
+
+        try (final JarFile jarFile = new JarFile(nativesFile.targetName, true)) {
+            for (final JarEntry entry : Collections.list(jarFile.entries())) {
+                if (!entry.isDirectory() && (entry.getName().indexOf('/') == -1)) {
+                    final File outFile = new File(nativeFolder, entry.getName());
+                    if (outFile.exists() && !outFile.delete()) {
+                        LogUtil.getLogger().log(Level.SEVERE,
+                                "Could not replace native file: {0}", entry.getName());
+                        return;
+                    }
+                    extractNativeFile(jarFile, entry, outFile);
+                }
+            }
+        }
+    }
+
+    // Makes sure that everything from LWJGL's natives jar is properly deployed.
+    private void ensureNativesAreExtracted()
+            throws IOException {
+        final File nativeFolder = getNativesFolder();
+
+        try (final JarFile jarFile = new JarFile(nativesFile.targetName, true)) {
+            for (final JarEntry entry : Collections.list(jarFile.entries())) {
+                if (!entry.isDirectory() && (entry.getName().indexOf('/') == -1)) {
+                    final File outFile = new File(nativeFolder, entry.getName());
+                    if (!outFile.exists()) {
+                        LogUtil.getLogger().log(Level.WARNING,
+                                "Native library is missing, and will be re-extracted: {0}", outFile);
+                        extractNativeFile(jarFile, entry, outFile);
+                    } else if (outFile.length() != entry.getSize()
+                            || computeCRC32(outFile) != entry.getCrc()) {
+                        LogUtil.getLogger().log(Level.WARNING,
+                                "Native library is outdated or corrupted, and will be re-extracted: {0}", outFile);
+                        extractNativeFile(jarFile, entry, outFile);
+                    }
+                }
+            }
+        }
+    }
+
+    // Calculates the CRC32 checksum of a given file
+    public static long computeCRC32(final File file) throws IOException {
+        try (final FileInputStream fis = new FileInputStream(file)) {
+            try (final InputStream inputStream = new BufferedInputStream(fis)) {
+                final CRC32 crc = new CRC32();
+                int cnt;
+                while ((cnt = inputStream.read()) != -1) {
+                    crc.update(cnt);
+                }
+                return crc.getValue();
+            }
+        }
+    }
+
+    // Finds the folder that contains LWJGL natives. If it does not exist, it's created.
+    private File getNativesFolder() throws IOException {
         final File nativeFolder = new File(PathUtil.getClientDir(), "natives");
 
         if (!nativeFolder.exists() && !nativeFolder.mkdirs()) {
             throw new IOException("Unable to make directory " + nativeFolder);
         }
 
-        try (final JarFile jarFile = new JarFile(jarPath, true)) {
-            for (final JarEntry entry : Collections.list(jarFile.entries())) {
-                if (!entry.isDirectory() && (entry.getName().indexOf('/') == -1)) {
+        return nativeFolder;
+    }
 
-                    final File outFile = new File(nativeFolder, entry.getName());
-
-                    if (outFile.exists() && !outFile.delete()) {
-                        LogUtil.getLogger().log(Level.SEVERE,
-                                "Could not replace native file: {0}", entry.getName());
-                        continue;
-                    }
-
-                    try (final InputStream in = jarFile.getInputStream(entry)) {
-                        try (final FileOutputStream out = new FileOutputStream(outFile)) {
-                            final byte[] buffer = new byte[65536];
-                            int bufferSize;
-                            while ((bufferSize = in.read(buffer, 0, buffer.length)) != -1) {
-                                out.write(buffer, 0, bufferSize);
-                            }
-                        }
-                    }
+    // Extracts a file from given .jar archive
+    private void extractNativeFile(final JarFile jarFile, final JarEntry entry, final File destination)
+            throws IOException {
+        final byte[] buffer = new byte[65536];
+        try (final InputStream in = jarFile.getInputStream(entry)) {
+            try (final FileOutputStream out = new FileOutputStream(destination)) {
+                int bufferSize;
+                while ((bufferSize = in.read(buffer, 0, buffer.length)) != -1) {
+                    out.write(buffer, 0, bufferSize);
                 }
             }
         }
     }
+
+    // Checks all local files to make sure that the client is ready to launch
+    private void verifyFiles(final List<FileToDownload> files) {
+        if (files == null) {
+            throw new NullPointerException("files");
+        }
+
+        try {
+            ensureNativesAreExtracted();
+        } catch (IOException ex) {
+            throw new RuntimeException("Update process failed. Unable to extract a required library file.", ex);
+        }
+
+        for (final FileToDownload file : files) {
+            if (!LAUNCHER_JAR.equals(file.localName.getName()) && !file.localName.exists()) {
+                throw new RuntimeException("Update process failed. Missing file: " + file.localName);
+            }
+        }
+    }
+
     // =============================================================================================
     //                                                                            PROGRESS REPORTING
     // =============================================================================================
@@ -527,17 +598,6 @@ public final class UpdateTask
         if (this.isDone()) {
             this.signalDone();
             updateScreen.onUpdateDone(this.updatesApplied);
-        }
-    }
-
-    private void verifyFiles(final List<FileToDownload> files) {
-        if (files == null) {
-            throw new NullPointerException("files");
-        }
-        for (final FileToDownload file : files) {
-            if (!LAUNCHER_JAR.equals(file.localName.getName()) && !file.localName.exists()) {
-                throw new RuntimeException("Update process failed. Missing file: " + file.localName);
-            }
         }
     }
 
