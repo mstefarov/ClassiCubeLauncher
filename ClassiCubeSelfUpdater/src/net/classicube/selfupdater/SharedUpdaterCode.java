@@ -1,6 +1,7 @@
 package net.classicube.selfupdater;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -158,6 +159,19 @@ public class SharedUpdaterCode {
                 }
             }
         }
+    }
+
+    public static void testLzma(Logger logger) throws Exception {
+        // Minimal LZMA stream
+        byte[] lzmaTest = new byte[]{
+            0x5d, 0x00, 0x00, 0x04, 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, 0x00, 0x05, 0x41,
+            (byte) 0xfb, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xe0, 0x00, 0x00, 0x00
+        };
+        // Try to make an LZMA stream, to ensure that lzma.jar is downloaded and usable
+        ByteArrayInputStream mockStream = new ByteArrayInputStream(lzmaTest);
+        InputStream mockLzmaStream = SharedUpdaterCode.makeLzmaInputStream(logger, mockStream);
+        mockLzmaStream.close();
     }
 
     private static void unpack200(final File compressedInput, final File decompressedOutput)

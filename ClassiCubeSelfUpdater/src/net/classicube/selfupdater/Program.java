@@ -50,7 +50,7 @@ public class Program {
                     downloadLauncher();
                     progressWindow.dispose();
                 }
-                testLzma();
+                SharedUpdaterCode.testLzma(logger);
                 startLauncher(launcherJar);
                 return;
             } catch (final Exception ex) {
@@ -73,19 +73,6 @@ public class Program {
                 }
             }
         }
-    }
-
-    private static void testLzma() throws IOException {
-        // Minimal LZMA stream
-        byte[] lzmaTest = new byte[]{
-            0x5d, 0x00, 0x00, 0x04, 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, 0x00, 0x05, 0x41,
-            (byte) 0xfb, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xe0, 0x00, 0x00, 0x00
-        };
-        // Try to make an LZMA stream, to ensure that lzma.jar is downloaded and usable
-        ByteArrayInputStream mockStream = new ByteArrayInputStream(lzmaTest);
-        InputStream mockLzmaStream = SharedUpdaterCode.makeLzmaInputStream(logger, mockStream);
-        mockLzmaStream.close();
     }
 
     private static void initLogging() {

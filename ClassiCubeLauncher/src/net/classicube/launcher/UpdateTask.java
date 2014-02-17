@@ -269,6 +269,15 @@ public final class UpdateTask
                     LogUtil.getLogger().log(Level.WARNING,
                             "No remote match for local file {0}", fileToHash.getName());
                 }
+            } else if (isLzma) {
+                // Make sure that lzma.jar is not corrupted
+                try {
+                    SharedUpdaterCode.testLzma(LogUtil.getLogger());
+                } catch (Exception ex) {
+                    LogUtil.getLogger().log(Level.SEVERE,
+                            "lzma.jar appears to be corrupted, and will be re-downloaded.");
+                    download = true;
+                }
             }
 
             if (download) {
