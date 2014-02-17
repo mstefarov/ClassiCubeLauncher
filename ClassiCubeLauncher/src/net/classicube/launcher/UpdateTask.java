@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -158,7 +160,6 @@ public final class UpdateTask
     //                                                                        CHECKING / DOWNLOADING
     // =============================================================================================
     private MessageDigest digest;
-    private final byte[] ioBuffer = new byte[64 * 1024];
     private final static String[] resourceFiles = new String[]{"music/calm1.ogg", "music/calm2.ogg", "music/calm3.ogg",
         "newmusic/hal1.ogg", "newmusic/hal2.ogg", "newmusic/hal3.ogg", "newmusic/hal4.ogg",
         "newsound/step/grass1.ogg", "newsound/step/grass2.ogg", "newsound/step/grass3.ogg",
@@ -365,6 +366,7 @@ public final class UpdateTask
             if (manifest == null) {
                 return "<none>";
             }
+            final byte[] ioBuffer = new byte[64 * 1024];
             try (final InputStream is = zipFile.getInputStream(manifest)) {
                 try (final DigestInputStream dis = new DigestInputStream(is, digest)) {
                     while (dis.read(ioBuffer) != -1) {
@@ -422,12 +424,9 @@ public final class UpdateTask
         final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
         final URL website = new URL(file.baseUrl + file.remoteName);
 
-        try (final InputStream siteIn = website.openStream()) {
-            try (final FileOutputStream fileOut = new FileOutputStream(tempFile)) {
-                int len;
-                while ((len = siteIn.read(ioBuffer)) > 0) {
-                    fileOut.write(ioBuffer, 0, len);
-                }
+        try (ReadableByteChannel rbc = Channels.newChannel(website.openStream())) {
+            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             }
         }
         return tempFile;
@@ -673,7 +672,7 @@ public final class UpdateTask
 
             } catch (final Exception ex) {
                 String fileName = (file != null ? file.remoteName : "?");
-                logger.log(Level.SEVERE, "Error downloading an updated file: " + fileName, ex);
+                logger.log(Level.SEVERE, "Error downloading or deploying an updated file: " + fileName, ex);
             }
         }
     }
