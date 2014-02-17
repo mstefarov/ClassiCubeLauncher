@@ -8,9 +8,13 @@ import java.util.logging.Level;
 import net.classicube.launcher.gui.DebugWindow;
 import net.classicube.launcher.gui.ErrorScreen;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.translate.LookupTranslator;
 
 // Handles launching the client process.
 final public class ClientLauncher {
+
+    private static final LookupTranslator quoter
+            = new LookupTranslator(new String[][]{{"\"", "\\\""}, {"\\", "\\\\"}});
 
     private static final String ClassPath = "client.jar" + File.pathSeparatorChar + "libs/*",
             ClientClassPath = "com.oyasunadev.mcraft.client.core.ClassiCubeStandalone";
@@ -34,43 +38,32 @@ final public class ClientLauncher {
         }
 
         try {
-            final ProcessBuilder processBuilder;
-            if (joinInfo != null) {
-                processBuilder = new ProcessBuilder(
-                        java.getAbsolutePath(),
-                        "-cp",
-                        ClassPath,
-                        "-Djava.library.path=" + nativePath,
-                        Prefs.getJavaArgs(),
-                        "-Xmx" + Prefs.getMaxMemory() + "m",
-                        ClientClassPath,
-                        joinInfo.address.getHostAddress(),
-                        Integer.toString(joinInfo.port),
-                        joinInfo.playerName,
-                        (joinInfo.pass == null || joinInfo.pass.length() == 0 ? "none" : joinInfo.pass),
-                        SessionManager.getSession().getSkinUrl(),
-                        Boolean.toString(Prefs.getFullscreen()));
+            String mppass;
+            if (joinInfo == null || joinInfo.pass == null || joinInfo.pass.length() == 0) {
+                mppass = "none";
             } else {
-                processBuilder = new ProcessBuilder(
-                        java.getAbsolutePath(),
-                        "-cp",
-                        ClassPath,
-                        "-Djava.library.path=" + nativePath,
-                        Prefs.getJavaArgs(),
-                        "-Xmx" + Prefs.getMaxMemory() + "m",
-                        ClientClassPath,
-                        "none",
-                        "0",
-                        "none",
-                        "none",
-                        SessionManager.getSession().getSkinUrl(),
-                        Boolean.toString(Prefs.getFullscreen()));
+                mppass = '"' + quoter.translate(joinInfo.pass) + '"';
             }
+
+            final ProcessBuilder processBuilder = new ProcessBuilder(
+                    java.getAbsolutePath(),
+                    "-cp",
+                    ClassPath,
+                    "-Djava.library.path=\"" + quoter.translate(nativePath) + '"',
+                    Prefs.getJavaArgs(),
+                    "-Xmx" + Prefs.getMaxMemory() + "m",
+                    ClientClassPath,
+                    (joinInfo == null ? "none" : joinInfo.address.getHostAddress()),
+                    (joinInfo == null ? "0" : Integer.toString(joinInfo.port)),
+                    (joinInfo == null ? "none" : '"' + quoter.translate(joinInfo.playerName) + '"'),
+                    mppass,
+                    SessionManager.getSession().getSkinUrl(),
+                    Boolean.toString(Prefs.getFullscreen()));
 
             processBuilder.directory(PathUtil.getClientDir());
 
             // log the command used to launch client
-            String cmdLineToLog = StringUtils.join(processBuilder.command(), " ");
+            String cmdLineToLog = StringUtils.join(processBuilder.command(), ' ');
             if (joinInfo != null && joinInfo.pass != null && joinInfo.pass.length() > 16) {
                 // sanitize mppass -- we don't want it logged.
                 cmdLineToLog = cmdLineToLog.replace(joinInfo.pass, "########");

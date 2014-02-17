@@ -284,7 +284,8 @@ public abstract class GameSession {
         }
     }
 
-    private boolean passwordIsSame() {
+    // Checks whether user's password has changed since last successful sign-in.
+    private boolean passwordHasNotChanged() {
         UserAccount lastSessionAccount = null;
         final Preferences lastSessionNode = this.store.node(LAST_SESSION_NODE_NAME);
         if (lastSessionNode != null) {
@@ -329,7 +330,7 @@ public abstract class GameSession {
             throw new NullPointerException("cookieName");
         }
         cookieJar.removeAll();
-        if (remember && passwordIsSame()) {
+        if (remember && passwordHasNotChanged()) {
             this.loadCookies();
             if (hasCookie(cookieName)) {
                 LogUtil.getLogger().log(Level.FINE, "Loaded saved session.");
