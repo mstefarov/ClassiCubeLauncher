@@ -353,9 +353,9 @@ public final class SignInScreen extends javax.swing.JFrame {
     class ResumePopupMenuListener implements PopupMenuListener {
 
         @Override
-        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
             // Align the drop-down menu to the [Resume|v] button
-            Point buttonLoc = bResume.getLocationOnScreen();
+            final Point buttonLoc = bResume.getLocationOnScreen();
             resumeMenu.setLocation(buttonLoc.x, buttonLoc.y + bResume.getHeight() - 1);
             // Make the |v] appear pressed
             bResumeDropDown.setSelected(true);
@@ -363,14 +363,14 @@ public final class SignInScreen extends javax.swing.JFrame {
         }
 
         @Override
-        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {
             // Make the |v] appear released
             bResumeDropDown.setSelected(false);
             bResumeDropDown.repaint();
         }
 
         @Override
-        public void popupMenuCanceled(PopupMenuEvent e) { // do nothing
+        public void popupMenuCanceled(final PopupMenuEvent e) { // do nothing
         }
     }
 
@@ -419,7 +419,7 @@ public final class SignInScreen extends javax.swing.JFrame {
             }
         }
 
-        void locatePassword(String selectedUsername) {
+        void locatePassword(final String selectedUsername) {
             if (selectedUsername != null && Prefs.getRememberPasswords()) {
                 final UserAccount curAccount = accountManager.findAccount(selectedUsername);
                 if (curAccount != null) {
@@ -494,6 +494,7 @@ public final class SignInScreen extends javax.swing.JFrame {
 
         private void somethingEdited(final DocumentEvent e) {
             if (settingPasswordText) {
+                // See notes on UsernameFocusListener.locatePassword
                 return;
             }
             final Document doc = e.getDocument();

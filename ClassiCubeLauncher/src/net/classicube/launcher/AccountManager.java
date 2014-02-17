@@ -51,7 +51,7 @@ public final class AccountManager {
         }
     }
 
-    // Stores all accounts
+    // Stores ALL remembered accounts
     public void storeAll() {
         LogUtil.getLogger().log(Level.FINE, "AccountManager.store");
         this.clearStore();
@@ -63,8 +63,9 @@ public final class AccountManager {
         }
     }
 
-    public void store(UserAccount acct) {
-        if (!accounts.containsValue(acct)) {
+    // Stores given account
+    public void store(final UserAccount acct) {
+        if (!this.accounts.containsValue(acct)) {
             this.accounts.put(acct.signInUsername.toLowerCase(), acct);
         }
         acct.store(this.store.node(acct.signInUsername.toLowerCase()));
@@ -77,6 +78,7 @@ public final class AccountManager {
         this.clearStore();
     }
 
+    // Erases all accounts from memory and preferences store
     private void clearStore() {
         LogUtil.getLogger().log(Level.FINE, "AccountManager.clearStore");
         try {

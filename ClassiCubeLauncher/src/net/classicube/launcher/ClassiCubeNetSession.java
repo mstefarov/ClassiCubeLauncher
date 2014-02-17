@@ -53,7 +53,7 @@ final class ClassiCubeNetSession extends GameSession {
         return GameServiceType.ClassiCubeNetService;
     }
 
-    private class SignInWorker extends SignInTask {
+    private final class SignInWorker extends SignInTask {
 
         public SignInWorker(final boolean remember) {
             super(remember);
