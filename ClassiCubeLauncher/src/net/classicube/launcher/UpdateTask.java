@@ -663,15 +663,17 @@ public final class UpdateTask
 
         @Override
         public void run() {
+            FileToDownload file = null;
             try {
-                FileToDownload file = getNextFileSync(false);
+                file = getNextFileSync(false);
                 while (file != null) {
                     processOneFile(file);
                     file = getNextFileSync(true);
                 }
 
-            } catch (final IOException | InterruptedException ex) {
-                logger.log(Level.SEVERE, "Error downloading an updated file.", ex);
+            } catch (final Exception ex) {
+                String fileName = (file != null ? file.remoteName : "?");
+                logger.log(Level.SEVERE, "Error downloading an updated file: " + fileName, ex);
             }
         }
     }

@@ -37,6 +37,8 @@ public final class AccountManager {
                         // from being saved forever.
                         LogUtil.getLogger().log(Level.WARNING,
                                 "Skipping user account {0} (never signed into).", acct.signInUsername);
+                        accountNode.removeNode();
+                        store.flush();
                         continue;
                     }
                     this.accounts.put(acct.signInUsername.toLowerCase(), acct);
