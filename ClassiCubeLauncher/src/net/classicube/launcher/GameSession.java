@@ -291,12 +291,13 @@ public abstract class GameSession {
             try {
                 lastSessionAccount = new UserAccount(lastSessionNode);
             } catch (final IllegalArgumentException ex) {
+                LogUtil.getLogger().log(Level.WARNING, "Error loading last session information, will relog.", ex);
                 try {
                     lastSessionNode.removeNode();
+                    this.store.flush();
                 } catch (BackingStoreException ex1) {
                     LogUtil.getLogger().log(Level.SEVERE, "Error deleting lastSessionNode", ex1);
                 }
-                LogUtil.getLogger().log(Level.WARNING, "Error loading last session information, will relog.", ex);
             }
         }
         final String newPassword = getAccount().password;

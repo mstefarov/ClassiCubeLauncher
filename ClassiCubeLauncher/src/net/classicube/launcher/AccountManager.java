@@ -43,6 +43,7 @@ public final class AccountManager {
                 } catch (final IllegalArgumentException ex) {
                     LogUtil.getLogger().log(Level.SEVERE, "Error loading an account", ex);
                     accountNode.removeNode();
+                    this.store.flush();
                 }
             }
             LogUtil.getLogger().log(Level.FINE, "Loaded {0} accounts", this.accounts.size());

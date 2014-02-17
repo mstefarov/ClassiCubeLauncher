@@ -43,8 +43,7 @@ public final class UserAccount {
         final long dateTicks = prefs.getLong("SignInDate", 0);
         this.signInDate = new Date(dateTicks);
         if (this.signInUsername == null || this.playerName == null || this.password == null) {
-            LogUtil.getLogger().log(Level.WARNING, "Could not parse pref as a sign-in account.");
-            throw new IllegalArgumentException("Pref could not be parsed");
+            throw new IllegalArgumentException("Stored UserAccount could not be loaded!");
         }
     }
 
