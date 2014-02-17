@@ -1,4 +1,5 @@
-/*
+/* lang/tags/LANG_3_2_1/src/main/java/org/apache/commons/lang3/StringUtils.java
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -105,31 +106,39 @@ import java.util.Iterator;
  */
 //@Immutable
 public class StringUtils {
-    // Performance testing notes (JDK 1.4, Jul03, scolebourne)
-    // Whitespace:
-    // Character.isWhitespace() is faster than WHITESPACE.indexOf()
-    // where WHITESPACE is a string of all whitespace characters
-    //
-    // Character access:
-    // String.charAt(n) versus toCharArray(), then array[n]
-    // String.charAt(n) is about 15% worse for a 10K string
-    // They are about equal for a length 50 string
-    // String.charAt(n) is about 4 times better for a length 3 string
-    // String.charAt(n) is best bet overall
-    //
-    // Append:
-    // String.concat about twice as fast as StringBuffer.append
-    // (not sure who tested this)
-
     /**
      * The empty String {@code ""}.
      * @since 2.0
      */
     public static final String EMPTY = "";
 
-    
     // Joining
     //-----------------------------------------------------------------------
+    /**
+     * <p>Joins the elements of the provided array into a single String
+     * containing the provided list of elements.</p>
+     *
+     * <p>No separator is added to the joined String.
+     * Null objects or empty strings within the array are represented by
+     * empty strings.</p>
+     *
+     * <pre>
+     * StringUtils.join(null)            = null
+     * StringUtils.join([])              = ""
+     * StringUtils.join([null])          = ""
+     * StringUtils.join(["a", "b", "c"]) = "abc"
+     * StringUtils.join([null, "", "a"]) = "a"
+     * </pre>
+     *
+     * @param <T> the specific type of values to join together
+     * @param elements  the values to join together, may be null
+     * @return the joined String, {@code null} if null array input
+     * @since 2.0
+     * @since 3.0 Changed signature to use varargs
+     */
+    public static <T> String join(final T... elements) {
+        return join(elements, null);
+    }
 
     /**
      * <p>Joins the elements of the provided array into a single String
@@ -159,231 +168,6 @@ public class StringUtils {
         }
         return join(array, separator, 0, array.length);
     }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final long[] array, final char separator) {
-        if (array == null) {
-            return null;
-        }
-        return join(array, separator, 0, array.length);
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final int[] array, final char separator) {
-        if (array == null) {
-            return null;
-        }
-        return join(array, separator, 0, array.length);
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final short[] array, final char separator) {
-        if (array == null) {
-            return null;
-        }
-        return join(array, separator, 0, array.length);
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final byte[] array, final char separator) {
-        if (array == null) {
-            return null;
-        }
-        return join(array, separator, 0, array.length);
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final char[] array, final char separator) {
-        if (array == null) {
-            return null;
-        }
-        return join(array, separator, 0, array.length);
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final float[] array, final char separator) {
-        if (array == null) {
-            return null;
-        }
-        return join(array, separator, 0, array.length);
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final double[] array, final char separator) {
-        if (array == null) {
-            return null;
-        }
-        return join(array, separator, 0, array.length);
-    }
-
 
     /**
      * <p>Joins the elements of the provided array into a single String
@@ -430,350 +214,6 @@ public class StringUtils {
         }
         return buf.toString();
     }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @param startIndex
-     *            the first index to start joining from. It is an error to pass in an end index past the end of the
-     *            array
-     * @param endIndex
-     *            the index to stop joining from (exclusive). It is an error to pass in an end index past the end of
-     *            the array
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final long[] array, final char separator, final int startIndex, final int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        final int noOfItems = endIndex - startIndex;
-        if (noOfItems <= 0) {
-            return EMPTY;
-        }
-        final StringBuilder buf = new StringBuilder(noOfItems * 16);
-        for (int i = startIndex; i < endIndex; i++) {
-            if (i > startIndex) {
-                buf.append(separator);
-            }
-            buf.append(array[i]);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @param startIndex
-     *            the first index to start joining from. It is an error to pass in an end index past the end of the
-     *            array
-     * @param endIndex
-     *            the index to stop joining from (exclusive). It is an error to pass in an end index past the end of
-     *            the array
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final int[] array, final char separator, final int startIndex, final int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        final int noOfItems = endIndex - startIndex;
-        if (noOfItems <= 0) {
-            return EMPTY;
-        }
-        final StringBuilder buf = new StringBuilder(noOfItems * 16);
-        for (int i = startIndex; i < endIndex; i++) {
-            if (i > startIndex) {
-                buf.append(separator);
-            }
-            buf.append(array[i]);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @param startIndex
-     *            the first index to start joining from. It is an error to pass in an end index past the end of the
-     *            array
-     * @param endIndex
-     *            the index to stop joining from (exclusive). It is an error to pass in an end index past the end of
-     *            the array
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final byte[] array, final char separator, final int startIndex, final int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        final int noOfItems = endIndex - startIndex;
-        if (noOfItems <= 0) {
-            return EMPTY;
-        }
-        final StringBuilder buf = new StringBuilder(noOfItems * 16);
-        for (int i = startIndex; i < endIndex; i++) {
-            if (i > startIndex) {
-                buf.append(separator);
-            }
-            buf.append(array[i]);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @param startIndex
-     *            the first index to start joining from. It is an error to pass in an end index past the end of the
-     *            array
-     * @param endIndex
-     *            the index to stop joining from (exclusive). It is an error to pass in an end index past the end of
-     *            the array
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final short[] array, final char separator, final int startIndex, final int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        final int noOfItems = endIndex - startIndex;
-        if (noOfItems <= 0) {
-            return EMPTY;
-        }
-        final StringBuilder buf = new StringBuilder(noOfItems * 16);
-        for (int i = startIndex; i < endIndex; i++) {
-            if (i > startIndex) {
-                buf.append(separator);
-            }
-            buf.append(array[i]);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @param startIndex
-     *            the first index to start joining from. It is an error to pass in an end index past the end of the
-     *            array
-     * @param endIndex
-     *            the index to stop joining from (exclusive). It is an error to pass in an end index past the end of
-     *            the array
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final char[] array, final char separator, final int startIndex, final int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        final int noOfItems = endIndex - startIndex;
-        if (noOfItems <= 0) {
-            return EMPTY;
-        }
-        final StringBuilder buf = new StringBuilder(noOfItems * 16);
-        for (int i = startIndex; i < endIndex; i++) {
-            if (i > startIndex) {
-                buf.append(separator);
-            }
-            buf.append(array[i]);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @param startIndex
-     *            the first index to start joining from. It is an error to pass in an end index past the end of the
-     *            array
-     * @param endIndex
-     *            the index to stop joining from (exclusive). It is an error to pass in an end index past the end of
-     *            the array
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final double[] array, final char separator, final int startIndex, final int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        final int noOfItems = endIndex - startIndex;
-        if (noOfItems <= 0) {
-            return EMPTY;
-        }
-        final StringBuilder buf = new StringBuilder(noOfItems * 16);
-        for (int i = startIndex; i < endIndex; i++) {
-            if (i > startIndex) {
-                buf.append(separator);
-            }
-            buf.append(array[i]);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * <p>
-     * Joins the elements of the provided array into a single String containing the provided list of elements.
-     * </p>
-     *
-     * <p>
-     * No delimiter is added before or after the list. Null objects or empty strings within the array are represented
-     * by empty strings.
-     * </p>
-     *
-     * <pre>
-     * StringUtils.join(null, *)               = null
-     * StringUtils.join([], *)                 = ""
-     * StringUtils.join([null], *)             = ""
-     * StringUtils.join([1, 2, 3], ';')  = "1;2;3"
-     * StringUtils.join([1, 2, 3], null) = "123"
-     * </pre>
-     *
-     * @param array
-     *            the array of values to join together, may be null
-     * @param separator
-     *            the separator character to use
-     * @param startIndex
-     *            the first index to start joining from. It is an error to pass in an end index past the end of the
-     *            array
-     * @param endIndex
-     *            the index to stop joining from (exclusive). It is an error to pass in an end index past the end of
-     *            the array
-     * @return the joined String, {@code null} if null array input
-     * @since 3.2
-     */
-    public static String join(final float[] array, final char separator, final int startIndex, final int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        final int noOfItems = endIndex - startIndex;
-        if (noOfItems <= 0) {
-            return EMPTY;
-        }
-        final StringBuilder buf = new StringBuilder(noOfItems * 16);
-        for (int i = startIndex; i < endIndex; i++) {
-            if (i > startIndex) {
-                buf.append(separator);
-            }
-            buf.append(array[i]);
-        }
-        return buf.toString();
-    }
-
 
     /**
      * <p>Joins the elements of the provided array into a single String
@@ -893,9 +333,7 @@ public class StringUtils {
         }
         final Object first = iterator.next();
         if (!iterator.hasNext()) {
-            @SuppressWarnings( "deprecation" ) // ObjectUtils.toString(Object) has been deprecated in 3.2
-            String result = ObjectUtils.toString(first);
-            return result;
+            return ObjectUtils.toString(first);
         }
 
         // two or more elements
@@ -939,9 +377,7 @@ public class StringUtils {
         }
         final Object first = iterator.next();
         if (!iterator.hasNext()) {
-            @SuppressWarnings( "deprecation" ) // ObjectUtils.toString(Object) has been deprecated in 3.2
-            final String result = ObjectUtils.toString(first);
-            return result;
+            return ObjectUtils.toString(first);
         }
 
         // two or more elements

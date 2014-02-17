@@ -1,4 +1,5 @@
-/*
+/* lang/tags/LANG_3_2_1/src/main/java/org/apache/commons/lang3/text/translate/EntityArrays.java
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.

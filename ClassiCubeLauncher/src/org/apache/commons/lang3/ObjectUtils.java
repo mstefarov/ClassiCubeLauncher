@@ -1,4 +1,5 @@
-/*
+/* lang/tags/LANG_3_2_1/src/main/java/org/apache/commons/lang3/ObjectUtils.java
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,7 +17,6 @@
  */
 package org.apache.commons.lang3;
 
-
 /**
  * <p>Operations on {@code Object}.</p>
  *
@@ -30,19 +30,6 @@ package org.apache.commons.lang3;
  */
 //@Immutable
 public class ObjectUtils {
-
-    /**
-     * <p>{@code ObjectUtils} instances should NOT be constructed in
-     * standard programming. Instead, the static methods on the class should
-     * be used, such as {@code ObjectUtils.defaultIfNull("a","b");}.</p>
-     *
-     * <p>This constructor is public to permit tools that require a JavaBean
-     * instance to operate.</p>
-     */
-    public ObjectUtils() {
-        super();
-    }
-
     // ToString
     //-----------------------------------------------------------------------
     /**
