@@ -272,7 +272,7 @@ public final class UpdateTask
                     SharedUpdaterCode.testLzma(LogUtil.getLogger());
                 } catch (Exception ex) {
                     LogUtil.getLogger().log(Level.SEVERE,
-                            "lzma.jar appears to be corrupted, and will be re-downloaded.");
+                            "lzma.jar appears to be corrupted, and will be re-downloaded.", ex);
                     download = true;
                 }
             }
