@@ -254,13 +254,18 @@ public final class UpdateTask
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
-                                    "Will download {0}: contents don''t match ({1} vs {2})",
+                                    "Contents of {0} don''t match ({1} vs {2}). Will re-download.",
                                     new Object[]{fileToHash.getName(), localHash, remoteFile.hash});
                             download = true;
                         }
                     } catch (final IOException ex) {
                         LogUtil.getLogger().log(Level.SEVERE,
-                                "Error computing hash of a local file", ex);
+                                "Error computing hash of a local file. Will attempt to re-download.", ex);
+                        download = true;
+                    } catch (final SecurityException ex) {
+                        String logMsg = "Error verifying " + fileToHash.getName() + ". Will re-download.";
+                        LogUtil.getLogger().log(Level.SEVERE, logMsg, ex);
+                        download = true;
                     }
                 } else {
                     LogUtil.getLogger().log(Level.WARNING,
@@ -371,17 +376,27 @@ public final class UpdateTask
         return remoteFiles;
     }
 
+    // Verifies signatures of all files inside the .jar, and returns SHA1 hash of the manifest.
     private String computeManifestHash(final File clientJar)
-            throws FileNotFoundException, IOException {
+            throws IOException, SecurityException {
         if (clientJar == null) {
             throw new NullPointerException("clientJar");
         }
-        try (final ZipFile zipFile = new ZipFile(clientJar)) {
-            final ZipEntry manifest = zipFile.getEntry("META-INF/MANIFEST.MF");
+        try (final JarFile jarFile = new JarFile(clientJar)) {
+            final ZipEntry manifest = jarFile.getEntry("META-INF/MANIFEST.MF");
             if (manifest == null) {
                 return "<none>";
             }
-            try (final InputStream is = zipFile.getInputStream(manifest)) {
+            // Ensure all the entries' signatures verify correctly
+            byte[] buffer = new byte[64 * 1024];
+            for (JarEntry je : Collections.list(jarFile.entries())) {
+                try (InputStream is = jarFile.getInputStream(je)) {
+                    while (is.read(buffer, 0, buffer.length) != -1) {
+                        // SecurityException will be thrown by .read() if a signature check fails.
+                    }
+                }
+            }
+            try (final InputStream is = jarFile.getInputStream(manifest)) {
                 return computeHash(is);
             }
         }
