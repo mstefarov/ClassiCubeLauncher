@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -160,30 +163,8 @@ public final class UpdateTask
     //                                                                        CHECKING / DOWNLOADING
     // =============================================================================================
     private MessageDigest digest;
-    private final static String[] resourceFiles = new String[]{"music/calm1.ogg", "music/calm2.ogg", "music/calm3.ogg",
-        "newmusic/hal1.ogg", "newmusic/hal2.ogg", "newmusic/hal3.ogg", "newmusic/hal4.ogg",
-        "newsound/step/grass1.ogg", "newsound/step/grass2.ogg", "newsound/step/grass3.ogg",
-        "newsound/step/grass4.ogg", "newsound/step/gravel1.ogg",
-        "newsound/step/gravel2.ogg", "newsound/step/gravel3.ogg",
-        "newsound/step/gravel4.ogg", "newsound/step/stone1.ogg",
-        "newsound/step/stone2.ogg", "newsound/step/stone3.ogg", "newsound/step/stone4.ogg",
-        "newsound/step/wood1.ogg", "newsound/step/wood2.ogg", "newsound/step/wood3.ogg",
-        "newsound/step/wood4.ogg", "newsound/step/cloth1.ogg", "newsound/step/cloth2.ogg",
-        "newsound/step/cloth3.ogg", "newsound/step/cloth4.ogg", "newsound/step/sand1.ogg",
-        "newsound/step/sand2.ogg", "newsound/step/sand3.ogg", "newsound/step/sand4.ogg",
-        "newsound/step/snow1.ogg", "newsound/step/snow2.ogg", "newsound/step/snow3.ogg",
-        "newsound/step/snow4.ogg", "sound3/dig/grass1.ogg", "sound3/dig/grass2.ogg",
-        "sound3/dig/grass3.ogg", "sound3/dig/grass4.ogg", "sound3/dig/gravel1.ogg",
-        "sound3/dig/gravel2.ogg", "sound3/dig/gravel3.ogg", "sound3/dig/gravel4.ogg",
-        "sound3/dig/stone1.ogg", "sound3/dig/stone2.ogg", "sound3/dig/stone3.ogg",
-        "sound3/dig/stone4.ogg", "sound3/dig/wood1.ogg", "sound3/dig/wood2.ogg",
-        "sound3/dig/wood3.ogg", "sound3/dig/wood4.ogg", "sound3/dig/cloth1.ogg",
-        "sound3/dig/cloth2.ogg", "sound3/dig/cloth3.ogg", "sound3/dig/cloth4.ogg",
-        "sound3/dig/sand1.ogg", "sound3/dig/sand2.ogg", "sound3/dig/sand3.ogg",
-        "sound3/dig/sand4.ogg", "sound3/dig/snow1.ogg", "sound3/dig/snow2.ogg",
-        "sound3/dig/snow3.ogg", "sound3/dig/snow4.ogg", "sound3/random/glass1.ogg",
-        "sound3/random/glass2.ogg", "sound3/random/glass3.ogg"};
     public static final String FILE_INDEX_URL = "http://www.classicube.net/static/client/version",
+            RESOURCE_LIST_URL = "http://www.classicube.net/static/client/reslist",
             RESOURCE_DOWNLOAD_URL = "https://s3.amazonaws.com/MinecraftResources/",
             LAUNCHER_JAR = "launcher.jar";
 
@@ -192,9 +173,29 @@ public final class UpdateTask
         final List<FileToDownload> pickedFiles = new ArrayList<>();
 
         final File resDir = new File(PathUtil.getClientDir(), "resources");
-        for (final String resFileName : resourceFiles) {
+        HashMap<String, String> resList = getRemoteResourceList();
+
+        for (Map.Entry<String, String> entry : resList.entrySet()) {
+            String resFileName = entry.getKey();
             final File resFile = new File(resDir, resFileName);
+            boolean doDownload = false;
             if (!resFile.exists()) {
+                // If file does not exist, definitely download it.
+                doDownload = true;
+            } else {
+                // Make sure that the file contents match.
+                try (InputStream is = new FileInputStream(resFile)) {
+                    String localHash = computeHash(is);
+                    String expectedHash = entry.getValue();
+                    if (!localHash.equals(expectedHash)) {
+                        LogUtil.getLogger().log(Level.WARNING,
+                                "Resource hash mismatch for file {0}! Expected {1}, got {2}. Will re-download.",
+                                new Object[]{resFileName, expectedHash, localHash});
+                        doDownload = true;
+                    }
+                }
+            }
+            if (doDownload) {
                 pickedFiles.add(new FileToDownload(RESOURCE_DOWNLOAD_URL, resFileName, resFile));
             }
         }
@@ -254,7 +255,7 @@ public final class UpdateTask
                 // If local file exists, but may need updating
                 if (remoteFile != null) {
                     try {
-                        final String localHash = computeLocalHash(fileToHash);
+                        final String localHash = computeManifestHash(fileToHash);
                         if (!localHash.equalsIgnoreCase(remoteFile.hash)) {
                             // If file contents don't match
                             LogUtil.getLogger().log(Level.INFO,
@@ -329,7 +330,7 @@ public final class UpdateTask
         return binaryFiles;
     }
 
-    // get a list of files available from CC.net
+    // get a list of binaries available from CC.net
     private HashMap<String, RemoteFile> getRemoteIndex() {
         final String hashIndex = HttpUtil.downloadString(FILE_INDEX_URL);
         final HashMap<String, RemoteFile> remoteFiles = new HashMap<>();
@@ -356,7 +357,26 @@ public final class UpdateTask
         return remoteFiles;
     }
 
-    private String computeLocalHash(final File clientJar)
+    // Get a list of resource files to download (from MinecraftResources site).
+    // Returns a map with filenames for keys, and expected SHA1 hashes for values.
+    private HashMap<String, String> getRemoteResourceList() {
+        final String hashIndex = HttpUtil.downloadString(RESOURCE_LIST_URL);
+        final HashMap<String, String> remoteFiles = new HashMap<>();
+
+        // if getting the list failed, don't panic. Abort update instead.
+        if (hashIndex == null) {
+            return null;
+        }
+
+        // the rest of the files
+        for (final String line : hashIndex.split("\\r?\\n")) {
+            final String[] components = line.split(" ");
+            remoteFiles.put(components[0].toLowerCase(), components[1].toLowerCase());
+        }
+        return remoteFiles;
+    }
+
+    private String computeManifestHash(final File clientJar)
             throws FileNotFoundException, IOException {
         if (clientJar == null) {
             throw new NullPointerException("clientJar");
@@ -366,13 +386,18 @@ public final class UpdateTask
             if (manifest == null) {
                 return "<none>";
             }
-            final byte[] ioBuffer = new byte[64 * 1024];
             try (final InputStream is = zipFile.getInputStream(manifest)) {
-                try (final DigestInputStream dis = new DigestInputStream(is, digest)) {
-                    while (dis.read(ioBuffer) != -1) {
-                        // DigestInputStream is doing its job, we just need to read through it.
-                    }
-                }
+                return computeHash(is);
+            }
+        }
+    }
+
+    private String computeHash(InputStream is)
+            throws FileNotFoundException, IOException {
+        final byte[] ioBuffer = new byte[64 * 1024];
+        try (final DigestInputStream dis = new DigestInputStream(is, digest)) {
+            while (dis.read(ioBuffer) != -1) {
+                // DigestInputStream is doing its job, we just need to read through it.
             }
         }
         final byte[] localHashBytes = digest.digest();
@@ -459,7 +484,7 @@ public final class UpdateTask
         }
     }
 
-    // Extracts the contents 
+    // Extract the contents of natives jar file
     protected void extractNatives()
             throws FileNotFoundException, IOException {
         LogUtil.getLogger().log(Level.FINE, "extractNatives({0})", nativesFile.targetName.getName());
