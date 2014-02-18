@@ -29,7 +29,7 @@ public class SameIPScreen extends JDialog {
         }
         SameIPScreen screen = new SameIPScreen(serverAddress);
         screen.setVisible(true);
-        if (screen.xRememberChoice.isSelected()) {
+        if (screen.chosenAddress != null && screen.xRememberChoice.isSelected()) {
             ipList.put(fullHostname, screen.chosenAddress.getHostAddress());
         }
         return screen.chosenAddress;
@@ -193,18 +193,23 @@ public class SameIPScreen extends JDialog {
 
                 // try parsing the given string
                 try {
-                    chosenAddress = InetAddress.getByName(givenString);
-                    if(!chosenAddress.isSiteLocalAddress()){
-                        // save the trouble of doing a DNS lookup in case of blatantly invalid IP
-                        throw new UnknownHostException();
+                    if (givenString.equals("localhost")) {
+                        chosenAddress = InetAddress.getLoopbackAddress();
+                    } else {
+                        chosenAddress = InetAddress.getByName(givenString);
+                        if (!chosenAddress.isSiteLocalAddress()) {
+                            // save the trouble of doing a DNS lookup in case of blatantly invalid IP
+                            throw new UnknownHostException();
+                        }
                     }
                     break;
                 } catch (UnknownHostException ex) {
-                    String errorMsg = "This is not a valid local address given: \""
+                    String errorMsg = "The given address is not a valid local address: \""
                             + givenString.replace("<", "&gt;")
                             + "\"<br>Expected \"localhost\" or an IPv4 address like 192.168.x.x";
                     ErrorScreen.show("Error", errorMsg, null);
                 }
+                this.setEnabled(true);
             }
         } else {
             // No, neither

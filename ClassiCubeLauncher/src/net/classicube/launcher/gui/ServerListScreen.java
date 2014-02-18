@@ -65,7 +65,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         // init components and stuff
         this.initComponents();
         this.serverTableContainer.getViewport().setBackground(new Color(247, 247, 247));
-        
+
         // hook up context menus
         CutCopyPasteAdapter.addToComponent(this.tSearch, true, true);
         CutCopyPasteAdapter.addToComponent(this.tServerURL, true, true);
@@ -274,6 +274,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 InetAddress correctedAddress = SameIPScreen.show(serverAddress, joinInfo.port);
                 if (correctedAddress == null) {
                     enableGui();
+                    progress.setVisible(false);
                     return; // player canceled/closed dialog
                 } else {
                     joinInfo.address = correctedAddress;
