@@ -22,7 +22,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import javax.swing.SwingWorker;
 import net.classicube.launcher.gui.UpdateScreen;
 
@@ -468,7 +467,7 @@ public final class UpdateTask
     // =============================================================================================
     //                                                                      POST-DOWNLOAD PROCESSING
     // =============================================================================================
-    private void deployFile(final File processedFile, File targetFile) {
+    private synchronized void deployFile(final File processedFile, File targetFile) {
         if (processedFile == null) {
             throw new NullPointerException("processedFile");
         }
