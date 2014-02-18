@@ -4,16 +4,11 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -449,10 +444,8 @@ public final class UpdateTask
         final File tempFile = File.createTempFile(file.localName.getName(), ".downloaded");
         final URL website = new URL(file.baseUrl + file.remoteName);
 
-        try (ReadableByteChannel rbc = Channels.newChannel(website.openStream())) {
-            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-            }
+        try (InputStream siteStream = website.openStream()) {
+            PathUtil.copyStreamToFile(siteStream, tempFile);
         }
         return tempFile;
     }
@@ -558,14 +551,8 @@ public final class UpdateTask
     // Extracts a file from given .jar archive
     private void extractNativeFile(final JarFile jarFile, final JarEntry entry, final File destination)
             throws IOException {
-        final byte[] buffer = new byte[65536];
-        try (final InputStream in = jarFile.getInputStream(entry)) {
-            try (final FileOutputStream out = new FileOutputStream(destination)) {
-                int bufferSize;
-                while ((bufferSize = in.read(buffer, 0, buffer.length)) != -1) {
-                    out.write(buffer, 0, bufferSize);
-                }
-            }
+        try (InputStream inStream = jarFile.getInputStream(entry)) {
+            PathUtil.copyStreamToFile(inStream, destination);
         }
     }
 

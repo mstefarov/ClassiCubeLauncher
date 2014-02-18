@@ -1,7 +1,12 @@
 package net.classicube.launcher;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -15,9 +20,9 @@ final class PathUtil {
             LOG_FILE_NAME = "launcher.log",
             LOG_OLD_FILE_NAME = "launcher.old.log",
             CLIENT_LOG_FILE_NAME = "client.log",
-            CLIENT_LOG_OLD_FILE_NAME="client.old.log",
-            OPTIONS_FILE_NAME="options.txt",
-            SELF_UPDATER_LOG_FILE_NAME="selfupdater.log";
+            CLIENT_LOG_OLD_FILE_NAME = "client.old.log",
+            OPTIONS_FILE_NAME = "options.txt",
+            SELF_UPDATER_LOG_FILE_NAME = "selfupdater.log";
     private static File clientPath;
 
     // Find client's directory. If it does not exist, create it.
@@ -61,4 +66,18 @@ final class PathUtil {
     private static final CopyOption[] FallbackFileReplaceOptions = new CopyOption[]{
         StandardCopyOption.REPLACE_EXISTING
     };
+
+    public static void copyStreamToFile(InputStream inStream, File file) throws IOException {
+        try (ReadableByteChannel in = Channels.newChannel(inStream)) {
+            try (FileOutputStream outStream = new FileOutputStream(file)) {
+                FileChannel out = outStream.getChannel();
+                long offset = 0;
+                long quantum = 1024 * 1024;
+                long count;
+                while ((count = out.transferFrom(in, offset, quantum)) > 0) {
+                    offset += count;
+                }
+            }
+        }
+    }
 }
