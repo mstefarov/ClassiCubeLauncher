@@ -33,6 +33,7 @@ import net.classicube.launcher.GameServiceType;
 import net.classicube.launcher.GameSession;
 import net.classicube.launcher.GetExternalIPTask;
 import net.classicube.launcher.LogUtil;
+import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
 import net.classicube.launcher.ServerListEntry;
 import net.classicube.launcher.SessionManager;
@@ -234,7 +235,9 @@ public final class ServerListScreen extends javax.swing.JFrame {
                         }
                     });
             progress.setVisible(true);
-            disableGui();
+            if (Prefs.getKeepOpen()) {
+                disableGui();
+            }
             getServerDetailsTask.execute();
         } else {
             joinServer(joinInfo);
@@ -285,7 +288,11 @@ public final class ServerListScreen extends javax.swing.JFrame {
             GetExternalIPTask.logAndShowError(ex);
         }
 
-        dispose();
+        if (Prefs.getKeepOpen()) {
+            enableGui();
+            progress.setVisible(false);            
+        } else dispose();
+        
         UpdateScreen.createAndShow(joinInfo);
     }
 

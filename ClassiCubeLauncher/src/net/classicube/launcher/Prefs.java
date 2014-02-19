@@ -14,7 +14,8 @@ public final class Prefs {
             keyMaxMemory = "MaxMemory",
             keySelectedGameService = "SelectedGameService",
             keyDebugMode = "DebugMode",
-            keyRememberedExternalIPs = "RememberedExternalIPs";
+            keyRememberedExternalIPs = "RememberedExternalIPs",
+            keyKeepOpen = "KeepOpen";
 
     // Defaults
     public final static UpdateMode UpdateModeDefault = UpdateMode.NOTIFY;
@@ -22,7 +23,8 @@ public final class Prefs {
             RememberUsersDefault = true,
             RememberPasswordsDefault = true,
             RememberServerDefault = true,
-            DebugModeDefault = false;
+            DebugModeDefault = false,
+            KeepOpenDefault = false;
     public final static String JavaArgsDefault = "-Dorg.lwjgl.util.Debug=true "
             + "-Dsun.java2d.noddraw=true "
             + "-Dsun.awt.noerasebackground=true "
@@ -77,6 +79,10 @@ public final class Prefs {
             return SelectedGameServiceDefault;
         }
     }
+    
+    public static boolean getKeepOpen() {
+        return getPrefs().getBoolean(keyKeepOpen, KeepOpenDefault);
+    }
 
     // Setters
     public static void setUpdateMode(final UpdateMode val) {
@@ -113,6 +119,10 @@ public final class Prefs {
 
     public static void setSelectedGameService(final GameServiceType val) {
         getPrefs().put(keySelectedGameService, val.name());
+    }
+    
+    public static void setKeepOpen(final boolean val) {
+        getPrefs().putBoolean(keyKeepOpen, val);
     }
 
     // Etc

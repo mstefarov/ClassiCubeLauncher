@@ -86,6 +86,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         tJavaArgs.setText(Prefs.getJavaArgs());
         nMemory.setValue(Prefs.getMaxMemory());
         xDebugMode.setSelected(Prefs.getDebugMode());
+        xKeepOpen.setSelected(Prefs.getKeepOpen());
     }
 
     private void loadUpdateMode(final UpdateMode val) {
@@ -113,6 +114,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         tJavaArgs.setText(Prefs.JavaArgsDefault);
         nMemory.setValue(Prefs.MaxMemoryDefault);
         xDebugMode.setSelected(Prefs.DebugModeDefault);
+        xKeepOpen.setSelected(Prefs.KeepOpenDefault);
     }
 
     private void storePreferences() {
@@ -124,6 +126,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         Prefs.setJavaArgs(tJavaArgs.getText());
         Prefs.setMaxMemory((int) nMemory.getValue());
         Prefs.setDebugMode(xDebugMode.isSelected());
+        Prefs.setKeepOpen(xKeepOpen.isSelected());
     }
 
     private UpdateMode storeUpdateMode() {
@@ -264,6 +267,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         xDebugMode = new javax.swing.JCheckBox();
         bSubmitDiagInfo = new net.classicube.launcher.gui.JNiceLookingButton();
+        xKeepOpen = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -278,7 +282,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(xFullscreen, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
@@ -287,7 +291,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         lUpdateMode.setText("Install game updates...");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
@@ -298,7 +302,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         rUpdateDisabled.setToolTipText("<html><b>Disable</b>: No game updates will ever be downloaded or installed.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
@@ -309,7 +313,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         rUpdateNotify.setToolTipText("<html><b>Enable (notify me)</b>: Game updates will be downloaded and installed.<br>\nYou will be notified when that happens, and you'll have an option to review changes in the latest update.<br>\nThis is the default option.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
@@ -320,14 +324,14 @@ final class PreferencesScreen extends javax.swing.JDialog {
         rUpdateAutomatic.setToolTipText("<html><b>Enable (automatic)</b>: Game updates will be installed automatically and silently.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         getContentPane().add(rUpdateAutomatic, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
@@ -342,7 +346,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(xRememberUsers, gridBagConstraints);
@@ -355,7 +359,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bForgetUsers, gridBagConstraints);
@@ -369,7 +373,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(xRememberPasswords, gridBagConstraints);
@@ -382,7 +386,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bForgetPasswords, gridBagConstraints);
@@ -391,7 +395,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         xRememberServer.setToolTipText("<html>Choose whether the launcher should remember last-joined server.<br>\nWhen enabled, the [Resume] button will become available, which will reconnect<br>\nyou to the most-recently-joined server using the same username/credentials as last time.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 8);
@@ -405,13 +409,13 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(bForgetServers, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
@@ -421,7 +425,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         lParameters.setToolTipText("");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(lParameters, gridBagConstraints);
@@ -429,7 +433,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         tJavaArgs.setToolTipText("<html>Command-line arguments to pass to the client's Java runtime.<br>\nDon't mess with these unless you know exactly what you're doing!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridy = 12;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(tJavaArgs, gridBagConstraints);
@@ -437,7 +441,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         lMemory.setText("Max memory");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(lMemory, gridBagConstraints);
@@ -446,7 +450,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         nMemory.setToolTipText("<html>The maximum amount of memory, in megabytes, that the game is allowed to use.<br>\nDon't raise this amount unless your game keeps running out of memory on large maps.<br>\nDefault is 800 MB. Going any lower may cause lag and/or crashes.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.1;
         getContentPane().add(nMemory, gridBagConstraints);
@@ -454,7 +458,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         jSeparator4.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 0, 8, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 15;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(8, 0, 8, 0);
@@ -469,7 +473,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_START;
         getContentPane().add(bDefaults, gridBagConstraints);
@@ -482,7 +486,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bSave, gridBagConstraints);
 
@@ -494,12 +498,12 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LAST_LINE_END;
         getContentPane().add(bCancel, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.weightx = 0.1;
         getContentPane().add(filler1, gridBagConstraints);
 
@@ -507,7 +511,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         xDebugMode.setToolTipText("Enables debug console (requires launcher restart).");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridy = 13;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         getContentPane().add(xDebugMode, gridBagConstraints);
@@ -521,11 +525,19 @@ final class PreferencesScreen extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 13;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         getContentPane().add(bSubmitDiagInfo, gridBagConstraints);
+
+        xKeepOpen.setText("Keep launcher open");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(xKeepOpen, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -547,6 +559,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
     private javax.swing.JTextField tJavaArgs;
     private javax.swing.JCheckBox xDebugMode;
     private javax.swing.JCheckBox xFullscreen;
+    private javax.swing.JCheckBox xKeepOpen;
     private javax.swing.JCheckBox xRememberPasswords;
     private javax.swing.JCheckBox xRememberServer;
     private javax.swing.JCheckBox xRememberUsers;
