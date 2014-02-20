@@ -273,7 +273,9 @@ public final class SignInScreen extends javax.swing.JFrame {
                     } catch (InterruptedException | ExecutionException ex) {
                         GetExternalIPTask.logAndShowError(ex);
                     }
-                    dispose();
+                    if (!Prefs.getKeepOpen()) {
+                        dispose();
+                    }
                     UpdateScreen.createAndShow(joinInfo);
                 }
             }
@@ -291,7 +293,9 @@ public final class SignInScreen extends javax.swing.JFrame {
     private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
         LogUtil.getLogger().log(Level.FINE, "[Resume]");
         final ServerJoinInfo joinInfo = SessionManager.getSession().loadResumeInfo();
-        dispose();
+        if (!Prefs.getKeepOpen()) {
+            dispose();
+        }
         UpdateScreen.createAndShow(joinInfo);
     }//GEN-LAST:event_bResumeActionPerformed
 
@@ -716,7 +720,9 @@ public final class SignInScreen extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             // TODO
             LogUtil.getLogger().log(Level.FINE, "[SinglePlayer]");
-            dispose();
+            if (!Prefs.getKeepOpen()) {
+                dispose();
+            }
             UpdateScreen.createAndShow(null);
         }
     }
