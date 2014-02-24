@@ -532,6 +532,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         getContentPane().add(bSubmitDiagInfo, gridBagConstraints);
 
         xKeepOpen.setText("Keep launcher open");
+        xKeepOpen.setToolTipText("Keep launcher open after the game client starts.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;

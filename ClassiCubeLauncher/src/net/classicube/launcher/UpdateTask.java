@@ -35,12 +35,17 @@ public final class UpdateTask
     // =============================================================================================
     private static final int MAX_PARALLEL_DOWNLOADS = 5;
     private static final UpdateTask instance = new UpdateTask();
+    private static boolean alreadyUpdated = false;
 
     public static UpdateTask getInstance() {
         return instance;
     }
 
     private UpdateTask() {
+    }
+
+    public static boolean isAlreadyUpdated() {
+        return alreadyUpdated;
     }
 
     // =============================================================================================
@@ -618,6 +623,7 @@ public final class UpdateTask
 
     @Override
     protected synchronized void done() {
+        alreadyUpdated = true;
         if (this.updateScreen != null) {
             this.signalDone();
             this.updateScreen.onUpdateDone(this.updatesApplied);

@@ -7,6 +7,8 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import net.classicube.launcher.gui.DebugWindow;
 import net.classicube.launcher.gui.ErrorScreen;
+import net.classicube.launcher.gui.ServerListScreen;
+import net.classicube.launcher.gui.SignInScreen;
 import org.apache.commons.lang3.StringUtils;
 
 // Handles launching the client process.
@@ -93,7 +95,9 @@ final public class ClientLauncher {
                 }
             } else {
                 processBuilder.start();
-                System.exit(0);
+                if (!Prefs.getKeepOpen()) {
+                    System.exit(0);
+                }
             }
 
         } catch (final Exception ex) {

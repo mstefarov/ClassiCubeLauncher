@@ -14,6 +14,7 @@ import net.classicube.launcher.UpdateTask;
 import net.classicube.launcher.LogUtil;
 import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
+import net.classicube.launcher.SessionManager;
 import net.classicube.launcher.UpdateMode;
 
 public final class UpdateScreen extends JFrame {
@@ -28,10 +29,18 @@ public final class UpdateScreen extends JFrame {
     // =============================================================================================
     //                                                                                INITIALIZATION
     // =============================================================================================
-    public static void createAndShow(final ServerJoinInfo joinInfo) {
-        UpdateScreen sc = new UpdateScreen(joinInfo);
-        sc.setVisible(true);
-        UpdateTask.getInstance().registerUpdateScreen(sc);
+    // Returns 'true' if the calling screen should keep itself open.
+    public static boolean createAndShow(final ServerJoinInfo joinInfo) {
+        if (UpdateTask.isAlreadyUpdated()) {
+            // Skip the update screen
+            ClientLauncher.launchClient(joinInfo);
+            return Prefs.getKeepOpen();
+        } else {
+            UpdateScreen sc = new UpdateScreen(joinInfo);
+            sc.setVisible(true);
+            UpdateTask.getInstance().registerUpdateScreen(sc);
+            return false;
+        }
     }
 
     private UpdateScreen(final ServerJoinInfo joinInfo) {
@@ -96,8 +105,7 @@ public final class UpdateScreen extends JFrame {
         }
 
         if (!updatesApplied || Prefs.getUpdateMode() != UpdateMode.NOTIFY) {
-            dispose();
-            ClientLauncher.launchClient(this.joinInfo);
+            launchClient();
         } else {
             this.lNotice.setText(" ");
             this.bPlay.setEnabled(true);
@@ -106,12 +114,23 @@ public final class UpdateScreen extends JFrame {
         }
     }
 
+    private void launchClient() {
+        dispose();
+        ClientLauncher.launchClient(this.joinInfo);
+        if (Prefs.getKeepOpen()) {
+            if (SessionManager.getSession() != null) {
+                new ServerListScreen().setVisible(true);
+            } else {
+                new SignInScreen().setVisible(true);
+            }
+        }
+    }
+
     // =============================================================================================
     //                                                                           GUI EVENT LISTENERS
     // =============================================================================================
     private void bPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bPlayActionPerformed
-        dispose();
-        ClientLauncher.launchClient(this.joinInfo);
+        launchClient();
     }//GEN-LAST:event_bPlayActionPerformed
 
     private void bViewChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bViewChangesActionPerformed

@@ -28,6 +28,7 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import net.classicube.launcher.AccountManager;
+import net.classicube.launcher.ClientLauncher;
 import net.classicube.launcher.GameServiceType;
 import net.classicube.launcher.GameSession;
 import net.classicube.launcher.GetExternalIPTask;
@@ -36,6 +37,7 @@ import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
 import net.classicube.launcher.SessionManager;
 import net.classicube.launcher.SignInResult;
+import net.classicube.launcher.UpdateTask;
 import net.classicube.launcher.UserAccount;
 
 // Sign-in screen! First thing the user sees.
@@ -273,10 +275,10 @@ public final class SignInScreen extends javax.swing.JFrame {
                     } catch (InterruptedException | ExecutionException ex) {
                         GetExternalIPTask.logAndShowError(ex);
                     }
-                    if (!Prefs.getKeepOpen()) {
+
+                    if (!UpdateScreen.createAndShow(joinInfo)) {
                         dispose();
                     }
-                    UpdateScreen.createAndShow(joinInfo);
                 }
             }
         }
@@ -293,10 +295,9 @@ public final class SignInScreen extends javax.swing.JFrame {
     private void bResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bResumeActionPerformed
         LogUtil.getLogger().log(Level.FINE, "[Resume]");
         final ServerJoinInfo joinInfo = SessionManager.getSession().loadResumeInfo();
-        if (!Prefs.getKeepOpen()) {
+        if (!UpdateScreen.createAndShow(joinInfo)) {
             dispose();
         }
-        UpdateScreen.createAndShow(joinInfo);
     }//GEN-LAST:event_bResumeActionPerformed
 
     private void bResumeDropDownMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bResumeDropDownMousePressed
@@ -545,7 +546,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.FINE, "[Preferences]");
         accountManager = SessionManager.getAccountManager();
         boolean hadAccounts = accountManager.hasAccounts();
-        
+
         new PreferencesScreen(this).setVisible(true);
 
         // if usernames have just been forgotten, clear the list
@@ -715,15 +716,13 @@ public final class SignInScreen extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private class SinglePlayerMenuItemActionListener implements ActionListener {
-
         @Override
         public void actionPerformed(ActionEvent e) {
             // TODO
             LogUtil.getLogger().log(Level.FINE, "[SinglePlayer]");
-            if (!Prefs.getKeepOpen()) {
+            if (!UpdateScreen.createAndShow(null)) {
                 dispose();
             }
-            UpdateScreen.createAndShow(null);
         }
     }
 }
