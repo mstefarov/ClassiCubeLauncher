@@ -29,7 +29,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import net.classicube.launcher.ClientLauncher;
 import net.classicube.launcher.GameServiceType;
 import net.classicube.launcher.GameSession;
 import net.classicube.launcher.GetExternalIPTask;
@@ -38,7 +37,6 @@ import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
 import net.classicube.launcher.ServerListEntry;
 import net.classicube.launcher.SessionManager;
-import net.classicube.launcher.UpdateTask;
 
 public final class ServerListScreen extends javax.swing.JFrame {
     // =============================================================================================

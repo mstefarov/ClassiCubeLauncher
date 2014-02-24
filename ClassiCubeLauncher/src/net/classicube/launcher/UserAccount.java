@@ -3,7 +3,6 @@ package net.classicube.launcher;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.prefs.Preferences;
 
 // Stores metadata about a user account.

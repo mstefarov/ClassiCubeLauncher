@@ -10,12 +10,12 @@ import javax.swing.JFrame;
 import javax.swing.JRootPane;
 import javax.swing.border.EmptyBorder;
 import net.classicube.launcher.ClientLauncher;
-import net.classicube.launcher.UpdateTask;
 import net.classicube.launcher.LogUtil;
 import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
 import net.classicube.launcher.SessionManager;
 import net.classicube.launcher.UpdateMode;
+import net.classicube.launcher.UpdateTask;
 
 public final class UpdateScreen extends JFrame {
     // =============================================================================================

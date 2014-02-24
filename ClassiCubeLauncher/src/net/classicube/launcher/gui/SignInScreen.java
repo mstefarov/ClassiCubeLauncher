@@ -28,7 +28,6 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import net.classicube.launcher.AccountManager;
-import net.classicube.launcher.ClientLauncher;
 import net.classicube.launcher.GameServiceType;
 import net.classicube.launcher.GameSession;
 import net.classicube.launcher.GetExternalIPTask;
@@ -37,7 +36,6 @@ import net.classicube.launcher.Prefs;
 import net.classicube.launcher.ServerJoinInfo;
 import net.classicube.launcher.SessionManager;
 import net.classicube.launcher.SignInResult;
-import net.classicube.launcher.UpdateTask;
 import net.classicube.launcher.UserAccount;
 
 // Sign-in screen! First thing the user sees.
