@@ -400,7 +400,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         @Override
         public void focusGained(final FocusEvent e) {
             final String selectedUsername;
-            final JTextComponent editor = (JTextField) cUsername.getEditor().getEditorComponent();
+            final JTextComponent editor = (JTextComponent) cUsername.getEditor().getEditorComponent();
             if (wasTemp) {
                 selectedUsername = editor.getText();
                 locatePassword(selectedUsername);
@@ -470,7 +470,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         public int realPasswordLength,
                 realUsernameLength;
 
-        public UsernameOrPasswordChangedListener() {
+        UsernameOrPasswordChangedListener() {
             realPasswordLength = tPassword.getPassword().length;
             final String username = (String) cUsername.getSelectedItem();
             if (username == null) {
@@ -552,6 +552,17 @@ public final class SignInScreen extends javax.swing.JFrame {
             cUsername.removeAllItems();
         }
     }//GEN-LAST:event_bPreferencesActionPerformed
+
+    // launches a single-player game when [SinglePlayer] option is clicked on the split-button menu.
+    private class SinglePlayerMenuItemActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            LogUtil.getLogger().log(Level.FINE, "[SinglePlayer]");
+            if (!UpdateScreen.createAndShow(null)) {
+                dispose();
+            }
+        }
+    }
 
     // =============================================================================================
     //                                                                            GENERATED GUI CODE
@@ -712,15 +723,4 @@ public final class SignInScreen extends javax.swing.JFrame {
     private javax.swing.JProgressBar progress;
     private javax.swing.JPasswordField tPassword;
     // End of variables declaration//GEN-END:variables
-
-    private class SinglePlayerMenuItemActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // TODO
-            LogUtil.getLogger().log(Level.FINE, "[SinglePlayer]");
-            if (!UpdateScreen.createAndShow(null)) {
-                dispose();
-            }
-        }
-    }
 }

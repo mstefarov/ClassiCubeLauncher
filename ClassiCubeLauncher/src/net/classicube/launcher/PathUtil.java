@@ -80,4 +80,7 @@ final class PathUtil {
             }
         }
     }
+
+    private PathUtil() {
+    }
 }

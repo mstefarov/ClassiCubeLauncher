@@ -70,7 +70,7 @@ public class CutCopyPasteAdapter extends MouseAdapter implements ClipboardOwner 
     // Isn't it silly that I have to do this manually in Java?
     class CopyPasteMenu extends JPopupMenu {
 
-        public CopyPasteMenu() {
+        CopyPasteMenu() {
             final boolean hasSelectedText
                     = (component.getSelectedText() != null) && component.getSelectedText().length() > 0;
             if (allowCopy && allowModification) {

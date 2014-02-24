@@ -133,4 +133,7 @@ public final class Prefs {
     public static Preferences getRememberedExternalIPs() {
         return getPrefs().node(keyRememberedExternalIPs);
     }
+
+    private Prefs() {
+    }
 }

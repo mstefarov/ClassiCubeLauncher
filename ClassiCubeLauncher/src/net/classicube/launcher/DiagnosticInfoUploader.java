@@ -185,4 +185,7 @@ public class DiagnosticInfoUploader {
         }
         return null;
     }
+
+    private DiagnosticInfoUploader() {
+    }
 }

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 // Signing in, parsing play links, getting server list, getting server details.
 final class ClassiCubeNetSession extends GameSession {
 
-    public ClassiCubeNetSession() {
+    ClassiCubeNetSession() {
         super(GameServiceType.ClassiCubeNetService);
         try {
             this.siteUri = new URI(HOMEPAGE_URL);
@@ -55,7 +55,7 @@ final class ClassiCubeNetSession extends GameSession {
 
     private final class SignInWorker extends SignInTask {
 
-        public SignInWorker(final boolean remember) {
+        SignInWorker(final boolean remember) {
             super(remember);
         }
 

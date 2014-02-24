@@ -14,7 +14,7 @@ import net.classicube.launcher.gui.PromptScreen;
 // Signing in, parsing play links, getting server list, getting server details.
 final class MinecraftNetSession extends GameSession {
 
-    public MinecraftNetSession() {
+    MinecraftNetSession() {
         super(GameServiceType.MinecraftNetService);
         try {
             siteUri = new URI(HOMEPAGE_URL);
@@ -55,7 +55,7 @@ final class MinecraftNetSession extends GameSession {
     // Asynchronously try signing in our user
     private class SignInWorker extends SignInTask {
 
-        public SignInWorker(final boolean remember) {
+        SignInWorker(final boolean remember) {
             super(remember);
         }
 

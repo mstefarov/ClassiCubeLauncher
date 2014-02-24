@@ -500,7 +500,7 @@ public final class UpdateTask
     }
 
     // Extract the contents of natives jar file
-    protected void extractNatives()
+    void extractNatives()
             throws FileNotFoundException, IOException {
         LogUtil.getLogger().log(Level.FINE, "extractNatives({0})", nativesFile.targetName.getName());
 
@@ -668,11 +668,11 @@ public final class UpdateTask
         public final File localName;
         public final File targetName;
 
-        public FileToDownload(final String baseUrl, final String remoteName, final File localName) {
+        FileToDownload(final String baseUrl, final String remoteName, final File localName) {
             this(baseUrl, remoteName, localName, localName);
         }
 
-        public FileToDownload(final String baseUrl, final String remoteName, final File localName, final File targetName) {
+        FileToDownload(final String baseUrl, final String remoteName, final File localName, final File targetName) {
             this.baseUrl = baseUrl;
             this.remoteName = remoteName;
             this.localName = localName;
@@ -690,7 +690,7 @@ public final class UpdateTask
 
         private final Logger logger;
 
-        public DownloadThread(Logger logger) {
+        DownloadThread(Logger logger) {
             this.logger = logger;
         }
 

@@ -106,7 +106,7 @@ public class Program {
             throws Exception {
         final Class<?> lpClass = loadLauncher(launcherJar);
         final Method entryPoint = lpClass.getMethod(LAUNCHER_ENTRY_METHOD, String[].class);
-        entryPoint.invoke(null, (Object) new String[0]);
+        entryPoint.invoke(null, new String[0]);
     }
 
     // Load the entry point from launcher's jar

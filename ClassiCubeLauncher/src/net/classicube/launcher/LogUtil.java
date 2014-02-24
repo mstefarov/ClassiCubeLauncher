@@ -42,4 +42,7 @@ public final class LogUtil {
     public static Logger getLogger() {
         return logger;
     }
+
+    private LogUtil() {
+    }
 }

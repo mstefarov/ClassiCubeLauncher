@@ -103,4 +103,7 @@ final public class ClientLauncher {
                     "Error launching the client:<br>" + ex.getMessage(), ex);
         }
     }
+
+    private ClientLauncher() {
+    }
 }

@@ -189,4 +189,8 @@ public class SharedUpdaterCode {
             }
         }
     }
+
+    private SharedUpdaterCode() {
+    }
 }
+

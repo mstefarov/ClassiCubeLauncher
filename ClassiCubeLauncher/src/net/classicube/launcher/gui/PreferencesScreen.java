@@ -21,7 +21,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
     //                                                                                INITIALIZATION
     // =============================================================================================
 
-    public PreferencesScreen(final JFrame parent) {
+    PreferencesScreen(final JFrame parent) {
         super(parent, "Preferences", true);
         final JRootPane root = getRootPane();
         root.setBorder(new EmptyBorder(8, 8, 8, 8));

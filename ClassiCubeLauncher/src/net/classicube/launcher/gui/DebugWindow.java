@@ -43,7 +43,7 @@ public class DebugWindow extends javax.swing.JFrame {
         private final JTextArea textArea;
         private final StringBuilder sb = new StringBuilder();
 
-        public TextAreaOutputStream(final JTextArea textArea) {
+        TextAreaOutputStream(final JTextArea textArea) {
             this.textArea = textArea;
         }
 

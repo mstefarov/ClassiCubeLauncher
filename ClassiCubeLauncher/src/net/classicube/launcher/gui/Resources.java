@@ -81,4 +81,7 @@ final class Resources {
             return null;
         }
     }
+
+    private Resources() {
+    }
 }

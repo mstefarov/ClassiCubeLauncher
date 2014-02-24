@@ -56,4 +56,7 @@ public final class SessionManager {
             return false;
         }
     }
+
+    private SessionManager() {
+    }
 }

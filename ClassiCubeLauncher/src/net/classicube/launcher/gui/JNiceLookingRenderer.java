@@ -159,4 +159,7 @@ class JNiceLookingRenderer {
         }
         g.translate(-x, -y);
     }
+
+    private JNiceLookingRenderer() {
+    }
 }
