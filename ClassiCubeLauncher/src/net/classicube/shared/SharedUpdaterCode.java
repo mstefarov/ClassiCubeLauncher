@@ -1,4 +1,4 @@
-package net.classicube.launcher;
+package net.classicube.shared;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -17,6 +17,9 @@ import java.util.jar.Pack200;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// Code shared between Launcher and SelfUpdater. The two source files are identical.
+// These two classes cannot be combined into one because SelfUpdater must be able to
+// run without referencing the Launcher, and vice versa.
 public class SharedUpdaterCode {
 
     public static final String BASE_URL = "http://static.classicube.net/client/",
@@ -186,6 +189,31 @@ public class SharedUpdaterCode {
             try (final JarOutputStream jostream = new JarOutputStream(fostream)) {
                 final Pack200.Unpacker unpacker = Pack200.newUnpacker();
                 unpacker.unpack(compressedInput, jostream);
+            }
+        }
+    }
+
+    public enum OperatingSystem {
+
+        NIX,
+        SOLARIS,
+        WINDOWS,
+        MACOS,
+        UNKNOWN;
+
+        private final static String osName = System.getProperty("os.name").toLowerCase();
+
+        public static OperatingSystem detect() {
+            if (osName.contains("win")) {
+                return OperatingSystem.WINDOWS;
+            } else if (osName.contains("mac")) {
+                return OperatingSystem.MACOS;
+            } else if (osName.contains("solaris") || osName.contains("sunos")) {
+                return OperatingSystem.SOLARIS;
+            } else if (osName.contains("linux") || osName.contains("unix")) {
+                return OperatingSystem.NIX;
+            } else {
+                return OperatingSystem.UNKNOWN;
             }
         }
     }

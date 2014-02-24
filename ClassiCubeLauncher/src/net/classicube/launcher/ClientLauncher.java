@@ -27,7 +27,7 @@ final public class ClientLauncher {
         final String nativePath;
         try {
             nativePath = new File(PathUtil.getClientDir(), "natives").getCanonicalPath();
-        } catch (final Exception ex) {
+        } catch (final IOException | SecurityException ex) {
             ErrorScreen.show("Could not launch the game",
                     "Error finding the LWJGL native library path:<br>" + ex.getMessage(), ex);
             return;

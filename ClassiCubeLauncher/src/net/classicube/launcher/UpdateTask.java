@@ -24,6 +24,8 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import javax.swing.SwingWorker;
 import net.classicube.launcher.gui.UpdateScreen;
+import net.classicube.shared.SharedUpdaterCode;
+import net.classicube.shared.SharedUpdaterCode.OperatingSystem;
 
 // Handles downloading and deployment of client updates,
 // as well as resource files used by the client.
@@ -35,20 +37,12 @@ public final class UpdateTask
     // =============================================================================================
     private static final int MAX_PARALLEL_DOWNLOADS = 5;
     private static final UpdateTask instance = new UpdateTask();
-    private static boolean alreadyUpdated = false;
 
     public static UpdateTask getInstance() {
         return instance;
     }
 
     private UpdateTask() {
-    }
-
-    public static boolean getUpdateFinished() {
-        return alreadyUpdated;
-    }
-    public static void setUpdateFinished(boolean value) {
-        alreadyUpdated = value;
     }
 
     // =============================================================================================
@@ -601,6 +595,17 @@ public final class UpdateTask
     //                                                                            PROGRESS REPORTING
     // =============================================================================================
     private volatile UpdateScreen updateScreen;
+    private static boolean updateFinished = false;
+
+    public static boolean getUpdateFinished() {
+        // If "keep open" option is on, we only want the updater to run once (before first launch).
+        return updateFinished;
+    }
+
+    public static void setUpdateFinished(boolean value) {
+        // Set to 'true' by UpdateScreen after a successful update
+        updateFinished = value;
+    }
 
     @Override
     protected synchronized void process(final List<ProgressUpdate> chunks) {

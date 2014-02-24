@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;

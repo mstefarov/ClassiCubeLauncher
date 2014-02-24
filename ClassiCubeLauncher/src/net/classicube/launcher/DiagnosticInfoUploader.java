@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import net.classicube.launcher.gui.ErrorScreen;
+import net.classicube.shared.SharedUpdaterCode;
 import org.apache.commons.lang3.StringUtils;
 
 public class DiagnosticInfoUploader {

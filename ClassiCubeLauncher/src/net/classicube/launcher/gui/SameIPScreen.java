@@ -29,6 +29,8 @@ public class SameIPScreen extends JDialog {
         }
         SameIPScreen screen = new SameIPScreen(serverAddress);
         screen.setVisible(true);
+        
+        // Save user's preference
         if (screen.chosenAddress != null && screen.xRememberChoice.isSelected()) {
             ipList.put(fullHostname, screen.chosenAddress.getHostAddress());
         }
@@ -173,12 +175,12 @@ public class SameIPScreen extends JDialog {
 
     private void bContinueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bContinueActionPerformed
         if (this.rLocalhost.isSelected()) {
-            // Yes, server is hosted on this computer.
+            // Yes, server is hosted on this computer:
             // Use localhost (127.0.0.1) in place of server's IP.
             chosenAddress = InetAddress.getLoopbackAddress();
 
         } else if (this.rLocalNetwork.isSelected()) {
-            // Yes, server is on another computer on this network.
+            // Yes, server is on another computer on this network:
             // Ask player for a local IP address.
             this.setEnabled(false);
             final String baseMessage = "Please enter the local address (192.168.x.x) of the computer on which the server is hosted.";
@@ -212,11 +214,10 @@ public class SameIPScreen extends JDialog {
                 this.setEnabled(true);
             }
         } else {
-            // No, neither
+            // No, neither:
             // Return server's original address, and hope it works
             chosenAddress = originalAddress;
         }
-        // TODO: save preference
         this.dispose();
     }//GEN-LAST:event_bContinueActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

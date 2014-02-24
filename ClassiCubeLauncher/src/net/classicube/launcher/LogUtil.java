@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import net.classicube.launcher.gui.ErrorScreen;
+import net.classicube.shared.SharedUpdaterCode;
 
 // Global logging class (to make life easier)
 public final class LogUtil {

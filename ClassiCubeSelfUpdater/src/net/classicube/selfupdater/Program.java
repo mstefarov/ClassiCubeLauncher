@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import javax.swing.JOptionPane;
+import net.classicube.shared.SharedUpdaterCode;
 
 public class Program {
 
@@ -106,7 +107,7 @@ public class Program {
             throws Exception {
         final Class<?> lpClass = loadLauncher(launcherJar);
         final Method entryPoint = lpClass.getMethod(LAUNCHER_ENTRY_METHOD, String[].class);
-        entryPoint.invoke(null, new String[0]);
+        entryPoint.invoke(null, (Object) new String[0]);
     }
 
     // Load the entry point from launcher's jar

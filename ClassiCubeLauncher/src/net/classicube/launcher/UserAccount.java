@@ -69,14 +69,15 @@ public final class UserAccount {
 
     private static class UserAccountDateComparator
             implements Comparator<UserAccount>, Serializable {
+
         static final long serialVersionUID = 1L;
 
         @Override
         public int compare(final UserAccount o1, final UserAccount o2) {
-            if(o1.signInDate.getTime()==0) {
+            if (o1.signInDate.getTime() == 0) {
                 return 1;
             }
-            if(o2.signInDate.getTime()==0) {
+            if (o2.signInDate.getTime() == 0) {
                 return -1;
             }
             final Long delta = o2.signInDate.getTime() - o1.signInDate.getTime();

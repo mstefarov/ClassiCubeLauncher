@@ -11,6 +11,7 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import net.classicube.launcher.gui.DebugWindow;
 import net.classicube.launcher.gui.ErrorScreen;
 import net.classicube.launcher.gui.SignInScreen;
+import net.classicube.shared.SharedUpdaterCode;
 
 // Contains initialization code for the whole launcher
 public final class EntryPoint {
