@@ -351,6 +351,10 @@ public abstract class GameSession {
     public UserAccount getAccount() {
         return this.account;
     }
+    
+    public boolean isSignedIn(){
+        return getAccount() != null;
+    }
 
     // Encodes a string in a URL-friendly format, for GET or POST
     protected String urlEncode(final String rawString) {

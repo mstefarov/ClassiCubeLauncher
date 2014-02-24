@@ -31,7 +31,7 @@ public final class UpdateScreen extends JFrame {
     // =============================================================================================
     // Returns 'true' if the calling screen should keep itself open.
     public static boolean createAndShow(final ServerJoinInfo joinInfo) {
-        if (UpdateTask.isAlreadyUpdated()) {
+        if (UpdateTask.getUpdateFinished()) {
             // Skip the update screen
             ClientLauncher.launchClient(joinInfo);
             return Prefs.getKeepOpen();
@@ -94,6 +94,7 @@ public final class UpdateScreen extends JFrame {
         try {
             // wait for updater to finish (if still running)
             UpdateTask.getInstance().get();
+            UpdateTask.setUpdateFinished(true);
 
         } catch (final InterruptedException | ExecutionException ex) {
             LogUtil.getLogger().log(Level.SEVERE, "Error during the download/update process.", ex);
@@ -118,9 +119,13 @@ public final class UpdateScreen extends JFrame {
         dispose();
         ClientLauncher.launchClient(this.joinInfo);
         if (Prefs.getKeepOpen()) {
-            if (SessionManager.getSession() != null) {
+            if (SessionManager.getSession().isSignedIn()) {
+                // If a user is is signed in, [Connect] must've been clicked,
+                // so we return to the server list
                 new ServerListScreen().setVisible(true);
             } else {
+                // Else, [Singleplayer] or [Direct] must've been clicked,
+                // so we return to sign-in screen
                 new SignInScreen().setVisible(true);
             }
         }

@@ -44,8 +44,11 @@ public final class UpdateTask
     private UpdateTask() {
     }
 
-    public static boolean isAlreadyUpdated() {
+    public static boolean getUpdateFinished() {
         return alreadyUpdated;
+    }
+    public static void setUpdateFinished(boolean value) {
+        alreadyUpdated = value;
     }
 
     // =============================================================================================
@@ -623,7 +626,6 @@ public final class UpdateTask
 
     @Override
     protected synchronized void done() {
-        alreadyUpdated = true;
         if (this.updateScreen != null) {
             this.signalDone();
             this.updateScreen.onUpdateDone(this.updatesApplied);
