@@ -287,24 +287,28 @@ public abstract class GameSession {
     // Checks whether user's password has changed since last successful sign-in.
     private boolean passwordHasNotChanged() {
         UserAccount lastSessionAccount = null;
-        final Preferences lastSessionNode = this.store.node(LAST_SESSION_NODE_NAME);
-        if (lastSessionNode != null) {
-            try {
-                lastSessionAccount = new UserAccount(lastSessionNode);
-            } catch (final IllegalArgumentException ex) {
-                LogUtil.getLogger().log(Level.WARNING, "Error loading last session information, will relog.", ex);
+        try {
+            if (this.store.nodeExists(LAST_SESSION_NODE_NAME)) {
+                final Preferences lastSessionNode = this.store.node(LAST_SESSION_NODE_NAME);
                 try {
-                    lastSessionNode.removeNode();
-                    this.store.flush();
-                } catch (BackingStoreException ex1) {
-                    LogUtil.getLogger().log(Level.SEVERE, "Error deleting lastSessionNode", ex1);
+                    lastSessionAccount = new UserAccount(lastSessionNode);
+                } catch (final IllegalArgumentException ex) {
+                    LogUtil.getLogger().log(Level.WARNING, "Error loading last session information, will relog.", ex);
+                    try {
+                        lastSessionNode.removeNode();
+                        this.store.flush();
+                    } catch (BackingStoreException ex1) {
+                        LogUtil.getLogger().log(Level.SEVERE, "Error deleting lastSessionNode", ex1);
+                    }
                 }
             }
+        } catch (BackingStoreException ex) {
+            LogUtil.getLogger().log(Level.SEVERE, "Error fetching last session's Preferences node", ex);
         }
-        final String newPassword = getAccount().password;
         if (lastSessionAccount == null) {
             return false;
         } else {
+            final String newPassword = getAccount().password;
             final String oldPassword = lastSessionAccount.password;
             return newPassword.equals(oldPassword);
         }
@@ -351,8 +355,8 @@ public abstract class GameSession {
     public UserAccount getAccount() {
         return this.account;
     }
-    
-    public boolean isSignedIn(){
+
+    public boolean isSignedIn() {
         return getAccount() != null;
     }
 
