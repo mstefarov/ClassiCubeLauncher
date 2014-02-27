@@ -524,14 +524,17 @@ public final class ServerListScreen extends javax.swing.JFrame {
             }
         });
         serverTable.setColumnSelectionAllowed(true);
+        serverTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         serverTable.getTableHeader().setReorderingAllowed(false);
         serverTableContainer.setViewportView(serverTable);
         serverTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        serverTable.getColumnModel().getColumn(1).setPreferredWidth(60);
-        serverTable.getColumnModel().getColumn(2).setPreferredWidth(60);
-        serverTable.getColumnModel().getColumn(3).setPreferredWidth(60);
-        serverTable.getColumnModel().getColumn(3).setCellRenderer(new UptimeCellRenderer());
-        serverTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+        if (serverTable.getColumnModel().getColumnCount() > 0) {
+            serverTable.getColumnModel().getColumn(1).setPreferredWidth(60);
+            serverTable.getColumnModel().getColumn(2).setPreferredWidth(60);
+            serverTable.getColumnModel().getColumn(3).setPreferredWidth(60);
+            serverTable.getColumnModel().getColumn(3).setCellRenderer(new UptimeCellRenderer());
+            serverTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+        }
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
