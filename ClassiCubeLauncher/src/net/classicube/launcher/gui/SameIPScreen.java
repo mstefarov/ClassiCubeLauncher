@@ -69,6 +69,7 @@ public class SameIPScreen extends JDialog {
 
         // Set windows size, pack, and center
         this.setPreferredSize(new Dimension(450, 200));
+        this.setIconImages(Resources.getWindowIcons());
         pack();
         setLocationRelativeTo(null);
     }

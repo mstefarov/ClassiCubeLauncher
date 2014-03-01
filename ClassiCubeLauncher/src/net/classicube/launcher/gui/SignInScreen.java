@@ -87,6 +87,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         }
 
         // Alright, we're good to go.
+        this.setIconImages(Resources.getWindowIcons());
         enableGUI();
     }
 

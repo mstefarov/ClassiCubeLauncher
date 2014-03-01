@@ -81,6 +81,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         }
 
         // pack and center the frame
+        this.setIconImages(Resources.getWindowIcons());
         pack();
         setLocationRelativeTo(null);
     }

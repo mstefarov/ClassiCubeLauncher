@@ -55,7 +55,7 @@ public class PromptScreen extends javax.swing.JDialog {
         CutCopyPasteAdapter.addToComponent(tInput, true, allowModification);
 
         // Set windows size, pack, and center
-        //this.setPreferredSize(new Dimension(400, 150));
+        this.setIconImages(Resources.getWindowIcons());
         pack();
         setLocationRelativeTo(null);
 

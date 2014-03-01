@@ -27,6 +27,7 @@ public class DebugWindow extends javax.swing.JFrame {
         printStream = new PrintStream(outStream);
         System.setOut(printStream);
         System.setErr(printStream);
+        this.setIconImages(Resources.getWindowIcons());
     }
 
     public static void setWindowTitle(final String newTitle) {

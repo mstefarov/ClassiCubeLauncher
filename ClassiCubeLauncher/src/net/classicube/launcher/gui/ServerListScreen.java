@@ -65,6 +65,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
         // init components and stuff
         this.initComponents();
+        this.setIconImages(Resources.getWindowIcons());
         this.serverTableContainer.getViewport().setBackground(new Color(247, 247, 247));
 
         // hook up context menus

@@ -50,9 +50,6 @@ public final class UpdateScreen extends JFrame {
 
         initComponents();
 
-        // center the form on screen (initially)
-        setLocationRelativeTo(null);
-
         // tweak the UI for auto/notify preference
         switch (Prefs.getUpdateMode()) {
             case AUTOMATIC:
@@ -73,7 +70,11 @@ public final class UpdateScreen extends JFrame {
                 bViewChanges.setVisible(false);
                 break;
         }
+
+        // set window icon, pack, and center the form on screen (initially)
+        this.setIconImages(Resources.getWindowIcons());
         pack();
+        setLocationRelativeTo(null);
     }
 
     // =============================================================================================

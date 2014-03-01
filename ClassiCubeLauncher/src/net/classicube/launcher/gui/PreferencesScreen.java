@@ -43,6 +43,7 @@ final class PreferencesScreen extends javax.swing.JDialog {
         CutCopyPasteAdapter.addToComponent(this.tJavaArgs, true, true);
         
         // Pack and center
+        this.setIconImages(Resources.getWindowIcons());
         pack();
         setLocationRelativeTo(parent);
         
