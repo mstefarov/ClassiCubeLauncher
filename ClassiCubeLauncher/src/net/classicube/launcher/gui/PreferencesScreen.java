@@ -41,12 +41,12 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
         // hook up context menu
         CutCopyPasteAdapter.addToComponent(this.tJavaArgs, true, true);
-        
-        // Pack and center
+
+        // Set icon, pack and center
         this.setIconImages(Resources.getWindowIcons());
         pack();
         setLocationRelativeTo(parent);
-        
+
         // Fill in the values
         loadPreferences();
         checkIfForgetButtonsShouldBeEnabled();

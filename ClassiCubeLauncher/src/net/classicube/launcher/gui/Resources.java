@@ -15,11 +15,13 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import net.classicube.launcher.LogUtil;
 
-// Static class that keeps track of loading (lazily) our resource files.
-// Currently just handles the 4 texture images for SignInScreen.
+// Static class that keeps track of GUI look-and-feel,
+// branding colors, and loading (lazily) images and icons.
 public final class Resources {
 
-    public static final Color ccLightColor = new Color(153, 128, 173),
+    public static final Color ccGradient = new Color(124, 104, 141),
+            mcGradient = new Color(36, 36, 36),
+            ccLightColor = new Color(153, 128, 173),
             ccBorderColor = new Color(97, 81, 110),
             accentColor = new Color(101, 38, 143);
 

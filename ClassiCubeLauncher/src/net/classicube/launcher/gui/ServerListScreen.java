@@ -78,11 +78,11 @@ public final class ServerListScreen extends javax.swing.JFrame {
         if (session.getServiceType() == GameServiceType.ClassiCubeNetService) {
             setTitle(playerName + " @ ClassiCube.net - servers");
             bgPanel.setImage(Resources.getClassiCubeBackground());
-            bgPanel.setGradientColor(new Color(124, 104, 141));
+            bgPanel.setGradientColor(Resources.ccGradient);
         } else {
             setTitle(playerName + " @ Minecraft.net - servers");
             bgPanel.setImage(Resources.getMinecraftNetBackground());
-            bgPanel.setGradientColor(new Color(36, 36, 36));
+            bgPanel.setGradientColor(Resources.mcGradient);
         }
 
         // prepare to auto-adjust table columns (when the data arrives)

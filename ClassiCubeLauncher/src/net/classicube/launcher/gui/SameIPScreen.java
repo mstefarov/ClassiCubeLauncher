@@ -1,6 +1,5 @@
 package net.classicube.launcher.gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.net.InetAddress;
@@ -52,7 +51,7 @@ public class SameIPScreen extends JDialog {
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);
         bgPanel.setImage(Resources.getClassiCubeBackground());
-        bgPanel.setGradientColor(new Color(124, 104, 141));
+        bgPanel.setGradientColor(Resources.ccGradient);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         setContentPane(bgPanel);
 
@@ -67,9 +66,9 @@ public class SameIPScreen extends JDialog {
         this.imgErrorIcon.setPreferredSize(new Dimension(64, 64));
         this.imgErrorIcon.setSize(new Dimension(64, 64));
 
-        // Set windows size, pack, and center
-        this.setPreferredSize(new Dimension(450, 200));
+        // Set window icon, size, and location
         this.setIconImages(Resources.getWindowIcons());
+        this.setPreferredSize(new Dimension(450, 200));
         pack();
         setLocationRelativeTo(null);
     }

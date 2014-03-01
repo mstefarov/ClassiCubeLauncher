@@ -1,6 +1,5 @@
 package net.classicube.launcher.gui;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -35,7 +34,7 @@ public class ErrorScreen extends javax.swing.JDialog {
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);
         bgPanel.setImage(Resources.getClassiCubeBackground());
-        bgPanel.setGradientColor(new Color(124, 104, 141));
+        bgPanel.setGradientColor(Resources.ccGradient);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         setContentPane(bgPanel);
 
@@ -80,7 +79,7 @@ public class ErrorScreen extends javax.swing.JDialog {
             lContactSupport.setVisible(false);
         }
 
-        // pack and center the frame
+        // Set window icon and location
         this.setIconImages(Resources.getWindowIcons());
         pack();
         setLocationRelativeTo(null);

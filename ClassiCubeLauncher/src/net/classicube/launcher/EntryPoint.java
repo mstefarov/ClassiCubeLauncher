@@ -1,13 +1,6 @@
 package net.classicube.launcher;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.io.IOException;
-import java.util.logging.Level;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import net.classicube.launcher.gui.DebugWindow;
 import net.classicube.launcher.gui.ErrorScreen;
 import net.classicube.launcher.gui.Resources;

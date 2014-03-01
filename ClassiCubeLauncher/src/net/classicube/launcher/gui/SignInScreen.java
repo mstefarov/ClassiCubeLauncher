@@ -75,6 +75,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         hookUpListeners();
         getRootPane().setDefaultButton(bSignIn);
         this.ipLogo.setBorder(new EmptyBorder(8, 8, 8, 8));
+        this.setIconImages(Resources.getWindowIcons());
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -87,7 +88,6 @@ public final class SignInScreen extends javax.swing.JFrame {
         }
 
         // Alright, we're good to go.
-        this.setIconImages(Resources.getWindowIcons());
         enableGUI();
     }
 
@@ -130,7 +130,7 @@ public final class SignInScreen extends javax.swing.JFrame {
     void selectClassiCubeNet() {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectClassiCube");
         bgPanel.setImage(Resources.getClassiCubeBackground());
-        bgPanel.setGradientColor(new Color(124, 104, 141));
+        bgPanel.setGradientColor(Resources.ccGradient);
         ipLogo.setImage(Resources.getClassiCubeLogo());
 
         bChangeService.setText("Switch to Minecraft.net");
@@ -142,7 +142,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         LogUtil.getLogger().log(Level.FINE, "SignInScreen.SelectMinecraftNet");
         bgPanel.setImage(Resources.getMinecraftNetBackground());
         ipLogo.setImage(Resources.getMinecraftNetLogo());
-        bgPanel.setGradientColor(new Color(36, 36, 36));
+        bgPanel.setGradientColor(Resources.mcGradient);
         bChangeService.setText("Switch to ClassiCube");
         SessionManager.selectService(GameServiceType.MinecraftNetService);
         onAfterServiceChanged();

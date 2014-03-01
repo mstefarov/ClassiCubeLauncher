@@ -1,12 +1,10 @@
 package net.classicube.launcher.gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import javax.swing.border.EmptyBorder;
 
 public class ConfirmScreen extends javax.swing.JDialog {
-
 
     public static boolean show(final String title, final String message) {
         ConfirmScreen screen = new ConfirmScreen(title, message);
@@ -17,13 +15,13 @@ public class ConfirmScreen extends javax.swing.JDialog {
 
     private ConfirmScreen(final String title, final String message) {
         // set title, add border
-        super((Frame)null, title, true);
-        
+        super((Frame) null, title, true);
+
         // set background
         final ImagePanel bgPanel = new ImagePanel(null, true);
         bgPanel.setGradient(true);
         bgPanel.setImage(Resources.getClassiCubeBackground());
-        bgPanel.setGradientColor(new Color(124, 104, 141));
+        bgPanel.setGradientColor(Resources.ccGradient);
         bgPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
         setContentPane(bgPanel);
 
@@ -41,9 +39,9 @@ public class ConfirmScreen extends javax.swing.JDialog {
         this.imgErrorIcon.setPreferredSize(new Dimension(64, 64));
         this.imgErrorIcon.setSize(new Dimension(64, 64));
 
-        // Set windows size, pack, and center
-        this.setPreferredSize(new Dimension(400, 130));
+        // Set windows size, size, and location
         this.setIconImages(Resources.getWindowIcons());
+        this.setPreferredSize(new Dimension(400, 130));
         pack();
         setLocationRelativeTo(null);
     }

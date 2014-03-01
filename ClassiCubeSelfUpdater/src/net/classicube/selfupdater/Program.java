@@ -20,10 +20,10 @@ import net.classicube.shared.SharedUpdaterCode;
 public class Program {
 
     private static final Logger logger = Logger.getLogger(Program.class.getName());
-    private static final String LAUNCHER_ENTRY_CLASS = "net.classicube.launcher.EntryPoint";
-    private static final String LAUNCHER_JAR_NAME = "launcher.jar";
-    private static final String LAUNCHER_ENTRY_METHOD = "main";
-    private static final String BUG_REPORT_URL = "http://is.gd/CCL_bugs";
+    private static final String LAUNCHER_ENTRY_CLASS = "net.classicube.launcher.EntryPoint",
+            LAUNCHER_JAR_NAME = "launcher.jar",
+            LAUNCHER_ENTRY_METHOD = "main",
+            BUG_REPORT_URL = "http://is.gd/CCL_bugs";
     private static File launcherDir, launcherJar;
 
     public static void main(String[] args) {
