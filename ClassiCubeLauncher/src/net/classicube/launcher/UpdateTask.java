@@ -170,6 +170,11 @@ public final class UpdateTask
 
         final File resDir = new File(PathUtil.getClientDir(), "resources");
         HashMap<String, String> resList = getRemoteResourceList();
+        if (resList == null) {
+            // If downloading resList failed, assume that no new resources need to be downloaded.
+            // This allows the game to still launch in offline mode.
+            return pickedFiles;
+        }
 
         for (Map.Entry<String, String> entry : resList.entrySet()) {
             String resFileName = entry.getKey();
