@@ -586,7 +586,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("ClassiCube Launcher");
+        setTitle("ClassiCube Launcher - b57");
         setBackground(new java.awt.Color(153, 128, 173));
         setName("ClassiCube Launcher"); // NOI18N
         setPreferredSize(new java.awt.Dimension(320, 270));
