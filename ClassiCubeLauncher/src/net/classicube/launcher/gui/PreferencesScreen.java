@@ -225,10 +225,17 @@ final class PreferencesScreen extends javax.swing.JDialog {
 
     private void bSubmitDiagInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bSubmitDiagInfoActionPerformed
         LogUtil.getLogger().log(Level.FINE, "[Submit diagnostic information]");
-        String url = DiagnosticInfoUploader.uploadToGist();
-        PromptScreen.show("Diagnostic information submitted!",
-                "Please provide this link to the ClassiCube developers.",
-                url, false);
+        try {
+            String url = DiagnosticInfoUploader.uploadToGist();
+            PromptScreen.show("Diagnostic information submitted!",
+                    "Please provide this link to the ClassiCube developers.",
+                    url, false);
+        } catch (Exception ex) {
+            ErrorScreen.show("Error uploading diagnostic information",
+                    "Diagnostic information could not be uploaded. "
+                    + "Make sure that you are connected to the Internet.",
+                    ex);
+        }
     }//GEN-LAST:event_bSubmitDiagInfoActionPerformed
 
     // =============================================================================================
