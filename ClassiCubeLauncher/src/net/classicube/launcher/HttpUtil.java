@@ -86,17 +86,24 @@ final class HttpUtil {
 
             // Read response
             final StringBuilder response = new StringBuilder();
-            try (final InputStream is = connection.getInputStream()) {
+            final boolean badRequest = (responseCode >= HttpURLConnection.HTTP_BAD_REQUEST);
+            try (final InputStream is = (badRequest ? connection.getErrorStream() : connection.getInputStream())) {
                 try (final InputStreamReader isr = new InputStreamReader(is)) {
                     try (final BufferedReader rd = new BufferedReader(isr)) {
                         String line;
                         while ((line = rd.readLine()) != null) {
                             response.append(line);
-                            response.append('\n');
+                            response.append(System.lineSeparator());
                         }
                     }
                 }
             }
+            if (badRequest) {
+                String errMsg = String.format("Server returned HTTP response code: %d for URL: %s with message:%n%s",
+                        responseCode, urlString, response);
+                throw new IOException(errMsg);
+            }
+
             return response.toString();
 
         } catch (final IOException ex) {
