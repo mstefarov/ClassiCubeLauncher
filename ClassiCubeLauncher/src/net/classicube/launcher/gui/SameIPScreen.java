@@ -119,6 +119,7 @@ public class SameIPScreen extends JDialog {
 
         bgChoice.add(rLocalhost);
         rLocalhost.setSelected(true);
+        rLocalhost.setForeground(new java.awt.Color(255, 255, 255));
         rLocalhost.setText("Yes, server is hosted on this computer.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -129,6 +130,7 @@ public class SameIPScreen extends JDialog {
         getContentPane().add(rLocalhost, gridBagConstraints);
 
         bgChoice.add(rLocalNetwork);
+        rLocalNetwork.setForeground(new java.awt.Color(255, 255, 255));
         rLocalNetwork.setText("Yes, server is on another computer on this network.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -139,6 +141,7 @@ public class SameIPScreen extends JDialog {
         getContentPane().add(rLocalNetwork, gridBagConstraints);
 
         bgChoice.add(rNoChange);
+        rNoChange.setForeground(new java.awt.Color(255, 255, 255));
         rNoChange.setText("No, neither.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -149,6 +152,7 @@ public class SameIPScreen extends JDialog {
         getContentPane().add(rNoChange, gridBagConstraints);
 
         xRememberChoice.setSelected(true);
+        xRememberChoice.setForeground(new java.awt.Color(255, 255, 255));
         xRememberChoice.setText("Remember my choice.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
