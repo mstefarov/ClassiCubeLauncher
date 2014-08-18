@@ -14,10 +14,8 @@ import java.util.logging.Level;
 final class HttpUtil {
 
     private static final int MaxRedirects = 3;
-    private static final String UserAgent = "ClassiCube Launcher";
-    public static final String FORM_DATA="application/x-www-form-urlencoded";
-    public static final String JSON="application/json";
-    
+    public static final String FORM_DATA = "application/x-www-form-urlencoded";
+    public static final String JSON = "application/json";
 
     public static HttpURLConnection makeHttpConnection(final String urlString, final byte[] postData, final String contentType)
             throws MalformedURLException, IOException {
@@ -37,7 +35,7 @@ final class HttpUtil {
             connection.setRequestMethod("GET");
         }
         connection.setRequestProperty("Referer", urlString);
-        connection.setRequestProperty("User-Agent", UserAgent);
+        connection.setRequestProperty("User-Agent", LogUtil.VERSION_STRING);
         return connection;
     }
 
@@ -54,7 +52,7 @@ final class HttpUtil {
     }
 
     private static String uploadString(final String urlString, final String dataString,
-                                       final String contentType, final int followRedirects) {
+            final String contentType, final int followRedirects) {
         LogUtil.getLogger().log(Level.FINE, "{0} {1}",
                 new Object[]{dataString == null ? "GET" : "POST", urlString});
         HttpURLConnection connection = null;
@@ -68,19 +66,18 @@ final class HttpUtil {
         try {
             // DEBUG: Log request headers
             //LogUtil.getLogger().log(Level.INFO,connection.getRequestProperties().toString());
-            
+
             connection = HttpUtil.makeHttpConnection(urlString, data, contentType);
-            
+
             // Write POST (if needed)
             if (data != null) {
                 try (OutputStream os = connection.getOutputStream()) {
                     os.write(data);
                 }
             }
-            
+
             // DEBUG: Log response headers
             //LogUtil.getLogger().log(Level.INFO,connection.getHeaderFields().toString());
-
             // Handle redirects
             final int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM

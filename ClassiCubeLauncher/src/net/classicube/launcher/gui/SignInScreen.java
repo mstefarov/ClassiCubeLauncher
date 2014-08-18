@@ -75,6 +75,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         getRootPane().setDefaultButton(bSignIn);
         this.ipLogo.setBorder(new EmptyBorder(8, 8, 8, 8));
         this.setIconImages(Resources.getWindowIcons());
+        this.setTitle(LogUtil.VERSION_STRING);
 
         // center the form on screen (initially)
         setLocationRelativeTo(null);
@@ -585,7 +586,7 @@ public final class SignInScreen extends javax.swing.JFrame {
         progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("ClassiCube Launcher - b57");
+        setTitle("ClassiCube Launcher");
         setBackground(new java.awt.Color(153, 128, 173));
         setName("ClassiCube Launcher"); // NOI18N
         setPreferredSize(new java.awt.Dimension(320, 270));

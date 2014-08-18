@@ -5,36 +5,32 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import net.classicube.launcher.LogUtil;
 
 public class DebugWindow extends javax.swing.JFrame {
 
-    static DebugWindow instance;
+    private static final DebugWindow instance = new DebugWindow();
 
     public static void showWindow() {
-        if (instance == null) {
-            instance = new DebugWindow();
-        }
         instance.setVisible(true);
     }
 
     public static void hideWindow() {
-        if (instance != null) {
-            instance.setVisible(false);
-        }
+        instance.setVisible(false);
     }
 
     public static synchronized void writeLine(String str) {
         instance.printStream.println(str);
     }
 
-    PrintStream printStream;
+    
+    final PrintStream printStream;
 
     private DebugWindow() {
         initComponents();
         TextAreaOutputStream outStream = new TextAreaOutputStream(tConsole);
         printStream = new PrintStream(outStream);
-        System.setOut(printStream);
-        System.setErr(printStream);
+        LogUtil.addConsoleListener(printStream);
         this.setIconImages(Resources.getWindowIcons());
     }
 
@@ -66,13 +62,14 @@ public class DebugWindow extends javax.swing.JFrame {
 
         @Override
         public void write(int b) throws IOException {
-
             if (b == '\r') {
                 return;
             }
 
+            sb.append((char) b);
+
             if (b == '\n') {
-                final String text = sb.toString() + "\n";
+                final String text = sb.toString();
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -80,11 +77,7 @@ public class DebugWindow extends javax.swing.JFrame {
                     }
                 });
                 sb.setLength(0);
-
-                return;
             }
-
-            sb.append((char) b);
         }
     }
 

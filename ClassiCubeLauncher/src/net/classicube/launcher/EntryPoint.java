@@ -1,6 +1,8 @@
 package net.classicube.launcher;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import net.classicube.launcher.LogUtil;
 import net.classicube.launcher.gui.DebugWindow;
 import net.classicube.launcher.gui.ErrorScreen;
 import net.classicube.launcher.gui.Resources;
@@ -31,10 +33,12 @@ public final class EntryPoint {
         // set look-and-feel to Numbus
         Resources.setLookAndFeel();
 
+        // show debug window (if needed) and log launcher version
         if (Prefs.getDebugMode()) {
             DebugWindow.showWindow();
-            DebugWindow.setWindowTitle("Launcher Running");
         }
+        DebugWindow.setWindowTitle("Launcher Running");
+        LogUtil.getLogger().log(Level.INFO, LogUtil.VERSION_STRING);
 
         // display the form
         new SignInScreen().setVisible(true);
