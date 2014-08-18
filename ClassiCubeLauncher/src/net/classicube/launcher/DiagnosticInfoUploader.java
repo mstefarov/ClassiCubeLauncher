@@ -5,6 +5,7 @@ import com.grack.nanojson.JsonParserException;
 import com.grack.nanojson.JsonStringWriter;
 import com.grack.nanojson.JsonWriter;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -13,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +38,19 @@ public class DiagnosticInfoUploader {
         final String selfUpdaterLogData = readLogFile(PathUtil.getClientDir(), PathUtil.SELF_UPDATER_LOG_FILE_NAME);
         final String optionsData = readLogFile(PathUtil.getClientDir(), PathUtil.OPTIONS_FILE_NAME);
         String launcherLogData = null,
-                launcherOldLogData = null;
+                launcherOldLogData = null,
+                crashLogData = null;
         try {
             launcherLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_FILE_NAME);
             launcherOldLogData = readLogFile(SharedUpdaterCode.getLauncherDir(), PathUtil.LOG_OLD_FILE_NAME);
         } catch (final IOException ex) {
             // Theoretically this should never happen.
             LogUtil.getLogger().log(Level.SEVERE, "Could not find launcher directory!", ex);
+        }
+
+        final String crashLogName = findLastCrashLogFile(PathUtil.getClientDir());
+        if (crashLogName != null) {
+            crashLogData = readLogFile(PathUtil.getClientDir(), crashLogName);
         }
 
         // construct a Gist API request (JSON)
@@ -96,12 +105,20 @@ public class DiagnosticInfoUploader {
                     .value("content", optionsData)
                     .end();
         }
+        if (crashLogData != null && !crashLogData.isEmpty()) {
+            writer = writer.object(crashLogName)
+                    .value("content", crashLogData)
+                    .end();
+        }
 
         // finalize JSON
         final String json = writer.end().end().done();
+        
+        // DEBUG: Log request string
+        LogUtil.getLogger().log(Level.INFO, json);
 
         // post data to Gist
-        final String gistResponse = HttpUtil.uploadString(GIST_API_URL, json);
+        final String gistResponse = HttpUtil.uploadString(GIST_API_URL, json, HttpUtil.JSON);
 
         // get URL of newly-created Gist
         try {
@@ -185,6 +202,30 @@ public class DiagnosticInfoUploader {
             }
         }
         return null;
+    }
+
+    private static String findLastCrashLogFile(final File dir) {
+        // your directory
+        File[] matchingFiles = dir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith("hs_err_pid");
+            }
+        });
+        if (matchingFiles.length == 0) {
+            // No JVM crash logs found
+            return null;
+        } else if (matchingFiles.length > 1) {
+            // Multiple JVM crash logs found -- find the most recent one
+            Arrays.sort(matchingFiles, new Comparator<File>() {
+                @Override
+                public int compare(File f1, File f2) {
+                    // Sort by date-modified in descending order
+                    return Long.compare(f2.lastModified(), f1.lastModified());
+                }
+            });
+        }
+        return matchingFiles[0].getName();
     }
 
     private DiagnosticInfoUploader() {

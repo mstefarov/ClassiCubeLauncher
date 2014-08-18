@@ -148,7 +148,7 @@ final class MinecraftNetSession extends GameSession {
             requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString());
+            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString(), HttpUtil.FORM_DATA);
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -233,7 +233,7 @@ final class MinecraftNetSession extends GameSession {
         challengeRequestStr.append(urlEncode(authToken));
         challengeRequestStr.append("&questionId=");
         challengeRequestStr.append(questionId);
-        final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString());
+        final String response = HttpUtil.uploadString(CHALLENGE_URL, challengeRequestStr.toString(), HttpUtil.FORM_DATA);
 
         // Parse the response
         if (response == null) {
