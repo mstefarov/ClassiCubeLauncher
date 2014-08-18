@@ -12,4 +12,9 @@ public class ServerJoinInfo {
     public boolean override;
     public boolean signInNeeded;
     public boolean passNeeded;
+
+    @Override
+    public String toString() {
+        return "mc://" + address + ":" + port + "/" + playerName + "/" + (pass != null ? pass : "");
+    }
 }

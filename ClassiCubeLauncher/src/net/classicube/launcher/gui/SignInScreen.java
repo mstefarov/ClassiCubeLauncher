@@ -243,7 +243,13 @@ public final class SignInScreen extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             LogUtil.getLogger().log(Level.FINE, "[Direct]");
-            final String prompt = "mc://";
+            final ServerJoinInfo resumeInfo = SessionManager.getSession().loadResumeInfo();
+            final String prompt;
+            if (resumeInfo != null) {
+                prompt = resumeInfo.toString();
+            } else {
+                prompt = "mc://";
+            }
             final String input = PromptScreen.show("Direct connect",
                     "You can connect to a server directly, bypassing sign-in,<br>"
                     + "if you have a direct-connect URL in the form:<br>"
@@ -555,6 +561,7 @@ public final class SignInScreen extends javax.swing.JFrame {
 
     // launches a single-player game when [SinglePlayer] option is clicked on the split-button menu.
     private class SinglePlayerMenuItemActionListener implements ActionListener {
+
         @Override
         public void actionPerformed(ActionEvent e) {
             LogUtil.getLogger().log(Level.FINE, "[SinglePlayer]");
