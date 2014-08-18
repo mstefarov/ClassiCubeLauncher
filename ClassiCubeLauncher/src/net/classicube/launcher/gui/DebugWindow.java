@@ -32,6 +32,7 @@ public class DebugWindow extends javax.swing.JFrame {
         printStream = new PrintStream(outStream);
         LogUtil.addConsoleListener(printStream);
         this.setIconImages(Resources.getWindowIcons());
+        CutCopyPasteAdapter.addToComponent(tConsole, true, false);
     }
 
     public static void setWindowTitle(final String newTitle) {
