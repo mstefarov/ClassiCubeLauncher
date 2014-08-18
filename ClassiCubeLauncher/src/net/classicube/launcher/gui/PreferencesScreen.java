@@ -199,6 +199,11 @@ final class PreferencesScreen extends javax.swing.JDialog {
         if (!this.xRememberServer.isSelected()) {
             SessionManager.clearAllResumeInfo();
         }
+        if (this.xDebugMode.isSelected()) {
+            DebugWindow.showWindow();
+        } else {
+            DebugWindow.hideWindow();
+        }
         dispose();
     }//GEN-LAST:event_bSaveActionPerformed
 

@@ -11,8 +11,16 @@ public class DebugWindow extends javax.swing.JFrame {
     static DebugWindow instance;
 
     public static void showWindow() {
-        instance = new DebugWindow();
+        if (instance == null) {
+            instance = new DebugWindow();
+        }
         instance.setVisible(true);
+    }
+
+    public static void hideWindow() {
+        if (instance != null) {
+            instance.setVisible(false);
+        }
     }
 
     public static synchronized void writeLine(String str) {
@@ -90,8 +98,6 @@ public class DebugWindow extends javax.swing.JFrame {
 
         javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
         tConsole = new javax.swing.JTextArea();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
