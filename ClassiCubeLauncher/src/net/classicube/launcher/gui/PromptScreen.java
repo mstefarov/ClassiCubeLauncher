@@ -1,6 +1,5 @@
 package net.classicube.launcher.gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import javax.swing.border.EmptyBorder;

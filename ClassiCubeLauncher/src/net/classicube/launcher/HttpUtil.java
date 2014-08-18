@@ -62,14 +62,20 @@ final class HttpUtil {
         }
 
         try {
+            // DEBUG: Log request headers
+            //LogUtil.getLogger().log(Level.INFO,connection.getRequestProperties().toString());
+            
             connection = HttpUtil.makeHttpConnection(urlString, data);
-
+            
             // Write POST (if needed)
             if (data != null) {
                 try (OutputStream os = connection.getOutputStream()) {
                     os.write(data);
                 }
             }
+            
+            // DEBUG: Log response headers
+            //LogUtil.getLogger().log(Level.INFO,connection.getHeaderFields().toString());
 
             // Handle redirects
             final int responseCode = connection.getResponseCode();
