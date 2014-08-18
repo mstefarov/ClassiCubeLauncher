@@ -50,6 +50,7 @@ public class ErrorScreen extends javax.swing.JDialog {
             this.tDetails.setText(sw.toString());
             this.tDetails.selectAll();
             this.tDetails.setCaretPosition(0);
+            CutCopyPasteAdapter.addToComponent(tDetails, true, false);
         } else {
             this.bDetails.setVisible(false);
         }
