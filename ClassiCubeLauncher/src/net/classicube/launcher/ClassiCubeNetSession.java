@@ -168,7 +168,7 @@ final class ClassiCubeNetSession extends GameSession {
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================
-    private static final String SERVER_LIST_URL = "http://www.classicube.net/api/serverlist";
+    private static final String SERVER_LIST_URL = "http://www.classicube.net/api/servers";
 
     @Override
     public GetServerListTask getServerListAsync() {
@@ -185,7 +185,7 @@ final class ClassiCubeNetSession extends GameSession {
 
             final ArrayList<ServerListEntry> servers = new ArrayList<>();
 
-            final JsonArray array = JsonParser.array().from(serverListString);
+            final JsonArray array = JsonParser.object().from(serverListString).getArray("servers");
 
             for (final Object rawRow : array) { //iterate through and add servers to the list
                 final JsonObject row = (JsonObject) rawRow;
