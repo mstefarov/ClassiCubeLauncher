@@ -15,6 +15,7 @@ public class ServerJoinInfo {
 
     @Override
     public String toString() {
-        return "mc://" + address + ":" + port + "/" + playerName + "/" + (pass != null ? pass : "");
+        return String.format("mc://%s:%s/%s/%s",
+                address.getHostAddress(), port, playerName, pass != null ? pass : "");
     }
 }
