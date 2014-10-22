@@ -14,6 +14,7 @@ public final class ServerListEntry {
     public int maxPlayers;
     public String flag;
     public int uptime;
+    public String software;
 
     public static String formatUptime(final int seconds) {
         if (seconds < 60) {

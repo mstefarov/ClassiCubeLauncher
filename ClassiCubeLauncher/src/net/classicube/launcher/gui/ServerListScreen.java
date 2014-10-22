@@ -185,7 +185,8 @@ public final class ServerListScreen extends javax.swing.JFrame {
                     server.players,
                     server.maxPlayers,
                     server.uptime,
-                    ServerListEntry.toCountryName(server.flag)
+                    ServerListEntry.toCountryName(server.flag),
+                    server.software,
                 });
             }
         }
@@ -506,14 +507,14 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Name", "Players", "Max", "Uptime", "Location"
+                "Name", "Players", "Max", "Uptime", "Location", "Software"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {

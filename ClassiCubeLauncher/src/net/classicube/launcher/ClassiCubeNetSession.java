@@ -197,6 +197,7 @@ final class ClassiCubeNetSession extends GameSession {
                 info.name = row.getString("name");
                 info.players = row.getInt("players");
                 info.uptime = row.getInt("uptime");
+                info.software = row.getString("software");
                 servers.add(info); //add it
             }
             return servers.toArray(new ServerListEntry[servers.size()]); //return
