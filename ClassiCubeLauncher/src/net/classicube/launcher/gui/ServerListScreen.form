@@ -96,12 +96,13 @@
         <Component class="javax.swing.JTable" name="serverTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="5" rowCount="0">
+              <Table columnCount="6" rowCount="0">
                 <Column editable="false" title="Name" type="java.lang.String"/>
                 <Column editable="false" title="Players" type="java.lang.Integer"/>
                 <Column editable="false" title="Max" type="java.lang.Integer"/>
                 <Column editable="false" title="Uptime" type="java.lang.Integer"/>
                 <Column editable="false" title="Location" type="java.lang.String"/>
+                <Column editable="false" title="Software" type="java.lang.String"/>
               </Table>
             </Property>
             <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -129,6 +130,11 @@
                   </Renderer>
                 </Column>
                 <Column maxWidth="-1" minWidth="-1" prefWidth="60" resizable="true">
+                  <Title/>
+                  <Editor/>
+                  <Renderer/>
+                </Column>
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
                   <Title/>
                   <Editor/>
                   <Renderer/>
