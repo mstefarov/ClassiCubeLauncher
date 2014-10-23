@@ -15,7 +15,7 @@ import net.classicube.shared.SharedUpdaterCode;
 // Global logging class (to make life easier)
 public final class LogUtil {
 
-    public static final String VERSION_STRING = "ClassiCube Launcher - b61";
+    public static final String VERSION_STRING = "ClassiCube Launcher - b63";
     private static final Logger logger = Logger.getLogger(LogUtil.class.getName());
     private static BroadcastingPrintStream outProxy, errProxy;
 

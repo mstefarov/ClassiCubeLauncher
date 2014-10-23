@@ -79,6 +79,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
             setTitle(playerName + " @ ClassiCube.net - servers");
             bgPanel.setImage(Resources.getClassiCubeBackground());
             bgPanel.setGradientColor(Resources.ccGradient);
+            serverTable.getColumnModel().getColumn(4).setHeaderValue("Software");
         } else {
             setTitle(playerName + " @ Minecraft.net - servers");
             bgPanel.setImage(Resources.getMinecraftNetBackground());
@@ -176,17 +177,19 @@ public final class ServerListScreen extends javax.swing.JFrame {
         tServerURL.setText("");
 
         // add new rows
+        boolean isCC = (session.getServiceType() == GameServiceType.ClassiCubeNetService);
         final String searchTerm = tSearch.getText().toLowerCase();
         for (final ServerListEntry server : serverList) {
             if (server.name.toLowerCase().contains(searchTerm)) {
                 displayedServerList.add(server);
                 model.addRow(new Object[]{
-                    server.name,
+                    server.name.replaceAll("\\s+", " "), // strip consecutive spaces
                     server.players,
                     server.maxPlayers,
                     server.uptime,
-                    ServerListEntry.toCountryName(server.flag),
-                    server.software,
+                    // CC.net servers show "Software" in the last column.
+                    // MC.net servers show "Country" instead.
+                    (isCC ? server.software : ServerListEntry.toCountryName(server.flag))
                 });
             }
         }
@@ -439,6 +442,7 @@ public final class ServerListScreen extends javax.swing.JFrame {
         progress = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(600, 500));
         java.awt.GridBagLayout layout = new java.awt.GridBagLayout();
         layout.columnWidths = new int[] {0, 5, 0, 5, 0};
         layout.rowHeights = new int[] {0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0};
@@ -507,14 +511,14 @@ public final class ServerListScreen extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Name", "Players", "Max", "Uptime", "Location", "Software"
+                "Name", "Players", "Max", "Uptime", "Location"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
