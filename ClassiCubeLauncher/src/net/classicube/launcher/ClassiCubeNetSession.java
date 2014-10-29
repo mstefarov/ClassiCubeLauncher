@@ -28,15 +28,9 @@ final class ClassiCubeNetSession extends GameSession {
     // =============================================================================================
     //                                                                                       SIGN-IN
     // =============================================================================================
-    private static final String LOGIN_URL = "http://www.classicube.net/acc/login",
-            LOGOUT_URL = "http://www.classicube.net/acc/logout",
+    private static final String LOGIN_URL = "https://www.classicube.net/api/login/",
             COOKIE_NAME = "session",
-            WRONG_USERNAME_OR_PASS_MESSAGE = "Login failed (Username or password may be incorrect)",
-            AUTH_TOKEN_PATTERN = "<input id=\"csrf_token\" name=\"csrf_token\" type=\"hidden\" value=\"(.+?)\">",
-            USERNAME_PATTERN = "^[a-zA-Z0-9_\\.]{2,16}$",
-            LOGGED_IN_AS_PATTERN = "<a href=\"/acc\" class=\"button\">([a-zA-Z0-9_\\.]{2,16})</a>";
-    private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
-            loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN);
+            USERNAME_PATTERN = "^[a-zA-Z0-9_\\.]{2,16}$";
 
     // Asynchronously try signing in our user
     @Override
@@ -77,10 +71,12 @@ final class ClassiCubeNetSession extends GameSession {
                 return SignInResult.CONNECTION_ERROR;
             }
 
+            JsonObject jObj = JsonParser.object().from(loginPage);
+            String token = jObj.getString("token");
+
             // See if we're already logged in
-            final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
-            if (loginMatch.find()) {
-                final String actualPlayerName = loginMatch.group(1);
+            if (jObj.getBoolean("authenticated")) {
+                final String actualPlayerName = jObj.getString("username");
                 if (this.remember && actualPlayerName.equalsIgnoreCase(account.playerName)) {
                     // If player is already logged in with the right account:
                     // reuse a previous session
@@ -96,42 +92,30 @@ final class ClassiCubeNetSession extends GameSession {
                     logger.log(Level.INFO,
                             "Switching accounts from {0} to {1}",
                             new Object[]{actualPlayerName, account.playerName});
-                    HttpUtil.downloadString(LOGOUT_URL);
                     clearStoredSession();
                     loginPage = HttpUtil.downloadString(LOGIN_URL);
+                    jObj = JsonParser.object().from(loginPage);
+                    token = jObj.getString("token");
                 }
 
             } else if (restoredSession) {
                 // Failed to restore session
                 logger.log(Level.WARNING,
                         "Failed to restore session at ClassiCube.net; retrying.");
-                HttpUtil.downloadString(LOGOUT_URL);
                 clearStoredSession();
                 loginPage = HttpUtil.downloadString(LOGIN_URL);
-            }
-
-            // Extract authenticityToken from the login page
-            final Matcher authTokenMatch = authTokenRegex.matcher(loginPage);
-            if (!authTokenMatch.find()) {
-                // We asked for a login form, got something different back. Panic.
-                logger.log(Level.INFO, loginPage);
-                throw new SignInException("Unrecognized login form served by ClassiCube.net");
+                jObj = JsonParser.object().from(loginPage);
+                token = jObj.getString("token");
             }
 
             // Built up a login request
-            final String authToken = authTokenMatch.group(1);
             final StringBuilder requestStr = new StringBuilder();
             requestStr.append("username=");
             requestStr.append(urlEncode(account.signInUsername));
             requestStr.append("&password=");
             requestStr.append(urlEncode(account.password));
-            requestStr.append("&csrf_token=");
-            requestStr.append(urlEncode(authToken));
-            if (this.remember) {
-                requestStr.append("&remember_me=true");
-            }
-            requestStr.append("&redirect=");
-            requestStr.append(urlEncode(HOMEPAGE_URL));
+            requestStr.append("&token=");
+            requestStr.append(urlEncode(token));
 
             // POST our data to the login handler
             final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString(), HttpUtil.FORM_DATA);
@@ -139,16 +123,27 @@ final class ClassiCubeNetSession extends GameSession {
                 return SignInResult.CONNECTION_ERROR;
             }
 
+            jObj = JsonParser.object().from(loginResponse);
+
             // Check for common failure scenarios
-            if (loginResponse.contains(WRONG_USERNAME_OR_PASS_MESSAGE)) {
-                return SignInResult.WRONG_USER_OR_PASS;
+            if (jObj.getInt("errorcount") > 0) {
+                final JsonArray jArray = jObj.getArray("errors");
+
+                switch(jArray.getString(0)) {
+                    case "token":
+                        return SignInResult.INCORRECT_TOKEN;
+                    case "username":
+                    case "password":
+                        return SignInResult.WRONG_USER_OR_PASS;
+                    default:
+                        throw new SignInException("Unrecognized response served by ClassiCube.net, " + jArray.getString(0));
+                }
             }
 
             // Confirm that we are now logged in
-            final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
-            if (responseMatch.find()) {
+            if (jObj.getBoolean("authenticated")) {
                 // Signed in successfully
-                account.playerName = responseMatch.group(1);
+                account.playerName = jObj.getString("username");
                 if (this.remember) {
                     storeSession();
                 }

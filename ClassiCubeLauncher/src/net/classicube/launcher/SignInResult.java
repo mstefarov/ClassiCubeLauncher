@@ -6,6 +6,7 @@ public enum SignInResult {
 
     SUCCESS,
     WRONG_USER_OR_PASS,
+    INCORRECT_TOKEN,
     MIGRATED_ACCOUNT,
     CONNECTION_ERROR,
     CHALLENGE_FAILED,
@@ -15,6 +16,8 @@ public enum SignInResult {
         switch (result) {
             case WRONG_USER_OR_PASS:
                 return "Wrong username or password.";
+            case INCORRECT_TOKEN:
+                return "An error occured logging you in to ClassiCube.net<br>Error: Incorrect Token.";
             case MIGRATED_ACCOUNT:
                 return "Your account has been migrated. "
                         + "Use your Mojang account (email) to sign in.";
