@@ -222,7 +222,21 @@ public final class ServerListScreen extends javax.swing.JFrame {
                 "Fetching details for server: {0}", selectedServer.name);
         final String url = tServerURL.getText();
         final String trimmedInput = url.replaceAll("[\\r\\n\\s]", "");
-        final ServerJoinInfo joinInfo = session.getDetailsFromUrl(trimmedInput);
+        ServerJoinInfo joinInfo;
+        
+        if (session.getServiceType() == GameServiceType.ClassiCubeNetService) {
+            joinInfo = new ServerJoinInfo();
+            joinInfo.pass = selectedServer.mppass;
+            joinInfo.passNeeded = false;
+            joinInfo.signInNeeded = false;
+            joinInfo.hash = selectedServer.hash;
+            joinInfo.address = selectedServer.address;
+            joinInfo.port = selectedServer.port;
+            
+        } else {
+            joinInfo = session.getDetailsFromUrl(trimmedInput);
+        }
+        
         if (joinInfo == null) {
             ErrorScreen.show("Cannot connect to given server",
                     "Unrecognized server URL. Make sure that you are using the correct link.", null);
