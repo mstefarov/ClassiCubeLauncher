@@ -33,7 +33,7 @@ final class MinecraftNetSession extends GameSession {
             CHALLENGE_FAILED_MESSAGE = "Could not confirm your identity",
             CHALLENGE_PASSED_MESSAGE = "Security challenge passed",
             AUTH_TOKEN_PATTERN = "name=\"authenticityToken\" value=\"([0-9a-f]+)\">",
-            LOGGED_IN_AS_PATTERN = "<span class=\"logged-in\">\\s*Logged in as (\\S+) ",
+            LOGGED_IN_AS_PATTERN = "<param name=\"username\" value=\"(\\S+)\">",
             COOKIE_NAME = "PLAY_SESSION",
             CHALLENGE_MESSAGE = "To confirm your identity, please answer the question below",
             CHALLENGE_QUESTION_PATTERN = "<label for=\"answer\">([^<]+)</label>",
@@ -70,9 +70,14 @@ final class MinecraftNetSession extends GameSession {
             if (loginPage == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
+            // download the login page
+            String playPage = HttpUtil.downloadString("https://minecraft.net/classic/play");
+            if (playPage == null) {
+                return SignInResult.CONNECTION_ERROR;
+            }
 
             // See if we're already logged in
-            final Matcher loginMatch = loggedInAsRegex.matcher(loginPage);
+            final Matcher loginMatch = loggedInAsRegex.matcher(playPage);
             if (loginMatch.find()) {
                 // We ARE signed in! Check the username...
                 final String actualPlayerName = loginMatch.group(1);
@@ -152,6 +157,10 @@ final class MinecraftNetSession extends GameSession {
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
+            String playPage2 = HttpUtil.downloadString("https://minecraft.net/classic/play");
+            if (playPage2 == null) {
+                return SignInResult.CONNECTION_ERROR;
+            }
 
             // Check for common failure scenarios
             if (loginResponse.contains(WRONG_USER_OR_PASS_MESSAGE)) {
@@ -161,7 +170,7 @@ final class MinecraftNetSession extends GameSession {
             }
 
             // Confirm that we are now logged in
-            final Matcher responseMatch = loggedInAsRegex.matcher(loginResponse);
+            final Matcher responseMatch = loggedInAsRegex.matcher(playPage2);
             if (responseMatch.find()) {
                 // ...yes, we are signed in!
                 LogUtil.getLogger().log(Level.INFO,
