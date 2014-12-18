@@ -1,6 +1,5 @@
 package net.classicube.launcher;
 
-import java.net.InetAddress;
 import java.util.Locale;
 
 // Stores all metadata about a game server
@@ -9,12 +8,7 @@ public final class ServerListEntry {
     // Basic info
     public String name;
     public String hash;
-    
-    // Join info usable by ClassiCube
-    public String mppass;
-    public InetAddress address;
-    public int port;
-    
+
     // Info from the server list
     public int players;
     public int maxPlayers;
