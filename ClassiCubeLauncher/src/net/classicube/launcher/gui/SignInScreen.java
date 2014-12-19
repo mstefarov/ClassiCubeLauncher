@@ -229,7 +229,7 @@ public final class SignInScreen extends javax.swing.JFrame {
                 ErrorScreen.show("Could not sign in", errorMsg, null);
             }
         } catch (final Exception ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "Error singing in", ex);
+            LogUtil.getLogger().log(Level.SEVERE, "Error signing in", ex);
             ErrorScreen.show("Error signing in", ex.getMessage(), ex);
         }
         enableGUI();

@@ -67,7 +67,7 @@ final class MinecraftNetSession extends GameSession {
             boolean relogRequired = false;
 
             // download classic singleplayer page to check for logged-in username
-            String playPage = HttpUtil.downloadString(PLAY_PAGE_URL);
+            final String playPage = HttpUtil.downloadString(PLAY_PAGE_URL);
             if (playPage == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -80,18 +80,7 @@ final class MinecraftNetSession extends GameSession {
                 final boolean nameEquals = actualPlayerName.equalsIgnoreCase(account.playerName);
                 if (remember && nameEquals) {
                     // If we are already signed into the right account,
-                    // and we are allowed to reuse sessions...
-
-                    // Check for presence of a challenge question
-                    if (playPage.contains(CHALLENGE_MESSAGE)) {
-                        SignInResult result = handleChallengeQuestions(playPage);
-                        if (result != SignInResult.SUCCESS) {
-                            // if challenge was not completed successfully, abort
-                            return result;
-                        }
-                    }
-
-                    // Session restored successfully, we are done.
+                    // and we are allowed to reuse sessions... we are done!
                     account.playerName = actualPlayerName; // correct stored-name capitalization (if needed)
                     LogUtil.getLogger().log(Level.INFO, "Restored session for {0}", account.playerName);
                     storeCookies();
@@ -125,7 +114,7 @@ final class MinecraftNetSession extends GameSession {
             }
 
             // download the login page
-            String loginPage = HttpUtil.downloadString(LOGIN_URL);
+            final String loginPage = HttpUtil.downloadString(LOGIN_URL);
             if (loginPage == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -154,7 +143,7 @@ final class MinecraftNetSession extends GameSession {
             requestStr.append(urlEncode(HOMEPAGE_URL));
 
             // POST our data to the login handler
-            String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString(), HttpUtil.FORM_DATA);
+            final String loginResponse = HttpUtil.uploadString(LOGIN_URL, requestStr.toString(), HttpUtil.FORM_DATA);
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
@@ -166,26 +155,27 @@ final class MinecraftNetSession extends GameSession {
                 return SignInResult.MIGRATED_ACCOUNT;
             }
 
-            // Confirm that we are now logged in
-            String playPage2 = HttpUtil.downloadString(PLAY_PAGE_URL);
+            // Check for presence of a challenge question
+            if (loginResponse.contains(CHALLENGE_MESSAGE)) {
+                SignInResult result = handleChallengeQuestions(loginResponse);
+                if (result != SignInResult.SUCCESS) {
+                    return result;
+                }
+            }
+
+            // To confirm that we are signed in, and to find logged-in username,
+            // download classic singleplayer page again.
+            final String playPage2 = HttpUtil.downloadString(PLAY_PAGE_URL);
             if (playPage2 == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
-            
+
             final Matcher responseMatch = usernameRegex.matcher(playPage2);
             if (responseMatch.find()) {
                 // ...yes, we are signed in!
                 LogUtil.getLogger().log(Level.INFO,
                         "Successfully signed in as {0} ({1})",
                         new Object[]{account.signInUsername, account.playerName});
-
-                // Check for presence of a challenge question
-                if (loginResponse.contains(CHALLENGE_MESSAGE)) {
-                    SignInResult result = handleChallengeQuestions(loginResponse);
-                    if (result != SignInResult.SUCCESS) {
-                        return result;
-                    }
-                }
 
                 // For Mojang accounts, the sign-in name (email) is different from the in-game name (player name).
                 // Minecraft.net pages will display the *player name* after signing in.
