@@ -25,7 +25,8 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                                       SIGN-IN
     // =============================================================================================
-    private static final String LOGIN_URL = "https://minecraft.net/login",
+    private static final String PLAY_PAGE_URL = "https://minecraft.net/classic/play",
+            LOGIN_URL = "https://minecraft.net/login",
             LOGOUT_URL = "https://minecraft.net/logout",
             CHALLENGE_URL = "https://minecraft.net/challenge",
             MIGRATED_ACCOUNT_MESSAGE = "Your account has been migrated",
@@ -39,7 +40,7 @@ final class MinecraftNetSession extends GameSession {
             CHALLENGE_QUESTION_PATTERN = "<label for=\"answer\">([^<]+)</label>",
             CHALLENGE_QUESTION_ID_PATTERN = "name=\"questionId\" value=\"(\\d+)\" />";
     private static final Pattern authTokenRegex = Pattern.compile(AUTH_TOKEN_PATTERN),
-            loggedInAsRegex = Pattern.compile(LOGGED_IN_AS_PATTERN),
+            usernameRegex = Pattern.compile(LOGGED_IN_AS_PATTERN),
             challengeQuestionRegex = Pattern.compile(CHALLENGE_QUESTION_PATTERN),
             challengeQuestionIdRegex = Pattern.compile(CHALLENGE_QUESTION_ID_PATTERN);
 
@@ -65,19 +66,14 @@ final class MinecraftNetSession extends GameSession {
             final boolean restoredSession = loadSessionCookies(this.remember, COOKIE_NAME);
             boolean relogRequired = false;
 
-            // download the login page
-            String loginPage = HttpUtil.downloadString(LOGIN_URL);
-            if (loginPage == null) {
-                return SignInResult.CONNECTION_ERROR;
-            }
-            // download the login page
-            String playPage = HttpUtil.downloadString("https://minecraft.net/classic/play");
+            // download classic singleplayer page to check for logged-in username
+            String playPage = HttpUtil.downloadString(PLAY_PAGE_URL);
             if (playPage == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
 
             // See if we're already logged in
-            final Matcher loginMatch = loggedInAsRegex.matcher(playPage);
+            final Matcher loginMatch = usernameRegex.matcher(playPage);
             if (loginMatch.find()) {
                 // We ARE signed in! Check the username...
                 final String actualPlayerName = loginMatch.group(1);
@@ -87,8 +83,8 @@ final class MinecraftNetSession extends GameSession {
                     // and we are allowed to reuse sessions...
 
                     // Check for presence of a challenge question
-                    if (loginPage.contains(CHALLENGE_MESSAGE)) {
-                        SignInResult result = handleChallengeQuestions(loginPage);
+                    if (playPage.contains(CHALLENGE_MESSAGE)) {
+                        SignInResult result = handleChallengeQuestions(playPage);
                         if (result != SignInResult.SUCCESS) {
                             // if challenge was not completed successfully, abort
                             return result;
@@ -122,11 +118,16 @@ final class MinecraftNetSession extends GameSession {
                 relogRequired = true;
             }
 
-            // If needed: log out, clear cookies, and prepare to sign in again.
+            // If needed: log out and clear cookies.
             if (relogRequired) {
                 HttpUtil.downloadString(LOGOUT_URL);
                 clearStoredSession();
-                loginPage = HttpUtil.downloadString(LOGIN_URL);
+            }
+
+            // download the login page
+            String loginPage = HttpUtil.downloadString(LOGIN_URL);
+            if (loginPage == null) {
+                return SignInResult.CONNECTION_ERROR;
             }
 
             // Extract authenticityToken from the login page
@@ -157,10 +158,6 @@ final class MinecraftNetSession extends GameSession {
             if (loginResponse == null) {
                 return SignInResult.CONNECTION_ERROR;
             }
-            String playPage2 = HttpUtil.downloadString("https://minecraft.net/classic/play");
-            if (playPage2 == null) {
-                return SignInResult.CONNECTION_ERROR;
-            }
 
             // Check for common failure scenarios
             if (loginResponse.contains(WRONG_USER_OR_PASS_MESSAGE)) {
@@ -170,7 +167,12 @@ final class MinecraftNetSession extends GameSession {
             }
 
             // Confirm that we are now logged in
-            final Matcher responseMatch = loggedInAsRegex.matcher(playPage2);
+            String playPage2 = HttpUtil.downloadString(PLAY_PAGE_URL);
+            if (playPage2 == null) {
+                return SignInResult.CONNECTION_ERROR;
+            }
+            
+            final Matcher responseMatch = usernameRegex.matcher(playPage2);
             if (responseMatch.find()) {
                 // ...yes, we are signed in!
                 LogUtil.getLogger().log(Level.INFO,
@@ -266,7 +268,7 @@ final class MinecraftNetSession extends GameSession {
     // =============================================================================================
     //                                                                                   SERVER LIST
     // =============================================================================================
-    private static final String SERVER_LIST_URL = "http://minecraft.net/classic/list",
+    private static final String SERVER_LIST_URL = "https://minecraft.net/classic/list",
             SERVER_NAME_PATTERN = "<a href=\"/classic/play/([0-9a-f]+)\">([^<]+)</a>",
             SERVER_DETAILS_PATTERN = "<td>(\\d+)</td>[^<]+<td>(\\d+)</td>[^<]+<td>([^<]+)</td>[^<]+.+url\\(/images/flags/([a-z]+).png\\)";
     private static final Pattern serverNameRegex = Pattern.compile(SERVER_NAME_PATTERN),
@@ -283,6 +285,11 @@ final class MinecraftNetSession extends GameSession {
         protected ServerListEntry[] doInBackground() throws Exception {
             LogUtil.getLogger().log(Level.FINE, "MinecraftNetGetServerListWorker");
             final String serverListString = HttpUtil.downloadString(SERVER_LIST_URL);
+
+            if (serverListString == null) {
+                throw new RuntimeException("Could not fetch a list of servers from Minecraft.net");
+            }
+
             final Matcher serverListMatch = serverNameRegex.matcher(serverListString);
             final Matcher otherServerDataMatch = otherServerDataRegex.matcher(serverListString);
             final ArrayList<ServerListEntry> servers = new ArrayList<>();
