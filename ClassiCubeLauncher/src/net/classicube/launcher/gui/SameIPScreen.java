@@ -120,6 +120,7 @@ public class SameIPScreen extends JDialog {
         bgChoice.add(rLocalhost);
         rLocalhost.setForeground(new java.awt.Color(255, 255, 255));
         rLocalhost.setSelected(true);
+        rLocalhost.setForeground(new java.awt.Color(255, 255, 255));
         rLocalhost.setText("Yes, server is hosted on this computer.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -153,6 +154,7 @@ public class SameIPScreen extends JDialog {
 
         xRememberChoice.setForeground(new java.awt.Color(255, 255, 255));
         xRememberChoice.setSelected(true);
+        xRememberChoice.setForeground(new java.awt.Color(255, 255, 255));
         xRememberChoice.setText("Remember my choice.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
